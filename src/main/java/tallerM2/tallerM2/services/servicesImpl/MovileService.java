@@ -67,18 +67,6 @@ public class MovileService implements IMovileService {
     }
 
     /**
-     * METODO QUE DEVUELVE UNA LISTA ORDENADA ASCENDENTEMENTE CON TODOS LOS
-     * OBJETOS DE UN MISMO TIPO ESPECIFICADO PREVIAMENTE
-     *
-     * @return un listado de objetos
-     *
-     */
-    @Override
-    public List<Movile> findAllByOrderByPriceAsc() {
-        return repository.findAllByOrderByPriceAsc();
-    }
-
-    /**
      * PRIMERO SE VERIFICA QUE EL OBJETO NO EXISTA, Y LUEGO SE GURADA LA
      * INFORMACION
      *
@@ -164,7 +152,6 @@ public class MovileService implements IMovileService {
     public void deleteAll(List<Movile> moviles) {
         repository.deleteAll(moviles);
     }
-    
 
 //  METODO QUE DEVUELVE LA CANTIDAD DE OBJETOS QUE EXISTE
     @Override
@@ -172,6 +159,7 @@ public class MovileService implements IMovileService {
         return (long) repository.count();
     }
 
+//  METODO QUE DEVUELVE LA CANTIDAD DE OBJETOS QUE EXISTE DADO UN NOMBRE
     @Override
     public Long countByName(String name) {
         return repository.countByName(name);

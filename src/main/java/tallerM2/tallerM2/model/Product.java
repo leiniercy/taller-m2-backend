@@ -1,33 +1,69 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package tallerM2.tallerM2.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import javax.persistence.*;
-import javax.validation.constraints.*;
-import java.util.*;
-import lombok.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+/**
+ *
+ * @author Admin
+ */
 @Entity
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "products")
-public abstract class Product extends AbstractEntity {
+public class Product extends AbstractEntity implements Comparable<Product> {
 
-   @Schema(description = "Name of the product", example = "Samsung galaxy A10", required = true)
-   @Pattern(regexp = "^[a-zA-ZÀ-ÿ\\u00f1\\u00d1]+(\\s*[a-zA-ZÀ-ÿ0-9\\u00f1\\u00d1]*)*[a-zA-ZÀ-ÿ0-9\\u00f1\\u00d1]+$", message = "Use just letters and numbers")
-   @Size(min = 2, max = 255, message = "Debe tener mínimo 2 caracteres")
-   @Column(nullable = false)
-   protected String name;
-   
-   @NotNull(message = "Is requeried")
-   @Min(message = "Mín value is 0", value = 0)
-   @Column(nullable = false)
-   protected float price;
+    @Schema(
+            description = "Name of the product",
+            example = "Samsung Galaxy A10"
+    )
+    protected String name;
 
-   @NotNull(message = "Is requeried")
-   @Min(message = "Mín value is 0", value = 0)
-   @Column(nullable = false)
-   protected int cant;
+    @Schema(
+            description = "Price of the product",
+            example = "10"
+    )
+    protected int price;
 
+    @Schema(
+            description = "Cant of products",
+            example = "10"
+    )
+    protected int cant;
+
+    @Schema(
+            description = "Image of the product",
+            example = "logo.png"
+    )
+
+    @Lob
+    @Column()
+    protected String image;
+
+    @Override
+    public String toString() {
+        return "Product{" + "name=" + name + ", price=" + price + ", cant=" + cant + ", image=" + image + '}';
+    }
+
+    @Override
+    public int compareTo(Product prod) {
+//      implementacion de la comparacion basada en el identificador
+        return Long.compare(this.getId(), prod.getId());
+    }
 
 }

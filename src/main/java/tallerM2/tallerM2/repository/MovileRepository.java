@@ -15,7 +15,7 @@ public interface MovileRepository extends JpaRepository<Movile, Long> {
     List<Movile> findAllByOrderByIdAsc();
 
     // Find all Moviles for price in order asc
-    List<Movile> findAllByOrderByPriceAsc();
+//    List<Movile> findAllByOrderByPriceAsc();
 
 //    //Find greater than id
     List<Movile> findByIdGreaterThan(long id);

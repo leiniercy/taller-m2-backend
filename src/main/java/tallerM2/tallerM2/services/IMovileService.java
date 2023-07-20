@@ -2,8 +2,6 @@ package tallerM2.tallerM2.services;
 
 import java.util.List;
 
-import org.springframework.stereotype.Service;
-
 import tallerM2.tallerM2.exceptions.custom.BadRequest;
 import tallerM2.tallerM2.exceptions.custom.Conflict;
 import tallerM2.tallerM2.exceptions.custom.ValueNotFound;
@@ -16,8 +14,6 @@ public interface IMovileService {
     public List<Movile> findAll();
 
     public List<Movile> findAllByOrderByIdAsc();
-
-    public List<Movile> findAllByOrderByPriceAsc();
 
     public Movile save(Movile m) throws Conflict, BadRequest;
 

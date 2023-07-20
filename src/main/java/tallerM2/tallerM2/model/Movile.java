@@ -7,12 +7,17 @@ import java.util.*;
 import lombok.*;
 
 @Entity
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Movile extends Product {
-    
-        private String pantalla;
 
+    
+    @Schema(
+            description = "Pantalla of the product",
+            example = "Full HD"
+    )
+    private String pantalla;
 
 }
