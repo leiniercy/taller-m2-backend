@@ -15,9 +15,9 @@ public interface IProductService {
 
     public List<Product> findAllByOrderByIdAsc();
 
-    public Product save(MultipartFile file, String name, int price, int cant) throws Conflict, BadRequest;
+    public Product save(Product p) throws Conflict, BadRequest;
 
-    public Product update(MultipartFile newFile, String newName, int newPrice, int newCant, Long id) throws ValueNotFound, BadRequest;
+    public Product update(Product p, Long id) throws ValueNotFound, BadRequest;
 
     public Product delete(Product p) throws ValueNotFound, BadRequest;
 

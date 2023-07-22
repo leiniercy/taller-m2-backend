@@ -12,9 +12,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
+import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,6 +35,7 @@ import tallerM2.tallerM2.exceptions.custom.BadRequest;
 import tallerM2.tallerM2.exceptions.custom.Conflict;
 import tallerM2.tallerM2.exceptions.custom.ValueNotFound;
 import tallerM2.tallerM2.model.Product;
+import tallerM2.tallerM2.services.servicesImpl.ImageService;
 import tallerM2.tallerM2.services.servicesImpl.ProductService;
 
 /**
@@ -46,6 +50,8 @@ public class PorductoController {
 
     @Autowired
     private ProductService service;
+    @Autowired
+    private ImageService imageService;
 
     @Operation(summary = "Find all products", description = "Find all products", tags = "product")
     @ApiResponses(value = {
@@ -66,8 +72,8 @@ public class PorductoController {
     ResponseEntity<?> allSorted() {
         return ResponseEntity.ok(service.findAllByOrderByIdAsc());
     }
-    
-     @Operation(summary = "Find a product by ID", description = "Search product by the id", tags = "product")
+
+    @Operation(summary = "Find a product by ID", description = "Search product by the id", tags = "product")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Product.class))),
         @ApiResponse(responseCode = "404", description = "product not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
@@ -83,7 +89,7 @@ public class PorductoController {
             throw new BadRequest("Bad request");
         }
     }
-    
+
     @Operation(
             summary = "Create new product",
             description = "Create a new product",
@@ -114,23 +120,32 @@ public class PorductoController {
                 )
             }
     )
-    
-     @PostMapping(path = {"/save"}, /*consumes = "application/json",*/ produces = "application/json")
+
+    @PostMapping(path = {"/save"}, /*consumes = "application/json",*/ produces = "application/json")
     public ResponseEntity<?> save(
-            @RequestParam("file") MultipartFile file,
             @RequestParam("name") String name,
             @RequestParam("price") int price,
-            @RequestParam("cant") int cant)
-            throws Conflict, BadRequest {
+            @RequestParam("cant") int cant,
+            @RequestParam("image") MultipartFile file
+    )
+            throws Conflict, BadRequest, IOException {
+
         try {
-            return ResponseEntity.ok(service.save(file, name, price, cant));
+            Product pro = new Product();
+            pro.setName(name);
+            pro.setPrice(price);
+            pro.setCant(cant);
+            pro.setImage(imageService.guardarArchivo(file));
+            return ResponseEntity.ok(service.save(pro));
+        } catch (IOException ex) {
+            throw new BadRequest("Error loading file");
         } catch (Conflict c) {
             throw new Conflict(c.getMessage());
         } catch (BadRequest br) {
             throw new BadRequest(br.getMessage());
         }
     }
-    
+
     @Operation(
             summary = "Update product",
             description = "Update product info",
@@ -167,9 +182,18 @@ public class PorductoController {
             @RequestParam("name") String name,
             @RequestParam("price") int price,
             @RequestParam("cant") int cant,
-            @RequestParam("id") Long id) throws ValueNotFound, BadRequest {
+            @RequestParam("id") Long id
+    ) throws ValueNotFound, BadRequest, IOException {
+
         try {
-            return ResponseEntity.ok(service.update(file, name, price, cant, id));
+            Product pro = new Product();
+            pro.setName(name);
+            pro.setPrice(price);
+            pro.setCant(cant);
+            pro.setImage(imageService.guardarArchivo(file));
+            return ResponseEntity.ok(service.update(pro, id));
+        } catch (IOException ex) {
+            throw new BadRequest("Error loading file");
         } catch (ValueNotFound vn) {
             throw new ValueNotFound(vn.getMessage());
         } catch (BadRequest br) {
@@ -177,7 +201,6 @@ public class PorductoController {
         }
     }
 
-    
     @Operation(
             summary = "Delete a product by id",
             description = "Delete a product",
@@ -219,6 +242,16 @@ public class PorductoController {
         }
     }
 
-    
-    
+    @Operation(
+            summary = "Get image by name",
+            description = "Get image by name from the server",
+            tags = "product"
+    )
+    @GetMapping(path = "/image/{name}")
+    public ResponseEntity<?> obtenerImagen(@PathVariable(value = "name") String name) throws IOException {
+        return ResponseEntity.status(HttpStatus.OK)
+                .contentType(MediaType.valueOf("image/png"))
+                .body(imageService.obtenerImagen(name));
+    }
+
 }

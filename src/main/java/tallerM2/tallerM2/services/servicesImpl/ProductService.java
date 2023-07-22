@@ -13,8 +13,6 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
 import tallerM2.tallerM2.exceptions.custom.BadRequest;
 import tallerM2.tallerM2.exceptions.custom.Conflict;
 import tallerM2.tallerM2.exceptions.custom.ValueNotFound;
@@ -33,6 +31,9 @@ public class ProductService implements IProductService {
 
     @Autowired
     private ProductRepository repository;
+
+    @Autowired
+    private ImageService imageService;
 
     /**
      * METODO PARA VERIFICAR SI EL OBJETO EXISTE, PREGUNTANDO POR EL ID
@@ -88,26 +89,11 @@ public class ProductService implements IProductService {
      *
      */
     @Override
-    public Product save(MultipartFile file, String name, int price, int cant) throws Conflict, BadRequest {
+    public Product save(Product p) throws Conflict, BadRequest {
+        //Comprpbando si el objeto no exsite    
+        BinarySerch(findAllByOrderByIdAsc(), p.getName());
 
-        BinarySerch(findAllByOrderByIdAsc(), name);
-
-        Product product = new Product();
-        String fileName = StringUtils.cleanPath(file.getOriginalFilename());
-        if (fileName.contains("..")) {
-            throw new BadRequest("Not a a valid file");
-        }
-
-        try {
-            product.setImage(Base64.getEncoder().encodeToString(file.getBytes()));
-        } catch (IOException e) {
-            throw new BadRequest(e.getMessage());
-        }
-        product.setName(name);
-        product.setPrice(price);
-        product.setCant(cant);
-
-        return repository.save(Util.convertToDto(product, Product.class));
+        return repository.save(Util.convertToDto(p, Product.class));
     }
 
     /**
@@ -127,15 +113,15 @@ public class ProductService implements IProductService {
             String nombreMedio = list.get(medio).getName().toLowerCase();
             if (nombreMedio.equals(nombre.toLowerCase())) {
                 throw new Conflict("This product already exists");
-//                return true; Concidencia encontrada
+                // return true; Concidencia encontrada
             } else if (nombreMedio.compareTo(nombre.toLowerCase()) < 0) {
-                inicio = medio + 1; //Buscar en la mitad derecha
+                inicio = medio + 1; // Buscar en la mitad derecha
             } else {
-                fin = medio - 1; //Buscar en la mitad izquierda
+                fin = medio - 1; // Buscar en la mitad izquierda
             }
         }
 
-        // return false;  No se encontro ninguna coincidencia
+        // return false; No se encontro ninguna coincidencia
     }
 
     /**
@@ -151,30 +137,20 @@ public class ProductService implements IProductService {
      *
      */
     @Override
-    public Product update(MultipartFile newFile, String newName, int newPrice, int newCant, Long id) throws ValueNotFound, BadRequest {
+    public Product update(Product from, Long id)
+            throws ValueNotFound, BadRequest {
 
         Optional<Product> op = repository.findById(id);
         if (!op.isPresent()) {
             throw new ValueNotFound("Product not found");
         }
-        Product from = new Product();
-        from.setId(id);
-        from.setName(newName);
-        from.setPrice(newPrice);
-        from.setCant(newCant);
+        Product to = new Product();
+        to.setId(id);
+        to.setName(from.getName());
+        to.setPrice(from.getPrice());
+        to.setCant(from.getCant());
 
-        String fileName = StringUtils.cleanPath(newFile.getOriginalFilename());
-        if (fileName.contains("..")) {
-            throw new BadRequest("Not a a valid file");
-        }
-
-        try {
-            from.setImage(Base64.getEncoder().encodeToString(newFile.getBytes()));
-        } catch (IOException e) {
-            throw new BadRequest(e.getMessage());
-        }
-
-        return repository.save(Util.convertToDto(from, Product.class));
+        return repository.save(Util.convertToDto(to, Product.class));
     }
 
     /**
@@ -225,13 +201,13 @@ public class ProductService implements IProductService {
     public void deleteAll(List<Product> products) {
         repository.deleteAll();
     }
-//  METODO QUE DEVUELVE LA CANTIDAD DE OBJETOS QUE EXISTE
+    // METODO QUE DEVUELVE LA CANTIDAD DE OBJETOS QUE EXISTE
 
     @Override
     public long count() {
         return repository.count();
     }
-//  METODO QUE DEVUELVE LA CANTIDAD DE OBJETOS QUE EXISTE DADO UN NOMBRE
+    // METODO QUE DEVUELVE LA CANTIDAD DE OBJETOS QUE EXISTE DADO UN NOMBRE
 
     @Override
     public Long countByName(String name) {
