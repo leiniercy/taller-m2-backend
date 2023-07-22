@@ -13,6 +13,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
+import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -237,6 +239,47 @@ public class PorductoController {
             return ResponseEntity.ok(service.deleteById(id));
         } catch (ValueNotFound vn) {
             throw new ValueNotFound(vn.getMessage());
+        } catch (BadRequest br) {
+            throw new BadRequest("Bad request");
+        }
+    }
+
+    @Operation(
+            summary = "Delete products",
+            description = "Delete list of product",
+            tags = "product"
+    )
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "successful operation",
+                        content = @Content(
+                                schema = @Schema(implementation = Product.class)
+                        )
+                ),
+                @ApiResponse(
+                        responseCode = "400",
+                        description = "Bad request",
+                        content = @Content(
+                                schema = @Schema(implementation = ErrorObject.class)
+                        )
+                ),
+                @ApiResponse(
+                        responseCode = "404",
+                        description = "Product not found",
+                        content = @Content(
+                                schema = @Schema(implementation = ErrorObject.class)
+                        )
+                )
+            }
+    )
+    @DeleteMapping(value = "/deleteAll", produces = "application/json")
+    public ResponseEntity<?> deleteAll(@RequestBody List<Product> products) throws ValueNotFound, BadRequest {
+        try {
+            return ResponseEntity.ok(service.deleteAll(products));
+        } catch (ValueNotFound vn) {
+            throw new ValueNotFound("Product not found");
         } catch (BadRequest br) {
             throw new BadRequest("Bad request");
         }

@@ -1,6 +1,7 @@
 package tallerM2.tallerM2.services;
 
 import java.util.List;
+import java.util.Set;
 import org.springframework.web.multipart.MultipartFile;
 import tallerM2.tallerM2.exceptions.custom.BadRequest;
 import tallerM2.tallerM2.exceptions.custom.Conflict;
@@ -23,7 +24,7 @@ public interface IProductService {
 
     public Product deleteById(Long id) throws ValueNotFound, BadRequest;
 
-    public void deleteAll(List<Product> products);
+    public List<Product> deleteAll(List<Product> products)throws ValueNotFound, BadRequest;
 
     public long count();
 

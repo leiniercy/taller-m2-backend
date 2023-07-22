@@ -10,6 +10,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -195,11 +196,13 @@ public class ProductService implements IProductService {
      * METODO PARA ELIMINAR UN CONJUNTO DE OBJETOS.
      *
      * @param List<Object>
+     * @return List<Object> ordenados asendente por ID
      *
      */
     @Override
-    public void deleteAll(List<Product> products) {
-        repository.deleteAll();
+    public List<Product> deleteAll(List<Product> products)throws ValueNotFound, BadRequest{
+        repository.deleteAll(products);
+        return findAllByOrderByIdAsc();
     }
     // METODO QUE DEVUELVE LA CANTIDAD DE OBJETOS QUE EXISTE
 
