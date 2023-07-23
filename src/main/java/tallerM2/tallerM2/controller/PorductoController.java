@@ -180,7 +180,7 @@ public class PorductoController {
     )
     @PutMapping(path = {"/update/{id}"}, /*consumes = "application/json",*/ produces = "application/json")
     public ResponseEntity<?> update(
-            @RequestParam("file") MultipartFile file,
+            @RequestParam("image") MultipartFile file,
             @RequestParam("name") String name,
             @RequestParam("price") int price,
             @RequestParam("cant") int cant,
@@ -192,7 +192,11 @@ public class PorductoController {
             pro.setName(name);
             pro.setPrice(price);
             pro.setCant(cant);
-            pro.setImage(imageService.guardarArchivo(file));
+            if (!file.getOriginalFilename().equals("emptyFile.png")) {
+                pro.setImage(imageService.guardarArchivo(file));
+            }else{
+                 pro.setImage(file.getOriginalFilename());
+            }
             return ResponseEntity.ok(service.update(pro, id));
         } catch (IOException ex) {
             throw new BadRequest("Error loading file");

@@ -31,7 +31,7 @@ public class ImageService {
         return nombreArchivo;
     }
 
-    private String obtenerExtension(String nombreArchivo) {
+    public String obtenerExtension(String nombreArchivo) {
         return nombreArchivo.substring(nombreArchivo.lastIndexOf(".") + 1);
     }
 

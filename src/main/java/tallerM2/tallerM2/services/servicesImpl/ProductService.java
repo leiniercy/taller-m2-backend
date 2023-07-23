@@ -150,8 +150,13 @@ public class ProductService implements IProductService {
         to.setName(from.getName());
         to.setPrice(from.getPrice());
         to.setCant(from.getCant());
-
-        return repository.save(Util.convertToDto(to, Product.class));
+        if(!from.getImage().equals("emptyFile.png")){
+          to.setImage(from.getImage());     
+        }else{
+          to.setImage(op.get().getImage());
+        }
+       
+        return repository.save(to);
     }
 
     /**
