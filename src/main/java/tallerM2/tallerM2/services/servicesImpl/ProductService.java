@@ -56,7 +56,7 @@ public class ProductService implements IProductService {
      * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO
      * ESPECIFICADO PREVIAMENTE
      *
-     * @return un listado de objetos
+     * @return List<Product>
      *
      */
     @Override
@@ -68,7 +68,7 @@ public class ProductService implements IProductService {
      * METODO QUE DEVUELVE UNA LISTA ORDENADA ASCENDENTEMENTE CON TODOS LOS
      * OBJETOS DE UN MISMO TIPO ESPECIFICADO PREVIAMENTE
      *
-     * @return un listado de objetos
+     * @return List<Product>
      *
      */
     @Override
@@ -86,7 +86,7 @@ public class ProductService implements IProductService {
      * @param name nombre del producto
      * @param price precio del producto
      * @param cant cant de productos
-     * @return el objeto guardado
+     * @return Product
      *
      */
     @Override
@@ -102,7 +102,7 @@ public class ProductService implements IProductService {
      * el mismo nombre primero se convierte toda la palabra a minuscula y luego
      * se comprueba
      *
-     * @param List<Object> , String
+     * @param List<Product> , String
      * @return void
      */
     private void BinarySerch(List<Product> list, String nombre) throws Conflict {
@@ -134,7 +134,7 @@ public class ProductService implements IProductService {
      * @param price precio del producto
      * @param cant cant de productos
      * @param id cant del producto a modificar
-     * @return to
+     * @return Product
      *
      */
     @Override
@@ -162,8 +162,8 @@ public class ProductService implements IProductService {
     /**
      * METODO PARA ELIMINAR UN OBJETO POR SU IDENTIFICADOR
      *
-     * @param Producto que se quiere eliminar
-     * @return Producto eliminado
+     * @param Product que se quiere eliminar
+     * @return Producto
      *
      */
     @Override
@@ -181,8 +181,8 @@ public class ProductService implements IProductService {
     /**
      * METODO PARA ELIMINAR UN OBJETO POR SU IDENTIFICADOR
      *
-     * @param Producto que se quiere eliminar
-     * @return Producto eliminado
+     * @param Product que se quiere eliminar
+     * @return Product
      *
      */
     @Override
@@ -200,8 +200,8 @@ public class ProductService implements IProductService {
     /**
      * METODO PARA ELIMINAR UN CONJUNTO DE OBJETOS.
      *
-     * @param List<Object>
-     * @return List<Object> ordenados asendente por ID
+     * @param List<Product>
+     * @return List<Product> ordenados asendente por ID
      *
      */
     @Override
@@ -209,8 +209,10 @@ public class ProductService implements IProductService {
         repository.deleteAll(products);
         return findAllByOrderByIdAsc();
     }
-    // METODO QUE DEVUELVE LA CANTIDAD DE OBJETOS QUE EXISTE
-
+    /**
+    * METODO QUE DEVUELVE LA CANTIDAD DE OBJETOS QUE EXISTE
+    * @return long
+    * */
     @Override
     public long count() {
         return repository.count();
