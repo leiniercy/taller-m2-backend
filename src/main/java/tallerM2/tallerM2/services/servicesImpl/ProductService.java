@@ -40,7 +40,7 @@ public class ProductService implements IProductService {
      * METODO PARA VERIFICAR SI EL OBJETO EXISTE, PREGUNTANDO POR EL ID
      *
      * @param id no debe ser vacio {@literal null}.
-     * @return una referencia a la entidad que coincida con el identificador.
+     * @return Product
      *
      */
     @Override

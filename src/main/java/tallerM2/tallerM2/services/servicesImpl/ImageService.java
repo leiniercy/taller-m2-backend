@@ -8,6 +8,8 @@ package tallerM2.tallerM2.services.servicesImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,7 +25,10 @@ public class ImageService {
         return FOLDER_PATH;
     }
 
-    /*Guardar archivo en el servidor*/
+    /**
+     * Guardar archivo en el servidor
+     * @return String (nombre del archivo)
+     * */
     public String guardarArchivo(MultipartFile archivo) throws IOException {
         String nombreArchivo = UUID.randomUUID().toString() + "." + obtenerExtension(archivo.getOriginalFilename());
         Path rutaArchivo = Path.of(FOLDER_PATH, nombreArchivo);
@@ -35,10 +40,18 @@ public class ImageService {
         return nombreArchivo.substring(nombreArchivo.lastIndexOf(".") + 1);
     }
 
-    /*Guardar archivo en el servidor*/
+    /**
+     * Guardar archivo en el servidor
+     * @return byte[] (imagen)
+     * */
     public byte[] obtenerImagen(String nombreArchivo) throws IOException {
         Path rutaArchivo = Path.of(FOLDER_PATH, nombreArchivo);
         return Files.readAllBytes(rutaArchivo);
+    }
+
+    public void eliminarImagen(String nombreArchivo){
+        File file = new File(FOLDER_PATH+nombreArchivo);
+        file.delete();
     }
 
 }
