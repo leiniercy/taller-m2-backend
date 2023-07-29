@@ -18,13 +18,9 @@ import tallerM2.tallerM2.exceptions.custom.BadRequest;
 import tallerM2.tallerM2.exceptions.custom.Conflict;
 import tallerM2.tallerM2.exceptions.custom.ValueNotFound;
 import tallerM2.tallerM2.model.Accesorio;
-import tallerM2.tallerM2.model.File;
-import tallerM2.tallerM2.repository.FileRepository;
 import tallerM2.tallerM2.services.servicesImpl.AccesorioService;
 import tallerM2.tallerM2.services.servicesImpl.ImageService;
-
-import java.io.IOException;
-import java.util.LinkedList;
+import java.io.IOException
 import java.util.List;
 
 @RestController
@@ -37,8 +33,6 @@ public class AccesorioController {
     AccesorioService service;
     @Autowired
     private ImageService imageService;
-    @Autowired
-    FileRepository fileRepository;
 
     @Operation(summary = "Find all accesories", description = "Find all accesories", tags = "accesorio")
     @ApiResponses(value = {
@@ -104,27 +98,12 @@ public class AccesorioController {
             @RequestParam("name") String name,
             @RequestParam("price") int price,
             @RequestParam("cant") int cant,
-            @RequestParam("files") List <MultipartFile> files
+            @RequestParam("files") List<MultipartFile> files
     )
             throws Conflict, BadRequest, IOException {
 
         try {
-            Accesorio accesorio = new Accesorio();
-            accesorio.setName(name);
-            accesorio.setPrice(price);
-            accesorio.setCant(cant);
-            Accesorio acc = service.save(accesorio);
-            List<File> images = new LinkedList<>();
-            for( MultipartFile file : files){
-                File f = new File();
-                f.setName(imageService.guardarArchivo(file));
-                f.setUrl("http://localhost:8080/api/v1/accesorio/image/" + f.getName());
-                f.setAccesorio(acc);
-                fileRepository.save(f);
-                images.add(f);
-            }
-            acc.setFiles(images);
-            return ResponseEntity.ok(acc);
+            return ResponseEntity.ok(service.save(files,name, price, cant));
         } catch (IOException ex) {
             throw new BadRequest("Error loading file");
         } catch (Conflict c) {
@@ -174,22 +153,7 @@ public class AccesorioController {
     ) throws ValueNotFound, BadRequest, IOException {
 
         try {
-            Accesorio accesorio = new Accesorio();
-            accesorio.setName(name);
-            accesorio.setPrice(price);
-            accesorio.setCant(cant);
-            Accesorio acc = service.update(accesorio, id);
-            List<File> images = new LinkedList<>();
-            for( MultipartFile file : files){
-                File f = new File();
-                f.setName(imageService.guardarArchivo(file));
-                f.setUrl("http://localhost:8080/api/v1/accesorio/image/" + f.getName());
-                f.setAccesorio(acc);
-                fileRepository.save(f);
-                images.add(f);
-            }
-            acc.setFiles(images);
-            return ResponseEntity.ok(acc);
+            return ResponseEntity.ok( service.update(files,name, price, cant, id) );
         } catch (IOException ex) {
             throw new BadRequest("Error loading file");
         } catch (ValueNotFound vn) {

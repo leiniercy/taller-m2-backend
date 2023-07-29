@@ -2,27 +2,31 @@ package tallerM2.tallerM2.services.servicesImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import tallerM2.tallerM2.exceptions.custom.BadRequest;
 import tallerM2.tallerM2.exceptions.custom.Conflict;
 import tallerM2.tallerM2.exceptions.custom.ValueNotFound;
 import tallerM2.tallerM2.model.Accesorio;
 import tallerM2.tallerM2.model.File;
-import tallerM2.tallerM2.model.Product;
 import tallerM2.tallerM2.repository.AccesorioRepository;
+import tallerM2.tallerM2.repository.FileRepository;
 import tallerM2.tallerM2.services.IAccesorioService;
 import tallerM2.tallerM2.utils.Util;
 
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class AccesorioService implements IAccesorioService {
     @Autowired
-    AccesorioRepository repository;
-
+    AccesorioRepository accesorioRepository;
     @Autowired
     ImageService imageService;
+    @Autowired
+    FileRepository fileRepository;
+
 
     /**
      * METODO PARA VERIFICAR SI EL OBJETO EXISTE, PREGUNTANDO POR EL ID
@@ -32,7 +36,7 @@ public class AccesorioService implements IAccesorioService {
      */
     @Override
     public Accesorio findById(Long id) throws ValueNotFound, BadRequest {
-        Optional<Accesorio> opt = repository.findById(id);
+        Optional<Accesorio> opt = accesorioRepository.findById(id);
         if (!opt.isPresent()) {
             throw new ValueNotFound("Accesorio not found");
         }
@@ -47,7 +51,7 @@ public class AccesorioService implements IAccesorioService {
      */
     @Override
     public List<Accesorio> findAll() {
-        return repository.findAll();
+        return accesorioRepository.findAll();
     }
 
     /**
@@ -58,7 +62,7 @@ public class AccesorioService implements IAccesorioService {
      */
     @Override
     public List<Accesorio> findAllByOrderByIdAsc() {
-        return repository.findAllByOrderByIdAsc();
+        return accesorioRepository.findAllByOrderByIdAsc();
     }
 
     /**
@@ -72,14 +76,29 @@ public class AccesorioService implements IAccesorioService {
      * @return Product
      */
     @Override
-    public Accesorio save(Accesorio accesorio) throws Conflict, BadRequest {
+    public Accesorio save(List<MultipartFile> files, String name, int price, int cant) throws Conflict, BadRequest, IOException {
 
-//        Optional<Accesorio> op = repository.findById(accesorio.getId());
-//        if (op.isPresent()) {
-//            throw new Conflict("This object is aviable");
-//        }
-
-        return repository.save(Util.convertToDto(accesorio, Accesorio.class));
+        Optional<Accesorio> op = accesorioRepository.findByNameAndCantAndPrice(name,cant,price);
+        if (op.isPresent()) {
+            throw new Conflict("This object is aviable");
+        }
+        Accesorio accesorio = new Accesorio();
+        accesorio.setName(name);
+        accesorio.setPrice(price);
+        accesorio.setCant(cant);
+        Accesorio newAccesorio = accesorioRepository.save(Util.convertToDto(accesorio, Accesorio.class));
+        //Asignacion de sus imagenes
+        List<File> images = new LinkedList<>();
+        for (MultipartFile file : files) {
+            File f = new File();
+            f.setName(imageService.guardarArchivo(file));
+            f.setUrl("http://localhost:8080/api/v1/accesorio/image/" + f.getName());
+            f.setAccesorio(newAccesorio);
+            fileRepository.save(f);
+            images.add(f);
+        }
+        newAccesorio.setFiles(images);
+        return newAccesorio;
 
     }
 
@@ -95,18 +114,37 @@ public class AccesorioService implements IAccesorioService {
      * @return Product
      */
     @Override
-    public Accesorio update(Accesorio from, Long id) throws ValueNotFound, BadRequest {
-        Optional<Accesorio> op = repository.findById(id);
+    public Accesorio update(List<MultipartFile> files, String name, int price, int cant, Long id) throws ValueNotFound, BadRequest, IOException{
+        Optional<Accesorio> op = accesorioRepository.findById(id);
         if (!op.isPresent()) {
             throw new ValueNotFound("Accesorio not found");
         }
+
         Accesorio to = new Accesorio();
         to.setId(id);
-        to.setName(from.getName());
-        to.setPrice(from.getPrice());
-        to.setCant(from.getCant());
-        to.setFiles(from.getFiles());
-        return repository.save(Util.convertToDto(to, Accesorio.class));
+        to.setName(name);
+        to.setPrice(price);
+        to.setCant(cant);
+        Accesorio accesorio = accesorioRepository.save(Util.convertToDto(to, Accesorio.class));
+
+        //Primero elimino la relacion con todas las imagenes
+        fileRepository.deleteAll(accesorio.getFiles());
+        for (File file : accesorio.getFiles()) {
+            imageService.eliminarImagen(file.getName());
+        }
+
+        //Actualizo con la nueva lista de imagenes
+        List<File> images = new LinkedList<>();
+        for (MultipartFile file : files) {
+            File f = new File();
+            f.setName(imageService.guardarArchivo(file));
+            f.setUrl("http://localhost:8080/api/v1/accesorio/image/" + f.getName());
+            f.setAccesorio(accesorio);
+            fileRepository.save(f);
+            images.add(f);
+        }
+        accesorio.setFiles(images);
+        return accesorio;
     }
 
     /**
@@ -117,16 +155,16 @@ public class AccesorioService implements IAccesorioService {
      */
     @Override
     public Accesorio delete(Accesorio p) throws ValueNotFound, BadRequest {
-        Optional<Accesorio> op = repository.findById(p.getId());
+        Optional<Accesorio> op = accesorioRepository.findById(p.getId());
         if (!op.isPresent()) {
             throw new ValueNotFound("Accesorio not found");
         }
 
-        Accesorio accesorio = repository.getById(p.getId());
+        Accesorio accesorio = accesorioRepository.getById(p.getId());
         for (File file : accesorio.getFiles()) {
             imageService.eliminarImagen(file.getName());
         }
-        repository.delete(p);
+        accesorioRepository.delete(p);
         return accesorio;
     }
 
@@ -138,16 +176,16 @@ public class AccesorioService implements IAccesorioService {
      */
     @Override
     public Accesorio deleteById(Long id) throws ValueNotFound, BadRequest {
-        Optional<Accesorio> op = repository.findById(id);
+        Optional<Accesorio> op = accesorioRepository.findById(id);
         if (!op.isPresent()) {
             throw new ValueNotFound("Accesorio not found");
         }
 
-        Accesorio accesorio = repository.getById(id);
+        Accesorio accesorio = accesorioRepository.getById(id);
         for (File file : accesorio.getFiles()) {
             imageService.eliminarImagen(file.getName());
         }
-        repository.deleteById(id);
+        accesorioRepository.deleteById(id);
         return accesorio;
     }
 
@@ -157,7 +195,7 @@ public class AccesorioService implements IAccesorioService {
             for (File file : accesorio.getFiles()) {
                 imageService.eliminarImagen(file.getName());
             }
-        repository.deleteAll(accesorios);
+        accesorioRepository.deleteAll(accesorios);
         return findAllByOrderByIdAsc();
     }
 
@@ -168,6 +206,6 @@ public class AccesorioService implements IAccesorioService {
      */
     @Override
     public long count() {
-        return repository.count();
+        return accesorioRepository.count();
     }
 }
