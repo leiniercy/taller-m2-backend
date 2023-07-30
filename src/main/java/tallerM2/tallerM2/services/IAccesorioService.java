@@ -20,7 +20,7 @@ public interface IAccesorioService {
 
     public Accesorio save(List<MultipartFile> files, String name, int price, int cant) throws Conflict, BadRequest,IOException;
 
-    public Accesorio update(List<MultipartFile> files, String name, int price, int cant, Long id) throws ValueNotFound, BadRequest, IOException;
+    public Accesorio update(List<MultipartFile> files, String name, int price, int cant, Long id) throws ValueNotFound, BadRequest, IOException, Conflict;
 
     public Accesorio delete(Accesorio p) throws ValueNotFound, BadRequest;
 

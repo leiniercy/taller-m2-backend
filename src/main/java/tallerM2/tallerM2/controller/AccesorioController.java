@@ -20,7 +20,7 @@ import tallerM2.tallerM2.exceptions.custom.ValueNotFound;
 import tallerM2.tallerM2.model.Accesorio;
 import tallerM2.tallerM2.services.servicesImpl.AccesorioService;
 import tallerM2.tallerM2.services.servicesImpl.ImageService;
-import java.io.IOException
+import java.io.IOException;
 import java.util.List;
 
 @RestController

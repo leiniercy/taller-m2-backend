@@ -9,14 +9,15 @@ import tallerM2.tallerM2.exceptions.custom.ValueNotFound;
 import tallerM2.tallerM2.model.Accesorio;
 import tallerM2.tallerM2.model.File;
 import tallerM2.tallerM2.repository.AccesorioRepository;
-import tallerM2.tallerM2.repository.FileRepository;
 import tallerM2.tallerM2.services.IAccesorioService;
 import tallerM2.tallerM2.utils.Util;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AccesorioService implements IAccesorioService {
@@ -24,8 +25,9 @@ public class AccesorioService implements IAccesorioService {
     AccesorioRepository accesorioRepository;
     @Autowired
     ImageService imageService;
+
     @Autowired
-    FileRepository fileRepository;
+    FileService fileService;
 
 
     /**
@@ -69,16 +71,16 @@ public class AccesorioService implements IAccesorioService {
      * PRIMERO SE VERIFICA QUE EL OBJETO NO EXISTA, Y LUEGO SE GURADA LA
      * INFORMACION
      *
-     * @param List<file> imagen del producto
-     * @param name       nombre del producto
-     * @param price      precio del producto
-     * @param cant       cant de productos
+     * @param files listado de imagenes del producto
+     * @param name  nombre del producto
+     * @param price precio del producto
+     * @param cant  cant de productos
      * @return Product
      */
     @Override
     public Accesorio save(List<MultipartFile> files, String name, int price, int cant) throws Conflict, BadRequest, IOException {
 
-        Optional<Accesorio> op = accesorioRepository.findByNameAndCantAndPrice(name,cant,price);
+        Optional<Accesorio> op = accesorioRepository.findByNameAndCantAndPrice(name, cant, price);
         if (op.isPresent()) {
             throw new Conflict("This object is aviable");
         }
@@ -94,8 +96,7 @@ public class AccesorioService implements IAccesorioService {
             f.setName(imageService.guardarArchivo(file));
             f.setUrl("http://localhost:8080/api/v1/accesorio/image/" + f.getName());
             f.setAccesorio(newAccesorio);
-            fileRepository.save(f);
-            images.add(f);
+            images.add(fileService.save(f));
         }
         newAccesorio.setFiles(images);
         return newAccesorio;
@@ -106,73 +107,74 @@ public class AccesorioService implements IAccesorioService {
      * PRIMERO SE VERIFICA QUE EL OBJETO EXISTA, SE MAPEA SU NUEVA INFORMACION,
      * Y LUEGO SE GURADA LA INFORMACION
      *
-     * @param List<file> imagen del producto
-     * @param name       nombre del producto
-     * @param price      precio del producto
-     * @param cant       cant de productos
-     * @param id         cant del producto a modificar
+     * @param files listado de imagenes del producto
+     * @param name  nombre del producto
+     * @param price precio del producto
+     * @param cant  cant de productos
+     * @param id    cant del producto a modificar
      * @return Product
      */
     @Override
-    public Accesorio update(List<MultipartFile> files, String name, int price, int cant, Long id) throws ValueNotFound, BadRequest, IOException{
+    public Accesorio update(List<MultipartFile> files, String name, int price, int cant, Long id) throws ValueNotFound, BadRequest, IOException {
         Optional<Accesorio> op = accesorioRepository.findById(id);
         if (!op.isPresent()) {
             throw new ValueNotFound("Accesorio not found");
         }
 
-        Accesorio to = new Accesorio();
-        to.setId(id);
+        //Creo uno nuevo con sus mismas caracteristicas
+        Accesorio to = accesorioRepository.getById(id);
         to.setName(name);
         to.setPrice(price);
         to.setCant(cant);
-        Accesorio accesorio = accesorioRepository.save(Util.convertToDto(to, Accesorio.class));
 
-        //Primero elimino la relacion con todas las imagenes
-        fileRepository.deleteAll(accesorio.getFiles());
-        for (File file : accesorio.getFiles()) {
+        //Eliminando todos las imagenes vinculadas a este accesorio
+        for (File file : to.getFiles()) {
             imageService.eliminarImagen(file.getName());
+            fileService.deleteById(file.getId());
         }
 
-        //Actualizo con la nueva lista de imagenes
+        Accesorio accesorio = accesorioRepository.save(Util.convertToDto(to, Accesorio.class));
+
+        //Actualizo el accesorio con la nueva lista de imagenes
         List<File> images = new LinkedList<>();
         for (MultipartFile file : files) {
             File f = new File();
             f.setName(imageService.guardarArchivo(file));
             f.setUrl("http://localhost:8080/api/v1/accesorio/image/" + f.getName());
             f.setAccesorio(accesorio);
-            fileRepository.save(f);
-            images.add(f);
+            images.add(fileService.save(f));
         }
         accesorio.setFiles(images);
+
         return accesorio;
     }
 
     /**
      * METODO PARA ELIMINAR UN OBJETO POR SU IDENTIFICADOR
      *
-     * @param Accesorio que se quiere eliminar
+     * @param a que se quiere eliminar
      * @return Producto
      */
     @Override
-    public Accesorio delete(Accesorio p) throws ValueNotFound, BadRequest {
-        Optional<Accesorio> op = accesorioRepository.findById(p.getId());
+    public Accesorio delete(Accesorio a) throws ValueNotFound, BadRequest {
+        Optional<Accesorio> op = accesorioRepository.findById(a.getId());
         if (!op.isPresent()) {
             throw new ValueNotFound("Accesorio not found");
         }
 
-        Accesorio accesorio = accesorioRepository.getById(p.getId());
+        Accesorio accesorio = accesorioRepository.getById(a.getId());
         for (File file : accesorio.getFiles()) {
             imageService.eliminarImagen(file.getName());
         }
-        accesorioRepository.delete(p);
+        accesorioRepository.delete(a);
         return accesorio;
     }
 
     /**
-     * METODO PARA ELIMINAR UN CONJUNTO DE OBJETOS.
+     * METODO PARA ELIMINAR UN ACCESORIO.
      *
-     * @param List<Accesorio>
-     * @return List<Accesorio> ordenados asendente por ID
+     * @param id
+     * @return Accesorio
      */
     @Override
     public Accesorio deleteById(Long id) throws ValueNotFound, BadRequest {
