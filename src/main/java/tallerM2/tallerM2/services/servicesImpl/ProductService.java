@@ -82,10 +82,7 @@ public class ProductService implements IProductService {
      * PRIMERO SE VERIFICA QUE EL OBJETO NO EXISTA, Y LUEGO SE GURADA LA
      * INFORMACION
      *
-     * @param file imagen del producto
-     * @param name nombre del producto
-     * @param price precio del producto
-     * @param cant cant de productos
+     * @param p ( imagen , nombre , precio , cantidad)
      * @return Product
      *
      */
@@ -102,7 +99,8 @@ public class ProductService implements IProductService {
      * el mismo nombre primero se convierte toda la palabra a minuscula y luego
      * se comprueba
      *
-     * @param List<Product> , String
+     * @param list
+     * @param nombre
      * @return void
      */
     private void BinarySerch(List<Product> list, String nombre) throws Conflict {
@@ -129,10 +127,7 @@ public class ProductService implements IProductService {
      * PRIMERO SE VERIFICA QUE EL OBJETO EXISTA, SE MAPEA SU NUEVA INFORMACION,
      * Y LUEGO SE GURADA LA INFORMACION
      *
-     * @param file imagen del producto
-     * @param name nombre del producto
-     * @param price precio del producto
-     * @param cant cant de productos
+     * @param p ( imagen , nombre , precio , cantidad)
      * @param id cant del producto a modificar
      * @return Product
      *

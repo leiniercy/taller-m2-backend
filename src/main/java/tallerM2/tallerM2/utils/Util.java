@@ -12,7 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 import org.springframework.web.multipart.MultipartFile;
-// import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 public class Util {
     public static void ConsoleLog(String key, String value){
@@ -21,10 +21,10 @@ public class Util {
         System.out.println("*****");
     }
 
-    // public static String encrypteMe(String dataToEncrypt) {
-    //     BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-    //     return encoder.encode(dataToEncrypt);
-    // }
+     public static String encrypteMe(String dataToEncrypt) {
+         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+         return encoder.encode(dataToEncrypt);
+     }
 
     public static <T,E> E convertToDto(T originalValue, Class<E> toClass){
         ObjectMapper objectMapper = new ObjectMapper();
