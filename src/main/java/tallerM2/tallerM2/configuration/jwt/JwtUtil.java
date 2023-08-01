@@ -12,7 +12,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import tallerM2.tallerM2.configuration.dto.UserResponse;
 import tallerM2.tallerM2.configuration.service.UserDetailsImpl;
+import tallerM2.tallerM2.utils.Util;
 
 @Component
 @Log4j2
@@ -24,9 +31,30 @@ public class JwtUtil {
     private int jwtExpirationMs;
 
     public String generateJwtToken(Authentication authentication) {
+
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
-        return Jwts.builder().setSubject((userPrincipal.getUsername())).setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs)).signWith(SignatureAlgorithm.HS512, jwtSecret)
+
+        //Extraemos el nombre del usuario y los roles
+        String userName = userPrincipal.getUsername();
+        List<String> roles = userPrincipal.getAuthorities().stream()
+                .map(item -> item.getAuthority())
+                .collect(Collectors.toList());
+
+        //Creamos un usuario con la informacion que necesitamos
+        UserResponse userResponse = new UserResponse();
+        userResponse.setUsername(userName);
+        userResponse.setRoles(roles);
+
+        //Creamos un estructura de datos con la informacion
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("user", Util.convertToDto(userResponse, UserResponse.class));
+
+        return Jwts.builder()
+                .setSubject((userPrincipal.getUsername())) //Nombre del usuario
+                .setClaims(claims) //Informacion del usuario
+                .setIssuedAt(new Date()) //Fecha de creacion
+                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs)) //Fecha de expiracion
+                .signWith(SignatureAlgorithm.HS512, jwtSecret) //el toquen se firma con mi clave se secreta
                 .compact();
     }
 
