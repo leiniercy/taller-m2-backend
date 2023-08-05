@@ -1,6 +1,7 @@
 package tallerM2.tallerM2.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,12 +18,36 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class File extends AbstractEntity{
+public class File {
+
+    @Schema(
+            description = "File id",
+            example = "1",
+            required = true
+    )
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    protected Long id;
     private String name;
     private String url;
 
-    @JoinColumn(name = "accesorio_id", nullable = false, updatable = true)
+    @JoinColumn(name = "accesorio_id", nullable = true, updatable = true)
     @JsonIgnoreProperties({"files"})
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = true)
     protected Accesorio accesorio;
+
+    @JoinColumn(name = "movile_id", nullable = true, updatable = true)
+    @JsonIgnoreProperties({"files"})
+    @ManyToOne(optional = true)
+    protected Movile movile;
+
+    @JoinColumn(name = "charger_id", nullable = true, updatable = true)
+    @JsonIgnoreProperties({"files"})
+    @ManyToOne(optional = true)
+    protected Charger charger;
+
+    @JoinColumn(name = "reloj_id", nullable = true, updatable = true)
+    @JsonIgnoreProperties({"files"})
+    @ManyToOne(optional = true)
+    protected Reloj reloj;
 }

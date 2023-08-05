@@ -17,38 +17,49 @@ import tallerM2.tallerM2.exceptions.ErrorObject;
 import tallerM2.tallerM2.exceptions.custom.BadRequest;
 import tallerM2.tallerM2.exceptions.custom.Conflict;
 import tallerM2.tallerM2.exceptions.custom.ValueNotFound;
-import tallerM2.tallerM2.model.Accesorio;
-import tallerM2.tallerM2.services.servicesImpl.AccesorioService;
+import tallerM2.tallerM2.model.Reloj;
 import tallerM2.tallerM2.services.servicesImpl.ImageService;
+import tallerM2.tallerM2.services.servicesImpl.RelojService;
+
 import java.io.IOException;
 import java.util.List;
 
+
 @RestController
-@RequestMapping(value = "/api/v1/accesorio")
+@RequestMapping(value = "/api/v1/reloj")
 @CrossOrigin("*")
-@Tag(name = "accesorio", description = "The movile API")
-public class AccesorioController {
+@Tag(name = "reloj", description = "The movile API")
+public class RelojController {
 
     @Autowired
-    AccesorioService service;
+    private RelojService service;
     @Autowired
     private ImageService imageService;
 
-    @Operation(summary = "Find all accesories", description = "Find all accesories", tags = "accesorio")
+    @Operation(summary = "Find all reloj", description = "Find all reloj", tags = "reloj")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Accesorio.class)))),
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Reloj.class)))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
     @GetMapping(path = {"/all"}, produces = "application/json")
-    public ResponseEntity<?> all() {
+    ResponseEntity<?> all() {
         return ResponseEntity.ok(service.findAll());
     }
 
-
-    @Operation(summary = "Find a accesorie by ID", description = "Search accesorie by the id", tags = "product")
+    @Operation(summary = "Find all reloj sorted by id", description = "Find all reloj", tags = "reloj")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Accesorio.class))),
-            @ApiResponse(responseCode = "404", description = "product not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Reloj.class)))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+    })
+    @GetMapping(path = {"/all-sorted"}, produces = "application/json")
+    ResponseEntity<?> allSorted() {
+        return ResponseEntity.ok(service.findAllByOrderByIdAsc());
+    }
+
+    @Operation(summary = "Find reloj by ID", description = "Search reloj by the id", tags = "reloj")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Reloj.class))),
+            @ApiResponse(responseCode = "404", description = "Reloj not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
     @GetMapping(value = "/get/{id}", produces = "application/json")
@@ -62,11 +73,10 @@ public class AccesorioController {
         }
     }
 
-
     @Operation(
-            summary = "Create new accesorio",
-            description = "Create a new accesorio",
-            tags = "product"
+            summary = "Create new reloj",
+            description = "Create a new reloj",
+            tags = "reloj"
     )
     @ApiResponses(
             value = {
@@ -74,7 +84,7 @@ public class AccesorioController {
                             responseCode = "200",
                             description = "successful operation",
                             content = @Content(
-                                    schema = @Schema(implementation = Accesorio.class)
+                                    schema = @Schema(implementation = Reloj.class)
                             )
                     ),
                     @ApiResponse(
@@ -86,37 +96,38 @@ public class AccesorioController {
                     ),
                     @ApiResponse(
                             responseCode = "409",
-                            description = "This product already exists",
+                            description = "This Reloj already exists",
                             content = @Content(
                                     schema = @Schema(implementation = ErrorObject.class)
                             )
                     )
             }
     )
-    @PostMapping(path = {"/save"}, /*consumes = "application/json",*/ produces = "application/json")
-    public ResponseEntity<?> save(
-            @RequestParam("name") String name,
-            @RequestParam("price") int price,
-            @RequestParam("cant") int cant,
-            @RequestParam("files") List<MultipartFile> files
-    )
-            throws Conflict, BadRequest, IOException {
-
+    @PostMapping(path = {"/save"}, produces = "application/json")
+    public ResponseEntity<?> save(@RequestParam("name") String name,
+                                  @RequestParam("price") int price,
+                                  @RequestParam("cant") int cant,
+                                  @RequestParam("specialFeature") String specialFeature,
+                                  @RequestParam("compatibleDevice") String compatibleDevice,
+                                  @RequestParam("bateryLife") int bateryLife,
+                                  @RequestParam("files") List<MultipartFile> files
+    ) throws Conflict, BadRequest, IOException {
         try {
-            return ResponseEntity.ok(service.save(files,name, price, cant));
+            return ResponseEntity.ok(service.save(files, name, price, cant,
+                    specialFeature, compatibleDevice, bateryLife));
         } catch (IOException ex) {
             throw new BadRequest("Error loading file");
         } catch (Conflict c) {
             throw new Conflict(c.getMessage());
         } catch (BadRequest br) {
-            throw new BadRequest(br.getMessage());
+            throw new BadRequest("Bad request");
         }
     }
 
     @Operation(
-            summary = "Update accesorio",
-            description = "Update accesorio info",
-            tags = "accesorio"
+            summary = "Update reloj",
+            description = "Update reloj info",
+            tags = "reloj"
     )
     @ApiResponses(
             value = {
@@ -124,12 +135,12 @@ public class AccesorioController {
                             responseCode = "200",
                             description = "successful operation",
                             content = @Content(
-                                    schema = @Schema(implementation = Accesorio.class)
+                                    schema = @Schema(implementation = Reloj.class)
                             )
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "Accesorio not found",
+                            description = "Reloj not found",
                             content = @Content(
                                     schema = @Schema(implementation = ErrorObject.class)
                             )
@@ -143,17 +154,18 @@ public class AccesorioController {
                     )
             }
     )
-    @PutMapping(path = {"/update/{id}"}, /*consumes = "application/json",*/ produces = "application/json")
-    public ResponseEntity<?> update(
-            @RequestParam("files") List<MultipartFile> files,
-            @RequestParam("name") String name,
-            @RequestParam("price") int price,
-            @RequestParam("cant") int cant,
-            @RequestParam("id") Long id
-    ) throws ValueNotFound, BadRequest, IOException {
-
+    @PutMapping(path = {"/update/{id}"}, produces = "application/json")
+    public ResponseEntity<?> update(@RequestParam("files") List<MultipartFile> files,
+                                    @RequestParam("name") String name,
+                                    @RequestParam("price") int price,
+                                    @RequestParam("cant") int cant,
+                                    @RequestParam("specialFeature") String specialFeature,
+                                    @RequestParam("compatibleDevice") String compatibleDevice,
+                                    @RequestParam("bateryLife") int bateryLife,
+                                    @PathVariable(value = "id") Long id)
+            throws ValueNotFound, BadRequest, IOException {
         try {
-            return ResponseEntity.ok( service.update(files,name, price, cant, id) );
+            return ResponseEntity.ok(service.update(files, name, price, cant, specialFeature, compatibleDevice, bateryLife, id));
         } catch (IOException ex) {
             throw new BadRequest("Error loading file");
         } catch (ValueNotFound vn) {
@@ -164,9 +176,9 @@ public class AccesorioController {
     }
 
     @Operation(
-            summary = "Delete a accesorio by id",
-            description = "Delete a accesorio",
-            tags = "accesorio"
+            summary = "Delete a reloj",
+            description = "Delete a reloj",
+            tags = "reloj"
     )
     @ApiResponses(
             value = {
@@ -174,7 +186,7 @@ public class AccesorioController {
                             responseCode = "200",
                             description = "successful operation",
                             content = @Content(
-                                    schema = @Schema(implementation = Accesorio.class)
+                                    schema = @Schema(implementation = Reloj.class)
                             )
                     ),
                     @ApiResponse(
@@ -186,7 +198,7 @@ public class AccesorioController {
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "Accesorio not found",
+                            description = "Reloj not found",
                             content = @Content(
                                     schema = @Schema(implementation = ErrorObject.class)
                             )
@@ -205,9 +217,9 @@ public class AccesorioController {
     }
 
     @Operation(
-            summary = "Delete accesorios",
-            description = "Delete list of accesorios",
-            tags = "product"
+            summary = "Delete relojs",
+            description = "Delete list of relojs",
+            tags = "reloj"
     )
     @ApiResponses(
             value = {
@@ -215,7 +227,7 @@ public class AccesorioController {
                             responseCode = "200",
                             description = "successful operation",
                             content = @Content(
-                                    schema = @Schema(implementation = Accesorio.class)
+                                    schema = @Schema(implementation = Reloj.class)
                             )
                     ),
                     @ApiResponse(
@@ -227,7 +239,7 @@ public class AccesorioController {
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "Accesorio not found",
+                            description = "Reloj not found",
                             content = @Content(
                                     schema = @Schema(implementation = ErrorObject.class)
                             )
@@ -235,11 +247,11 @@ public class AccesorioController {
             }
     )
     @DeleteMapping(value = "/deleteAll", produces = "application/json")
-    public ResponseEntity<?> deleteAll(@RequestBody List<Accesorio> accesorios) throws ValueNotFound, BadRequest {
+    public ResponseEntity<?> deleteAll(@RequestBody List<Reloj> relojs) throws ValueNotFound, BadRequest {
         try {
-            return ResponseEntity.ok(service.deleteAll(accesorios));
+            return ResponseEntity.ok(service.deleteAll(relojs));
         } catch (ValueNotFound vn) {
-            throw new ValueNotFound("Accesorio not found");
+            throw new ValueNotFound("Reloj not found");
         } catch (BadRequest br) {
             throw new BadRequest("Bad request");
         }
@@ -248,7 +260,7 @@ public class AccesorioController {
     @Operation(
             summary = "Get image by name",
             description = "Get image by name from the server",
-            tags = "product"
+            tags = "reloj"
     )
     @GetMapping(path = "/image/{name}")
     public ResponseEntity<?> obtenerImagen(@PathVariable(value = "name") String name) throws IOException {

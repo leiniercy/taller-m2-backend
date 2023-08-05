@@ -32,6 +32,7 @@ import tallerM2.tallerM2.repository.UserRepository;
 
 @RestController
 @RequestMapping("/api/v1/auth")
+@CrossOrigin("*")
 public class AuthController {
 
     private UserRepository userRepository;
@@ -57,14 +58,19 @@ public class AuthController {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signInRequest.getUsername(), signInRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtil.generateJwtToken(authentication);
-//        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 //        List<String> roles = userDetails.getAuthorities().stream()
 //                .map(item -> item.getAuthority())
 //                .collect(Collectors.toList());
+        Optional<User> op = userRepository.findByUsername(userDetails.getUsername());
+        if(!op.isPresent()){
+
+        }
         JwtResponse res = new JwtResponse();
         res.setToken(jwt);
-//        res.setId(userDetails.getId());
-//        res.setUsername(userDetails.getUsername());
+        res.setId(userDetails.getId());
+        res.setUsername(userDetails.getUsername());
+        res.setEmail(op.get().getEmail());
 //        res.setRoles(roles);
         return ResponseEntity.ok(res);
     }

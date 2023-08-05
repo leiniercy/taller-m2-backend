@@ -74,7 +74,7 @@ public class ProductService implements IProductService {
     @Override
     public List<Product> findAllByOrderByIdAsc() {
         List<Product> list = findAll();
-        Collections.sort(list);
+//        Collections.sort(list);
         return list;
     }
 
@@ -127,7 +127,7 @@ public class ProductService implements IProductService {
      * PRIMERO SE VERIFICA QUE EL OBJETO EXISTA, SE MAPEA SU NUEVA INFORMACION,
      * Y LUEGO SE GURADA LA INFORMACION
      *
-     * @param p ( imagen , nombre , precio , cantidad)
+     * @param from ( imagen , nombre , precio , cantidad)
      * @param id cant del producto a modificar
      * @return Product
      *
@@ -140,24 +140,25 @@ public class ProductService implements IProductService {
         if (!op.isPresent()) {
             throw new ValueNotFound("Product not found");
         }
-        Product to = new Product();
-        to.setId(id);
-        to.setName(from.getName());
-        to.setPrice(from.getPrice());
-        to.setCant(from.getCant());
-        if(!from.getImage().equals("emptyFile.png")){
-          to.setImage(from.getImage());     
-        }else{
-          to.setImage(op.get().getImage());
-        }
+//        Product to = new Product();
+//        to.setId(id);
+//        to.setName(from.getName());
+//        to.setPrice(from.getPrice());
+//        to.setCant(from.getCant());
+//        if(!from.getImage().equals("emptyFile.png")){
+//          to.setImage(from.getImage());
+//        }else{
+//          to.setImage(op.get().getImage());
+//        }
        
-        return repository.save(to);
+//        return repository.save(to);
+        return from;
     }
 
     /**
      * METODO PARA ELIMINAR UN OBJETO POR SU IDENTIFICADOR
      *
-     * @param Product que se quiere eliminar
+     * @param p que se quiere eliminar
      * @return Producto
      *
      */
@@ -176,7 +177,7 @@ public class ProductService implements IProductService {
     /**
      * METODO PARA ELIMINAR UN OBJETO POR SU IDENTIFICADOR
      *
-     * @param Product que se quiere eliminar
+     * @param id que se quiere eliminar
      * @return Product
      *
      */
@@ -195,7 +196,7 @@ public class ProductService implements IProductService {
     /**
      * METODO PARA ELIMINAR UN CONJUNTO DE OBJETOS.
      *
-     * @param List<Product>
+     * @param products
      * @return List<Product> ordenados asendente por ID
      *
      */

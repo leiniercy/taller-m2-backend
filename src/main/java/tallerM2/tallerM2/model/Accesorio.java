@@ -17,7 +17,16 @@ import java.util.Set;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Accesorio extends AbstractEntity {
+public class Accesorio {
+
+    @Schema(
+            description = "Accesorio id",
+            example = "1",
+            required = true
+    )
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    protected Long id;
 
     @Schema(
             description = "Name of the product",
@@ -41,9 +50,6 @@ public class Accesorio extends AbstractEntity {
             description = "List of images of the product",
             example = "logo1.png, logo2.png"
     )
-
-//    @OneToMany(targetEntity = File.class)
-//    private List<File> files;
     @OneToMany(mappedBy = "accesorio", cascade = CascadeType.ALL)
     private List<File> files = new LinkedList<>();
 
