@@ -1,5 +1,6 @@
 package tallerM2.tallerM2.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -32,7 +33,8 @@ public class File {
     private String url;
 
     @JoinColumn(name = "product_id", nullable = true, updatable = true)
-    @JsonIgnoreProperties({"files"})
+//    @JsonIgnoreProperties({"files"})
+    @JsonBackReference
     @ManyToOne(optional = true)
     protected Product product;
 }

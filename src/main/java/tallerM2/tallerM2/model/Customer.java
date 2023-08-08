@@ -1,5 +1,6 @@
 package tallerM2.tallerM2.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,6 +35,7 @@ public class Customer {
     @Schema(
             description = "List of sales"
     )
+    @JsonBackReference
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     private List<Sell> sales = new LinkedList<>();
 }

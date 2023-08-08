@@ -7,6 +7,7 @@ package tallerM2.tallerM2.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
@@ -62,13 +63,14 @@ public /*abstract*/ class Product implements Comparable<Product> {
     @Schema(
             description = "List of images of the product"
     )
+    @JsonManagedReference
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     protected List<File> files = new LinkedList<>();
 
     @Schema(
             description = "List of sales of the product"
     )
-
+    @JsonBackReference
     @ManyToMany(mappedBy = "products", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Sell> sales = new LinkedList<>();
 

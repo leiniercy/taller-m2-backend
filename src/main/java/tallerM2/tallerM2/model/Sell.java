@@ -40,13 +40,13 @@ public class Sell {
     private LocalDate sellDate;
 
     @JoinColumn(name = "customer_id", nullable = true, updatable = true)
-    @JsonIgnoreProperties({"sales"})
+    @JsonManagedReference
     @ManyToOne(optional = true)
     private Customer customer;
 
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JsonIgnoreProperties({"sales"})
+    @JsonManagedReference
     @JoinTable(name = "sell_to_products",
             joinColumns =
             @JoinColumn(name = "sell_id", nullable = true),
