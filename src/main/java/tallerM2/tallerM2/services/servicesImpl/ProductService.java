@@ -6,17 +6,16 @@
 package tallerM2.tallerM2.services.servicesImpl;
 
 import java.io.IOException;
-import java.util.Base64;
-import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import tallerM2.tallerM2.exceptions.custom.BadRequest;
 import tallerM2.tallerM2.exceptions.custom.Conflict;
 import tallerM2.tallerM2.exceptions.custom.ValueNotFound;
+import tallerM2.tallerM2.model.File;
 
 import tallerM2.tallerM2.model.Product;
 import tallerM2.tallerM2.services.IProductService;
@@ -31,21 +30,23 @@ import tallerM2.tallerM2.repository.ProductRepository;
 public class ProductService implements IProductService {
 
     @Autowired
-    private ProductRepository repository;
+    ProductRepository productRepository;
+    @Autowired
+    ImageService imageService;
 
     @Autowired
-    private ImageService imageService;
+    FileService fileService;
+
 
     /**
      * METODO PARA VERIFICAR SI EL OBJETO EXISTE, PREGUNTANDO POR EL ID
      *
      * @param id no debe ser vacio {@literal null}.
      * @return Product
-     *
      */
     @Override
     public Product findById(Long id) throws ValueNotFound, BadRequest {
-        Optional<Product> opt = repository.findById(id);
+        Optional<Product> opt = productRepository.findById(id);
         if (!opt.isPresent()) {
             throw new ValueNotFound("Product not found");
         }
@@ -57,11 +58,10 @@ public class ProductService implements IProductService {
      * ESPECIFICADO PREVIAMENTE
      *
      * @return List<Product>
-     *
      */
     @Override
     public List<Product> findAll() {
-        return repository.findAll();
+        return productRepository.findAll();
     }
 
     /**
@@ -69,155 +69,153 @@ public class ProductService implements IProductService {
      * OBJETOS DE UN MISMO TIPO ESPECIFICADO PREVIAMENTE
      *
      * @return List<Product>
-     *
      */
     @Override
     public List<Product> findAllByOrderByIdAsc() {
-        List<Product> list = findAll();
-//        Collections.sort(list);
-        return list;
+        return productRepository.findAllByOrderByIdAsc();
     }
 
     /**
      * PRIMERO SE VERIFICA QUE EL OBJETO NO EXISTA, Y LUEGO SE GURADA LA
      * INFORMACION
      *
-     * @param p ( imagen , nombre , precio , cantidad)
+     * @param files listado de imagenes del producto
+     * @param name  nombre del producto
+     * @param price precio del producto
+     * @param cant  cant de productos
      * @return Product
-     *
      */
     @Override
-    public Product save(Product p) throws Conflict, BadRequest {
-        //Comprpbando si el objeto no exsite    
-        BinarySerch(findAllByOrderByIdAsc(), p.getName());
+    public Product save(List<MultipartFile> files, String name, int price, int cant) throws Conflict, BadRequest, IOException {
 
-        return repository.save(Util.convertToDto(p, Product.class));
-    }
-
-    /**
-     * Busqueda binaria que se encarga de verificar si existe algun objeto con
-     * el mismo nombre primero se convierte toda la palabra a minuscula y luego
-     * se comprueba
-     *
-     * @param list
-     * @param nombre
-     * @return void
-     */
-    private void BinarySerch(List<Product> list, String nombre) throws Conflict {
-        int inicio = 0;
-        int fin = list.size() - 1;
-
-        while (inicio <= fin) {
-            int medio = inicio + (fin - inicio) / 2;
-            String nombreMedio = list.get(medio).getName().toLowerCase();
-            if (nombreMedio.equals(nombre.toLowerCase())) {
-                throw new Conflict("This product already exists");
-                // return true; Concidencia encontrada
-            } else if (nombreMedio.compareTo(nombre.toLowerCase()) < 0) {
-                inicio = medio + 1; // Buscar en la mitad derecha
-            } else {
-                fin = medio - 1; // Buscar en la mitad izquierda
-            }
+        Optional<Product> op = productRepository.findByNameAndCantAndPrice(name, cant, price);
+        if (op.isPresent()) {
+            throw new Conflict("This object is aviable");
         }
+        Product product = new Product();
+        product.setName(name);
+        product.setPrice(price);
+        product.setCant(cant);
+        Product newProduct = productRepository.save(Util.convertToDto(product, Product.class));
+        //Asignacion de sus imagenes
+        List<File> images = new LinkedList<>();
+        for (MultipartFile file : files) {
+            File f = new File();
+            f.setName(imageService.guardarArchivo(file));
+            f.setUrl("http://localhost:8080/api/v1/product/image/" + f.getName());
+            f.setProduct(newProduct);
+            images.add(fileService.save(f));
+        }
+        newProduct.setFiles(images);
+        return newProduct;
 
-        // return false; No se encontro ninguna coincidencia
     }
 
     /**
      * PRIMERO SE VERIFICA QUE EL OBJETO EXISTA, SE MAPEA SU NUEVA INFORMACION,
      * Y LUEGO SE GURADA LA INFORMACION
      *
-     * @param from ( imagen , nombre , precio , cantidad)
-     * @param id cant del producto a modificar
+     * @param files listado de imagenes del producto
+     * @param name  nombre del producto
+     * @param price precio del producto
+     * @param cant  cant de productos
+     * @param id    cant del producto a modificar
      * @return Product
-     *
      */
     @Override
-    public Product update(Product from, Long id)
-            throws ValueNotFound, BadRequest {
-
-        Optional<Product> op = repository.findById(id);
-        if (!op.isPresent()) {
-            throw new ValueNotFound("Product not found");
-        }
-//        Product to = new Product();
-//        to.setId(id);
-//        to.setName(from.getName());
-//        to.setPrice(from.getPrice());
-//        to.setCant(from.getCant());
-//        if(!from.getImage().equals("emptyFile.png")){
-//          to.setImage(from.getImage());
-//        }else{
-//          to.setImage(op.get().getImage());
-//        }
-       
-//        return repository.save(to);
-        return from;
-    }
-
-    /**
-     * METODO PARA ELIMINAR UN OBJETO POR SU IDENTIFICADOR
-     *
-     * @param p que se quiere eliminar
-     * @return Producto
-     *
-     */
-    @Override
-    public Product delete(Product p) throws ValueNotFound, BadRequest {
-        Optional<Product> op = repository.findById(p.getId());
+    public Product update(List<MultipartFile> files, String name, int price, int cant, Long id) throws ValueNotFound, BadRequest, IOException {
+        Optional<Product> op = productRepository.findById(id);
         if (!op.isPresent()) {
             throw new ValueNotFound("Product not found");
         }
 
-        Product product = repository.getById(p.getId());
-        repository.delete(p);
+        //Creo uno nuevo con sus mismas caracteristicas
+        Product to = productRepository.getById(id);
+        to.setName(name);
+        to.setPrice(price);
+        to.setCant(cant);
+
+        //Eliminando todos las imagenes vinculadas a este product
+        for (File file : to.getFiles()) {
+            imageService.eliminarImagen(file.getName());
+            fileService.deleteById(file.getId());
+        }
+
+        Product product = productRepository.save(Util.convertToDto(to, Product.class));
+
+        //Actualizo el product con la nueva lista de imagenes
+        List<File> images = new LinkedList<>();
+        for (MultipartFile file : files) {
+            File f = new File();
+            f.setName(imageService.guardarArchivo(file));
+            f.setUrl("http://localhost:8080/api/v1/product/image/" + f.getName());
+            f.setProduct(product);
+            images.add(fileService.save(f));
+        }
+        product.setFiles(images);
+
         return product;
     }
 
     /**
      * METODO PARA ELIMINAR UN OBJETO POR SU IDENTIFICADOR
      *
-     * @param id que se quiere eliminar
-     * @return Product
-     *
+     * @param a que se quiere eliminar
+     * @return Producto
      */
     @Override
-    public Product deleteById(Long id) throws ValueNotFound, BadRequest {
-        Optional<Product> op = repository.findById(id);
+    public Product delete(Product a) throws ValueNotFound, BadRequest {
+        Optional<Product> op = productRepository.findById(a.getId());
         if (!op.isPresent()) {
             throw new ValueNotFound("Product not found");
         }
 
-        Product movile = repository.getById(id);
-        repository.deleteById(id);
-        return movile;
+        Product product = productRepository.getById(a.getId());
+        for (File file : product.getFiles()) {
+            imageService.eliminarImagen(file.getName());
+        }
+        productRepository.delete(a);
+        return product;
     }
 
     /**
-     * METODO PARA ELIMINAR UN CONJUNTO DE OBJETOS.
+     * METODO PARA ELIMINAR UN ACCESORIO.
      *
-     * @param products
-     * @return List<Product> ordenados asendente por ID
-     *
+     * @param id
+     * @return Product
      */
     @Override
-    public List<Product> deleteAll(List<Product> products)throws ValueNotFound, BadRequest{
-        repository.deleteAll(products);
+    public Product deleteById(Long id) throws ValueNotFound, BadRequest {
+        Optional<Product> op = productRepository.findById(id);
+        if (!op.isPresent()) {
+            throw new ValueNotFound("Product not found");
+        }
+
+        Product product = productRepository.getById(id);
+        for (File file : product.getFiles()) {
+            imageService.eliminarImagen(file.getName());
+        }
+        productRepository.deleteById(id);
+        return product;
+    }
+
+    @Override
+    public List<Product> deleteAll(List<Product> products) throws ValueNotFound, BadRequest {
+        for (Product product : products)
+            for (File file : product.getFiles()) {
+                imageService.eliminarImagen(file.getName());
+            }
+        productRepository.deleteAll(products);
         return findAllByOrderByIdAsc();
     }
+
     /**
-    * METODO QUE DEVUELVE LA CANTIDAD DE OBJETOS QUE EXISTE
-    * @return long
-    * */
+     * METODO QUE DEVUELVE LA CANTIDAD DE OBJETOS QUE EXISTE
+     *
+     * @return long
+     */
     @Override
     public long count() {
-        return repository.count();
+        return productRepository.count();
     }
-    // METODO QUE DEVUELVE LA CANTIDAD DE OBJETOS QUE EXISTE DADO UN NOMBRE
-
-    @Override
-    public Long countByName(String name) {
-        return repository.countByName(name);
-    }
-
 }

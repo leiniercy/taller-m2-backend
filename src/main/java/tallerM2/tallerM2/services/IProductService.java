@@ -1,5 +1,6 @@
 package tallerM2.tallerM2.services;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,17 +17,15 @@ public interface IProductService {
 
     public List<Product> findAllByOrderByIdAsc();
 
-    public Product save(Product p) throws Conflict, BadRequest;
+    public Product save(List<MultipartFile> files, String name, int price, int cant) throws Conflict, BadRequest,IOException;
 
-    public Product update(Product p, Long id) throws ValueNotFound, BadRequest;
+    public Product update(List<MultipartFile> files, String name, int price, int cant, Long id) throws ValueNotFound, BadRequest, IOException, Conflict;
 
     public Product delete(Product p) throws ValueNotFound, BadRequest;
 
     public Product deleteById(Long id) throws ValueNotFound, BadRequest;
 
-    public List<Product> deleteAll(List<Product> products)throws ValueNotFound, BadRequest;
+    public List<Product> deleteAll(List<Product> products) throws ValueNotFound, BadRequest;
 
     public long count();
-
-    public Long countByName(String name);
 }

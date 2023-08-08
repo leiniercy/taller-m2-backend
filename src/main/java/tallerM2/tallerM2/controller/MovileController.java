@@ -23,7 +23,6 @@ import tallerM2.tallerM2.exceptions.ErrorObject;
 import tallerM2.tallerM2.exceptions.custom.BadRequest;
 import tallerM2.tallerM2.exceptions.custom.Conflict;
 import tallerM2.tallerM2.exceptions.custom.ValueNotFound;
-import tallerM2.tallerM2.model.Accesorio;
 import tallerM2.tallerM2.model.Movile;
 import tallerM2.tallerM2.services.servicesImpl.ImageService;
 import tallerM2.tallerM2.services.servicesImpl.MovileService;

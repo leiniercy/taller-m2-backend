@@ -31,11 +31,6 @@ public class File {
     private String name;
     private String url;
 
-    @JoinColumn(name = "accesorio_id", nullable = true, updatable = true)
-    @JsonIgnoreProperties({"files"})
-    @ManyToOne(optional = true)
-    protected Accesorio accesorio;
-
     @JoinColumn(name = "product_id", nullable = true, updatable = true)
     @JsonIgnoreProperties({"files"})
     @ManyToOne(optional = true)

@@ -1,3 +1,8 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package tallerM2.tallerM2.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,26 +22,26 @@ import tallerM2.tallerM2.exceptions.ErrorObject;
 import tallerM2.tallerM2.exceptions.custom.BadRequest;
 import tallerM2.tallerM2.exceptions.custom.Conflict;
 import tallerM2.tallerM2.exceptions.custom.ValueNotFound;
-import tallerM2.tallerM2.model.Accesorio;
-import tallerM2.tallerM2.services.servicesImpl.AccesorioService;
+import tallerM2.tallerM2.model.Product;
+import tallerM2.tallerM2.services.servicesImpl.ProductService;
 import tallerM2.tallerM2.services.servicesImpl.ImageService;
 import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/api/v1/accesorio")
+@RequestMapping(value = "/api/v1/product")
 @CrossOrigin("*")
-@Tag(name = "accesorio", description = "The movile API")
-public class AccesorioController {
+@Tag(name = "product", description = "The movile API")
+public class ProductController {
 
     @Autowired
-    AccesorioService service;
+    ProductService service;
     @Autowired
     private ImageService imageService;
 
-    @Operation(summary = "Find all accesories", description = "Find all accesories", tags = "accesorio")
+    @Operation(summary = "Find all accesories", description = "Find all accesories", tags = "product")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Accesorio.class)))),
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Product.class)))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
     @GetMapping(path = {"/all"}, produces = "application/json")
@@ -47,7 +52,7 @@ public class AccesorioController {
 
     @Operation(summary = "Find a accesorie by ID", description = "Search accesorie by the id", tags = "product")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Accesorio.class))),
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Product.class))),
             @ApiResponse(responseCode = "404", description = "product not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
@@ -64,8 +69,8 @@ public class AccesorioController {
 
 
     @Operation(
-            summary = "Create new accesorio",
-            description = "Create a new accesorio",
+            summary = "Create new product",
+            description = "Create a new product",
             tags = "product"
     )
     @ApiResponses(
@@ -74,7 +79,7 @@ public class AccesorioController {
                             responseCode = "200",
                             description = "successful operation",
                             content = @Content(
-                                    schema = @Schema(implementation = Accesorio.class)
+                                    schema = @Schema(implementation = Product.class)
                             )
                     ),
                     @ApiResponse(
@@ -114,9 +119,9 @@ public class AccesorioController {
     }
 
     @Operation(
-            summary = "Update accesorio",
-            description = "Update accesorio info",
-            tags = "accesorio"
+            summary = "Update product",
+            description = "Update product info",
+            tags = "product"
     )
     @ApiResponses(
             value = {
@@ -124,12 +129,12 @@ public class AccesorioController {
                             responseCode = "200",
                             description = "successful operation",
                             content = @Content(
-                                    schema = @Schema(implementation = Accesorio.class)
+                                    schema = @Schema(implementation = Product.class)
                             )
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "Accesorio not found",
+                            description = "Product not found",
                             content = @Content(
                                     schema = @Schema(implementation = ErrorObject.class)
                             )
@@ -164,9 +169,9 @@ public class AccesorioController {
     }
 
     @Operation(
-            summary = "Delete a accesorio by id",
-            description = "Delete a accesorio",
-            tags = "accesorio"
+            summary = "Delete a product by id",
+            description = "Delete a product",
+            tags = "product"
     )
     @ApiResponses(
             value = {
@@ -174,7 +179,7 @@ public class AccesorioController {
                             responseCode = "200",
                             description = "successful operation",
                             content = @Content(
-                                    schema = @Schema(implementation = Accesorio.class)
+                                    schema = @Schema(implementation = Product.class)
                             )
                     ),
                     @ApiResponse(
@@ -186,7 +191,7 @@ public class AccesorioController {
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "Accesorio not found",
+                            description = "Product not found",
                             content = @Content(
                                     schema = @Schema(implementation = ErrorObject.class)
                             )
@@ -205,8 +210,8 @@ public class AccesorioController {
     }
 
     @Operation(
-            summary = "Delete accesorios",
-            description = "Delete list of accesorios",
+            summary = "Delete products",
+            description = "Delete list of products",
             tags = "product"
     )
     @ApiResponses(
@@ -215,7 +220,7 @@ public class AccesorioController {
                             responseCode = "200",
                             description = "successful operation",
                             content = @Content(
-                                    schema = @Schema(implementation = Accesorio.class)
+                                    schema = @Schema(implementation = Product.class)
                             )
                     ),
                     @ApiResponse(
@@ -227,7 +232,7 @@ public class AccesorioController {
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "Accesorio not found",
+                            description = "Product not found",
                             content = @Content(
                                     schema = @Schema(implementation = ErrorObject.class)
                             )
@@ -235,11 +240,11 @@ public class AccesorioController {
             }
     )
     @DeleteMapping(value = "/deleteAll", produces = "application/json")
-    public ResponseEntity<?> deleteAll(@RequestBody List<Accesorio> accesorios) throws ValueNotFound, BadRequest {
+    public ResponseEntity<?> deleteAll(@RequestBody List<Product> products) throws ValueNotFound, BadRequest {
         try {
-            return ResponseEntity.ok(service.deleteAll(accesorios));
+            return ResponseEntity.ok(service.deleteAll(products));
         } catch (ValueNotFound vn) {
-            throw new ValueNotFound("Accesorio not found");
+            throw new ValueNotFound("Product not found");
         } catch (BadRequest br) {
             throw new BadRequest("Bad request");
         }

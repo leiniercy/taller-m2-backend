@@ -19,12 +19,8 @@ import tallerM2.tallerM2.model.Product;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    @Query(value = "Select * from Product LIKE '%name%';", nativeQuery = true)
-    Long countByName(String name);
+    Optional<Product> findByNameAndCantAndPrice(String name, int cant, int price);
 
-    // Find all Products for id in order asc
     List<Product> findAllByOrderByIdAsc();
-
-    // Find all Products for price in order asc
     List<Product> findAllByOrderByPriceAsc();
 }
