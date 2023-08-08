@@ -30,13 +30,4 @@ public class Charger extends Product {
     @Column(nullable = false)
     private String compatibleDevice;
 
-    @Schema(
-            description = "List of images of the product",
-            example = "logo1.png, logo2.png"
-    )
-
-    @OneToMany(mappedBy = "charger", cascade = CascadeType.ALL)
-    protected List<File> files = new LinkedList<>();
-
-
 }

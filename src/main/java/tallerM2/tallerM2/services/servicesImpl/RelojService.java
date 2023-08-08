@@ -103,7 +103,7 @@ public class RelojService implements IRelojService {
             File f = new File();
             f.setName(imageService.guardarArchivo(file));
             f.setUrl("http://localhost:8080/api/v1/reloj/image/" + f.getName());
-            f.setReloj(r);
+            f.setProduct(r);
             images.add(fileService.save(f));
         }
         r.setFiles(images);
@@ -153,7 +153,7 @@ public class RelojService implements IRelojService {
             File f = new File();
             f.setName(imageService.guardarArchivo(file));
             f.setUrl("http://localhost:8080/api/v1/reloj/image/" + f.getName());
-            f.setReloj(r);
+            f.setProduct(r);
             images.add(fileService.save(f));
         }
         r.setFiles(images);

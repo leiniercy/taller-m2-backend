@@ -5,11 +5,25 @@
  */
 package tallerM2.tallerM2.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import tallerM2.tallerM2.exceptions.ErrorObject;
+import tallerM2.tallerM2.model.Product;
+import tallerM2.tallerM2.services.servicesImpl.ImageService;
+import tallerM2.tallerM2.services.servicesImpl.ProductService;
+
+import java.io.IOException;
 
 /**
  *
@@ -25,11 +39,11 @@ public class ProductoController {
 //    private ProductService service;
 //    @Autowired
 //    private ImageService imageService;
-//
+
 //    @Operation(summary = "Find all products", description = "Find all products", tags = "product")
 //    @ApiResponses(value = {
-//        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Product.class)))),
-//        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+//        @ApiResponses( responseCode  = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Product.class)))),
+//        @ApiResponses(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
 //    })
 //    @GetMapping(path = {"/all"}, produces = "application/json")
 //    public ResponseEntity<?> all() {

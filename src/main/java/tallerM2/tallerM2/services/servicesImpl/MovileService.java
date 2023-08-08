@@ -119,7 +119,7 @@ public class MovileService implements IMovileService {
             File f = new File();
             f.setName(imageService.guardarArchivo(file));
             f.setUrl("http://localhost:8080/api/v1/movile/image/" + f.getName());
-            f.setMovile(m);
+            f.setProduct(m);
             images.add(fileService.save(f));
         }
         m.setFiles(images);
@@ -185,7 +185,7 @@ public class MovileService implements IMovileService {
             File f = new File();
             f.setName(imageService.guardarArchivo(file));
             f.setUrl("http://localhost:8080/api/v1/movile/image/" + f.getName());
-            f.setMovile(m);
+            f.setProduct(m);
             images.add(fileService.save(f));
         }
         m.setFiles(images);

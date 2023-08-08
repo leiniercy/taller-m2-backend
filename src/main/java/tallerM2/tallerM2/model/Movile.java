@@ -91,10 +91,4 @@ public class Movile extends Product {
     @Column(nullable = false)
     private long bateria;
 
-    @Schema(
-            description = "List of images of the product",
-            example = "logo1.png, logo2.png"
-    )
-    @OneToMany(mappedBy = "movile", cascade = CascadeType.ALL)
-    protected List<File> files = new LinkedList<>();
 }

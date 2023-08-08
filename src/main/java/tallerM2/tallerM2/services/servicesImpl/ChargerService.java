@@ -14,7 +14,6 @@ import tallerM2.tallerM2.services.IChargerService;
 import tallerM2.tallerM2.utils.Util;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -55,6 +54,7 @@ public class ChargerService implements IChargerService {
     public List<Charger> findAll() {
         return chargerRepository.findAll();
     }
+
     /**
      * METODO QUE DEVUELVE UNA LISTA ORDENADA ASCENDENTEMENTE CON TODOS LOS
      * OBJETOS DE UN MISMO TIPO ESPECIFICADO PREVIAMENTE
@@ -70,22 +70,23 @@ public class ChargerService implements IChargerService {
      * PRIMERO SE VERIFICA QUE EL OBJETO NO EXISTA, Y LUEGO SE GURADA LA
      * INFORMACION
      *
-     * @param files         listado de imagenes
-     * @param name          nombre del producto
-     * @param price         precio del producto
-     * @param cant          cant de productos
-     * @param connectorType   tipo de conector que utiliza
-     * @param compatibleDevice  dispositivos compatibles
+     * @param files            listado de imagenes
+     * @param name             nombre del producto
+     * @param price            precio del producto
+     * @param cant             cant de productos
+     * @param connectorType    tipo de conector que utiliza
+     * @param compatibleDevice dispositivos compatibles
      * @return Charger
      */
     @Override
     public Charger save(List<MultipartFile> files, String name, int price,
                         int cant, String connectorType, String compatibleDevice)
             throws Conflict, BadRequest, IOException {
-        Optional<Charger> op = chargerRepository.findByNameAndPriceAndCantAndConnectorTypeAndCompatibleDevice(name,price,cant,connectorType,compatibleDevice);
-        if(op.isPresent()){
+        Optional<Charger> op = chargerRepository.findByNameAndPriceAndCantAndConnectorTypeAndCompatibleDevice(name, price, cant, connectorType, compatibleDevice);
+        if (op.isPresent()) {
             throw new Conflict("This charger is aviable");
         }
+
         Charger charger = new Charger();
         charger.setName(name);
         charger.setPrice(price);
@@ -96,14 +97,14 @@ public class ChargerService implements IChargerService {
         charger.setCompatibleDevice(compatibleDevice);
 
 
-        Charger c = chargerRepository.save(Util.convertToDto(charger,Charger.class));
+        Charger c = chargerRepository.save(Util.convertToDto(charger, Charger.class));
         //Asignacion de sus imagenes
         List<File> images = new LinkedList<>();
         for (MultipartFile file : files) {
             File f = new File();
             f.setName(imageService.guardarArchivo(file));
             f.setUrl("http://localhost:8080/api/v1/charger/image/" + f.getName());
-            f.setCharger(c);
+            f.setProduct(c);
             images.add(fileService.save(f));
         }
         c.setFiles(images);
@@ -113,12 +114,12 @@ public class ChargerService implements IChargerService {
     /**
      * ACUTAULIZAR LA INFORMACION TODA LA INFORMACION DE UN OBJETO
      *
-     * @param files         listado de imagenes
-     * @param name          nombre del producto
-     * @param price         precio del producto
-     * @param cant          cant de productos
-     * @param connectorType   tipo de conector que utiliza
-     * @param compatibleDevice  dispositivos compatibles
+     * @param files            listado de imagenes
+     * @param name             nombre del producto
+     * @param price            precio del producto
+     * @param cant             cant de productos
+     * @param connectorType    tipo de conector que utiliza
+     * @param compatibleDevice dispositivos compatibles
      * @return Charger
      */
     @Override
@@ -140,7 +141,7 @@ public class ChargerService implements IChargerService {
             fileService.deleteById(file.getId());
         }
 
-        Charger c = chargerRepository.save(Util.convertToDto(charger,Charger.class));
+        Charger c = chargerRepository.save(Util.convertToDto(charger, Charger.class));
 
         //Actualizo el movile con la nueva lista de imagenes
         List<File> images = new LinkedList<>();
@@ -148,7 +149,7 @@ public class ChargerService implements IChargerService {
             File f = new File();
             f.setName(imageService.guardarArchivo(file));
             f.setUrl("http://localhost:8080/api/v1/charger/image/" + f.getName());
-            f.setCharger(c);
+            f.setProduct(c);
             images.add(fileService.save(f));
         }
         c.setFiles(images);
@@ -216,8 +217,9 @@ public class ChargerService implements IChargerService {
 
     /**
      * METODO QUE DEVUELVE LA CANTIDAD DE OBJETOS QUE EXISTE
+     *
      * @return long
-     * */
+     */
     @Override
     public long count() {
         return chargerRepository.count();

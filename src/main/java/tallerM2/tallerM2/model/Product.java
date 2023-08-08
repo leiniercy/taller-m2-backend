@@ -5,11 +5,15 @@
  */
 package tallerM2.tallerM2.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.*;
 
 import lombok.*;
@@ -22,9 +26,11 @@ import lombok.*;
 @Entity
 @Getter
 @Setter
-//@NoArgsConstructor
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public abstract class Product implements Comparable<Product> {
+@NoArgsConstructor
+//@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@JsonIgnoreProperties(ignoreUnknown = true)
+@Inheritance(strategy = InheritanceType.JOINED)
+public /*abstract*/ class Product implements Comparable<Product> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -53,7 +59,18 @@ public abstract class Product implements Comparable<Product> {
     @Column(nullable = false)
     protected int cant;
 
+    @Schema(
+            description = "List of images of the product"
+    )
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    protected List<File> files = new LinkedList<>();
 
+    @Schema(
+            description = "List of sales of the product"
+    )
+
+    @ManyToMany(mappedBy = "products", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Sell> sales = new LinkedList<>();
 
     @Override
     public int compareTo(Product prod) {

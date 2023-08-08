@@ -36,18 +36,10 @@ public class File {
     @ManyToOne(optional = true)
     protected Accesorio accesorio;
 
-    @JoinColumn(name = "movile_id", nullable = true, updatable = true)
+    @JoinColumn(name = "product_id", nullable = true, updatable = true)
     @JsonIgnoreProperties({"files"})
     @ManyToOne(optional = true)
-    protected Movile movile;
+    protected Product product;
 
-    @JoinColumn(name = "charger_id", nullable = true, updatable = true)
-    @JsonIgnoreProperties({"files"})
-    @ManyToOne(optional = true)
-    protected Charger charger;
 
-    @JoinColumn(name = "reloj_id", nullable = true, updatable = true)
-    @JsonIgnoreProperties({"files"})
-    @ManyToOne(optional = true)
-    protected Reloj reloj;
 }
