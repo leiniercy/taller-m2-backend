@@ -93,9 +93,6 @@ public class ChargerService implements IChargerService {
         charger.setCant(cant);
         charger.setConnectorType(connectorType);
         charger.setCompatibleDevice(compatibleDevice);
-        charger.setConnectorType(connectorType);
-        charger.setCompatibleDevice(compatibleDevice);
-
 
         Charger c = chargerRepository.save(Util.convertToDto(charger, Charger.class));
         //Asignacion de sus imagenes

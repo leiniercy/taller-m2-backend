@@ -35,6 +35,4 @@ public class File {
     @JsonIgnoreProperties({"files"})
     @ManyToOne(optional = true)
     protected Product product;
-
-
 }

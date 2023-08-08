@@ -22,11 +22,16 @@ import tallerM2.tallerM2.exceptions.ErrorObject;
 import tallerM2.tallerM2.exceptions.custom.BadRequest;
 import tallerM2.tallerM2.exceptions.custom.Conflict;
 import tallerM2.tallerM2.exceptions.custom.ValueNotFound;
+import tallerM2.tallerM2.model.Charger;
+import tallerM2.tallerM2.model.Movile;
 import tallerM2.tallerM2.model.Product;
+import tallerM2.tallerM2.model.Reloj;
 import tallerM2.tallerM2.services.servicesImpl.ProductService;
 import tallerM2.tallerM2.services.servicesImpl.ImageService;
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/api/v1/product")
@@ -47,6 +52,23 @@ public class ProductController {
     @GetMapping(path = {"/all"}, produces = "application/json")
     public ResponseEntity<?> all() {
         return ResponseEntity.ok(service.findAll());
+    }
+
+
+    @Operation(summary = "Find all accesories", description = "Find all accesories", tags = "product")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Product.class)))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+    })
+    @GetMapping(path = {"/allProducts"}, produces = "application/json")
+    public ResponseEntity<?> allProducts() {
+        List<Product> products = new LinkedList<>();
+        service.findAll().forEach(product -> {
+            if( !(product instanceof Movile) && !(product instanceof Reloj) && !(product instanceof Charger)  ){
+                products.add(product);
+            }
+        });
+        return ResponseEntity.ok(products);
     }
 
 

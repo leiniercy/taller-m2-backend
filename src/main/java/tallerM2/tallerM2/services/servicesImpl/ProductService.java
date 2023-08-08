@@ -6,6 +6,7 @@
 package tallerM2.tallerM2.services.servicesImpl;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -88,26 +89,29 @@ public class ProductService implements IProductService {
     @Override
     public Product save(List<MultipartFile> files, String name, int price, int cant) throws Conflict, BadRequest, IOException {
 
-        Optional<Product> op = productRepository.findByNameAndCantAndPrice(name, cant, price);
+        Optional<Product> op = productRepository.findByNameAndCantAndPrice(name, price, cant);
         if (op.isPresent()) {
-            throw new Conflict("This object is aviable");
+            throw new Conflict("This product is aviable");
         }
+
         Product product = new Product();
         product.setName(name);
         product.setPrice(price);
         product.setCant(cant);
-        Product newProduct = productRepository.save(Util.convertToDto(product, Product.class));
+        product.setSales(new ArrayList<>());
+
+        Product pro = productRepository.save(product);
         //Asignacion de sus imagenes
         List<File> images = new LinkedList<>();
         for (MultipartFile file : files) {
             File f = new File();
             f.setName(imageService.guardarArchivo(file));
             f.setUrl("http://localhost:8080/api/v1/product/image/" + f.getName());
-            f.setProduct(newProduct);
+            f.setProduct(pro);
             images.add(fileService.save(f));
         }
-        newProduct.setFiles(images);
-        return newProduct;
+        pro.setFiles(images);
+        return pro;
 
     }
 
@@ -125,36 +129,35 @@ public class ProductService implements IProductService {
     @Override
     public Product update(List<MultipartFile> files, String name, int price, int cant, Long id) throws ValueNotFound, BadRequest, IOException {
         Optional<Product> op = productRepository.findById(id);
-        if (!op.isPresent()) {
+        if (op.isEmpty()) {
             throw new ValueNotFound("Product not found");
         }
+        Product product = productRepository.getById(id);
+        product.setName(name);
+        product.setPrice(price);
+        product.setCant(cant);
 
-        //Creo uno nuevo con sus mismas caracteristicas
-        Product to = productRepository.getById(id);
-        to.setName(name);
-        to.setPrice(price);
-        to.setCant(cant);
 
-        //Eliminando todos las imagenes vinculadas a este product
-        for (File file : to.getFiles()) {
+        //Eliminando todos las imagenes vinculadas a este cargador
+        for (File file : product.getFiles()) {
             imageService.eliminarImagen(file.getName());
             fileService.deleteById(file.getId());
         }
 
-        Product product = productRepository.save(Util.convertToDto(to, Product.class));
+        Product pro = productRepository.save(product);
 
-        //Actualizo el product con la nueva lista de imagenes
+        //Actualizo el movile con la nueva lista de imagenes
         List<File> images = new LinkedList<>();
         for (MultipartFile file : files) {
             File f = new File();
             f.setName(imageService.guardarArchivo(file));
             f.setUrl("http://localhost:8080/api/v1/product/image/" + f.getName());
-            f.setProduct(product);
+            f.setProduct(pro);
             images.add(fileService.save(f));
         }
-        product.setFiles(images);
+        pro.setFiles(images);
 
-        return product;
+        return pro;
     }
 
     /**
