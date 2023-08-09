@@ -57,6 +57,7 @@ public /*abstract*/ class Product implements Comparable<Product> {
     @Schema(
             description = "List of images of the product"
     )
+    @JsonIgnoreProperties({"product"})
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     protected List<File> files = new LinkedList<>();
 
