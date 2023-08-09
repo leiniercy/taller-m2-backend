@@ -3,6 +3,7 @@ package tallerM2.tallerM2.services;
 import tallerM2.tallerM2.exceptions.custom.BadRequest;
 import tallerM2.tallerM2.exceptions.custom.Conflict;
 import tallerM2.tallerM2.exceptions.custom.ValueNotFound;
+import tallerM2.tallerM2.model.Product;
 import tallerM2.tallerM2.model.Sell;
 
 import java.time.LocalDate;

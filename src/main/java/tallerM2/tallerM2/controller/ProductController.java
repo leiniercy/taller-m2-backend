@@ -22,12 +22,12 @@ import tallerM2.tallerM2.exceptions.ErrorObject;
 import tallerM2.tallerM2.exceptions.custom.BadRequest;
 import tallerM2.tallerM2.exceptions.custom.Conflict;
 import tallerM2.tallerM2.exceptions.custom.ValueNotFound;
-import tallerM2.tallerM2.model.Charger;
-import tallerM2.tallerM2.model.Movile;
-import tallerM2.tallerM2.model.Product;
-import tallerM2.tallerM2.model.Reloj;
+import tallerM2.tallerM2.model.*;
 import tallerM2.tallerM2.services.servicesImpl.ProductService;
 import tallerM2.tallerM2.services.servicesImpl.ImageService;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
@@ -43,6 +43,9 @@ public class ProductController {
     ProductService service;
     @Autowired
     private ImageService imageService;
+
+    @PersistenceContext
+    public EntityManager em;
 
     @Operation(summary = "Find all accesories", description = "Find all accesories", tags = "product")
     @ApiResponses(value = {
@@ -70,8 +73,6 @@ public class ProductController {
         });
         return ResponseEntity.ok(products);
     }
-
-
     @Operation(summary = "Find a accesorie by ID", description = "Search accesorie by the id", tags = "product")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Product.class))),

@@ -6,14 +6,15 @@ import org.springframework.stereotype.Service;
 import tallerM2.tallerM2.exceptions.custom.BadRequest;
 import tallerM2.tallerM2.exceptions.custom.Conflict;
 import tallerM2.tallerM2.exceptions.custom.ValueNotFound;
+import tallerM2.tallerM2.model.Product;
 import tallerM2.tallerM2.model.Sell;
-import tallerM2.tallerM2.repository.CustomerRepository;
 import tallerM2.tallerM2.repository.ProductRepository;
 import tallerM2.tallerM2.repository.SellRepository;
 import tallerM2.tallerM2.services.ISellService;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,6 +25,10 @@ public class SellService implements ISellService {
     SellRepository sellRepository;
     @PersistenceContext
     public EntityManager em;
+
+    @Autowired
+    ProductRepository productRepository;
+
 
     /**
      * METODO PARA VERIFICAR SI EL OBJETO EXISTE, PREGUNTANDO POR EL ID

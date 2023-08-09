@@ -99,7 +99,7 @@ public class SellController {
             }
     )
     @PostMapping(path = {"/save"}, consumes = "application/json", produces = "application/json")
-    public ResponseEntity<?> save(@RequestBody Sell sell) throws Conflict, BadRequest {
+    public ResponseEntity<?> save( @RequestBody Sell sell) throws Conflict, BadRequest {
         try {
             return ResponseEntity.ok(service.save(sell));
         } catch (Conflict conflict) {

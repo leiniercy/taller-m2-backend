@@ -1,10 +1,9 @@
 package tallerM2.tallerM2.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import javax.persistence.*;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,7 +34,7 @@ public class Customer {
     @Schema(
             description = "List of sales"
     )
-    @JsonBackReference
+    @JsonIgnore
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     private List<Sell> sales = new LinkedList<>();
 }

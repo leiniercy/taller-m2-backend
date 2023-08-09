@@ -98,7 +98,6 @@ public class ProductService implements IProductService {
         product.setName(name);
         product.setPrice(price);
         product.setCant(cant);
-        product.setSales(new ArrayList<>());
 
         Product pro = productRepository.save(product);
         //Asignacion de sus imagenes
