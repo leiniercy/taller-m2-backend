@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.util.*;
 
 
 @Entity
@@ -20,6 +19,22 @@ public class Sell {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    @Schema(
+            description = "description",
+            example = "description"
+    )
+    @Column(nullable = false)
+    private String description;
+
+
+    @Schema(
+            description = "sale price",
+            example = "121"
+    )
+    @Column(nullable = false)
+    private int salePrice;
+
     @Schema(
             description = "Name of taller",
             example = "Taller 2M"
@@ -43,13 +58,13 @@ public class Sell {
     @JoinColumn(name = "product_id", nullable = true, updatable = true)
     @ManyToOne(optional = true)
     private Product product;
-
     @Schema(
-            description = "description",
-            example = "description"
+            description = " product cant",
+            example = "3"
     )
     @Column(nullable = false)
-    private String description;
+    private  int cantProduct;
+
 
 
 }

@@ -11,12 +11,15 @@ import tallerM2.tallerM2.model.Sell;
 import tallerM2.tallerM2.repository.ProductRepository;
 import tallerM2.tallerM2.repository.SellRepository;
 import tallerM2.tallerM2.services.ISellService;
+import tallerM2.tallerM2.utils.Util;
+import tallerM2.tallerM2.utils.dto.SellRequest;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 public class SellService implements ISellService {
@@ -72,23 +75,46 @@ public class SellService implements ISellService {
      * PRIMERO SE VERIFICA QUE EL OBJETO NO EXISTA, Y LUEGO SE GURADA LA
      * INFORMACION
      *
-     * @param sell indica el objeto que se desea guradar. No debe ser vacio
-     * @return Sell objeto guardado
+     * @param sellRequest contiene la informacion de los objetos que se quieren vender
+     * @return List<Sell>  con los objetos vendidos
      */
     @Override
-    public Sell save(Sell sell) throws Conflict, BadRequest {
-        Optional<Sell> op = sellRepository.findById(sell.getId());
-        if (!op.isEmpty()) {
-            throw new Conflict("This sell is aviable");
-        }
-        Sell s = new Sell();
-        s.setDescription(sell.getDescription());
-        s.setTallerName(sell.getTallerName());
-        s.setSellDate(sell.getSellDate());
-        s.setCustomer(sell.getCustomer());
-        s.setProduct(sell.getProduct());
+    public List<Sell> save(SellRequest sellRequest) throws Conflict, BadRequest {
 
-        return sellRepository.save(s);
+//        Optional<Sell> op = sellRepository.findById(sell.getId());
+//        if (!op.isEmpty()) {
+//            throw new Conflict("This sell is aviable");
+//        }
+
+        //Realizo las ventas de los objetos
+        List<Sell> sales = new LinkedList<>();
+        Random random = new Random();
+        for(int i=0; i < sellRequest.getProducts().size(); i++){
+            Sell sell = new Sell();
+            sell.setId(random.nextLong());
+            sell.setTallerName(sellRequest.getTallerName());
+            sell.setSellDate(sellRequest.getDate());
+            sell.setCustomer(sellRequest.getCustomer());
+            sell.setDescription( sellRequest.getDescriptions().get(i));
+            sell.setCantProduct(sellRequest.getQuantities().get(i));
+            sell.setSalePrice(sellRequest.getPrices().get(i) * sell.getCantProduct());
+            sell.setProduct(sellRequest.getProducts().get(i));
+            sales.add(sellRepository.save(sell));
+        }
+
+        //Actualizo la informacion de los productos vendidos
+        for(Sell s : sales){
+            Product product = s.getProduct();
+            product.setId(s.getProduct().getId());
+            product.setName(s.getProduct().getName());
+            product.setPrice(s.getProduct().getPrice());
+            product.setFiles(s.getProduct().getFiles());
+            //actualizo la cantidad real de productos restandole la cantidad vendida
+            product.setCant(s.getProduct().getCant() - s.getCantProduct());
+            s.setProduct(productRepository.save(product));
+        }
+
+        return sales;
     }
 
     /**
@@ -104,6 +130,8 @@ public class SellService implements ISellService {
         if (op.isEmpty()) throw new ValueNotFound("Sell not found");
         Sell to = op.get();
         to.setDescription(from.getDescription());
+        to.setCantProduct(from.getCantProduct());
+        to.setSalePrice(from.getSalePrice());
         to.setTallerName(from.getTallerName());
         to.setSellDate(from.getSellDate());
         to.setCustomer(from.getCustomer());
@@ -116,7 +144,6 @@ public class SellService implements ISellService {
      *
      * @param sell Informacion de la venta que se quiere eliminar. No debe ser vacio
      * @return Sell  toda la informacion del objeto elimnado.
-     *
      */
     @Override
     public Sell delete(Sell sell) throws ValueNotFound, BadRequest {
@@ -131,7 +158,6 @@ public class SellService implements ISellService {
      *
      * @param id no debe ser vacio {@literal null}.
      * @return Sell  toda la informacion del objeto elimnado.
-     *
      */
     @Override
     public Sell deleteById(Long id) throws ValueNotFound, BadRequest {
@@ -157,7 +183,7 @@ public class SellService implements ISellService {
      * METODO QUE DEVUELVE LA CANTIDAD DE OBJETOS QUE EXISTE
      *
      * @return long
-     * */
+     */
     @Override
     public long count() {
         return sellRepository.count();

@@ -17,9 +17,12 @@ import tallerM2.tallerM2.exceptions.custom.Conflict;
 import tallerM2.tallerM2.exceptions.custom.ValueNotFound;
 import tallerM2.tallerM2.model.Sell;
 import tallerM2.tallerM2.services.servicesImpl.SellService;
+import tallerM2.tallerM2.utils.dto.SellRequest;
 
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 @RestController
 @RequestMapping(value = "/api/v1/sell")
@@ -99,9 +102,9 @@ public class SellController {
             }
     )
     @PostMapping(path = {"/save"}, consumes = "application/json", produces = "application/json")
-    public ResponseEntity<?> save( @RequestBody Sell sell) throws Conflict, BadRequest {
+    public ResponseEntity<?> save( @RequestBody SellRequest sellRequest) throws Conflict, BadRequest {
         try {
-            return ResponseEntity.ok(service.save(sell));
+            return ResponseEntity.ok(service.save(sellRequest));
         } catch (Conflict conflict) {
             throw new Conflict(conflict.getMessage());
         } catch (BadRequest badRequest) {

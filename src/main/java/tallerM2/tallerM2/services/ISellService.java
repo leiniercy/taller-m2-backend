@@ -5,6 +5,7 @@ import tallerM2.tallerM2.exceptions.custom.Conflict;
 import tallerM2.tallerM2.exceptions.custom.ValueNotFound;
 import tallerM2.tallerM2.model.Product;
 import tallerM2.tallerM2.model.Sell;
+import tallerM2.tallerM2.utils.dto.SellRequest;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -16,7 +17,7 @@ public interface ISellService {
 
     public List<Sell> findAllOrderByIdAsc();
 
-    public Sell save(Sell sell) throws Conflict, BadRequest;
+    public List<Sell> save(SellRequest sellRequest) throws Conflict, BadRequest;
 
     public Sell update(Sell sell, Long id) throws ValueNotFound, BadRequest;
 

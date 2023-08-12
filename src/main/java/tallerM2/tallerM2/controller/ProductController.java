@@ -57,6 +57,15 @@ public class ProductController {
         return ResponseEntity.ok(service.findAll());
     }
 
+    @Operation(summary = "Find all than 0", description = "Find all product where cant > 0", tags = "product")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Product.class)))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+    })
+    @GetMapping(path = {"/allProduct-cant"}, produces = "application/json")
+    public ResponseEntity<?> allProductsThanCero() {
+        return ResponseEntity.ok(service.findAllCantThanCero());
+    }
 
     @Operation(summary = "Find all accesories", description = "Find all accesories", tags = "product")
     @ApiResponses(value = {

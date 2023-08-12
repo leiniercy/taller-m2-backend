@@ -24,6 +24,9 @@ import tallerM2.tallerM2.services.IProductService;
 import tallerM2.tallerM2.utils.Util;
 import tallerM2.tallerM2.repository.ProductRepository;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 /**
  * @author Admin
  */
@@ -34,9 +37,10 @@ public class ProductService implements IProductService {
     ProductRepository productRepository;
     @Autowired
     ImageService imageService;
-
     @Autowired
     FileService fileService;
+    @PersistenceContext
+    public EntityManager em;
 
 
     /**
@@ -74,6 +78,19 @@ public class ProductService implements IProductService {
     @Override
     public List<Product> findAllByOrderByIdAsc() {
         return productRepository.findAllByOrderByIdAsc();
+    }
+
+    /**
+     * METODO QUE DEVUELVE UNA LISTA ORDENADA ASCENDENTEMENTE CON TODOS LOS
+     * OBJETOS DE UN MISMO TIPO ESPECIFICADO PREVIAMENTE CUYAS CANTIDADES
+     * SON MAYORES A 0
+     *
+     * @return List<Product>
+     */
+    @Override
+    public List<Product> findAllCantThanCero(){
+        return em.createQuery("SELECT p FROM Product p WHERE p.cant > 0 ORDER BY p.id")
+                .getResultList();
     }
 
     /**
