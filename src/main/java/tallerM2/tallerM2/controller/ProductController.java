@@ -73,6 +73,13 @@ public class ProductController {
         });
         return ResponseEntity.ok(products);
     }
+
+    @Operation(summary = "Cuenta la cant de accesorios", description = "count accesorios", tags = "product")
+    @GetMapping(value = "/getCant")
+    public ResponseEntity<?> getCant()  {
+        return ResponseEntity.ok(service.count());
+    }
+
     @Operation(summary = "Find a accesorie by ID", description = "Search accesorie by the id", tags = "product")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Product.class))),

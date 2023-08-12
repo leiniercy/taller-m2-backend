@@ -74,6 +74,11 @@ public class MovileController {
             throw new BadRequest("Bad request");
         }
     }
+    @Operation(summary = "Count cant of movile", description = "count moviles", tags = "movile")
+    @GetMapping(value = "/getCant")
+    public ResponseEntity<?> getCant()  {
+        return ResponseEntity.ok(service.count());
+    }
 
     @Operation(
             summary = "Create new movile",

@@ -32,20 +32,24 @@ public class Sell {
             example = "2023-07-08"
     )
     @NotNull(message = "campo obligatorio")
-    @Column(name = "sellDate",nullable = false)
+    @Column(name = "sellDate", nullable = false)
     private LocalDate sellDate;
 
     @JoinColumn(name = "customer_id", nullable = true, updatable = true)
     @ManyToOne(optional = true)
     private Customer customer;
 
-
     @JsonIgnoreProperties({"sales"})
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "sell_to_products",
-            joinColumns =
-            @JoinColumn(name = "sell_id", nullable = true),
-            inverseJoinColumns = @JoinColumn(name = "product_id", unique = false, nullable = true,updatable = true))
-    private List<Product> products = new LinkedList<>();
+    @JoinColumn(name = "product_id", nullable = true, updatable = true)
+    @ManyToOne(optional = true)
+    private Product product;
+
+    @Schema(
+            description = "description",
+            example = "description"
+    )
+    @Column(nullable = false)
+    private String description;
+
 
 }

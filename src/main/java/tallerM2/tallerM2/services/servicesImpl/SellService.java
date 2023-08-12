@@ -82,10 +82,12 @@ public class SellService implements ISellService {
             throw new Conflict("This sell is aviable");
         }
         Sell s = new Sell();
+        s.setDescription(sell.getDescription());
         s.setTallerName(sell.getTallerName());
         s.setSellDate(sell.getSellDate());
         s.setCustomer(sell.getCustomer());
-        s.setProducts(sell.getProducts());
+        s.setProduct(sell.getProduct());
+
         return sellRepository.save(s);
     }
 
@@ -101,10 +103,11 @@ public class SellService implements ISellService {
         Optional<Sell> op = sellRepository.findById(id);
         if (op.isEmpty()) throw new ValueNotFound("Sell not found");
         Sell to = op.get();
+        to.setDescription(from.getDescription());
         to.setTallerName(from.getTallerName());
         to.setSellDate(from.getSellDate());
         to.setCustomer(from.getCustomer());
-        to.setProducts(from.getProducts());
+        to.setProduct(from.getProduct());
         return sellRepository.save(to);
     }
 

@@ -73,6 +73,12 @@ public class RelojController {
         }
     }
 
+    @Operation(summary = "Count cant of reloj", description = "count reloj", tags = "reloj")
+    @GetMapping(value = "/getCant")
+    public ResponseEntity<?> getCant()  {
+        return ResponseEntity.ok(service.count());
+    }
+
     @Operation(
             summary = "Create new reloj",
             description = "Create a new reloj",

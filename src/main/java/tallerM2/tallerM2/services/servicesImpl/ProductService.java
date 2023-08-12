@@ -10,21 +10,21 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import tallerM2.tallerM2.exceptions.custom.BadRequest;
 import tallerM2.tallerM2.exceptions.custom.Conflict;
 import tallerM2.tallerM2.exceptions.custom.ValueNotFound;
-import tallerM2.tallerM2.model.File;
+import tallerM2.tallerM2.model.*;
 
-import tallerM2.tallerM2.model.Product;
 import tallerM2.tallerM2.services.IProductService;
 import tallerM2.tallerM2.utils.Util;
 import tallerM2.tallerM2.repository.ProductRepository;
 
 /**
- *
  * @author Admin
  */
 @Service
@@ -218,6 +218,14 @@ public class ProductService implements IProductService {
      */
     @Override
     public long count() {
-        return productRepository.count();
+        long total = 0;
+        List<Product> products = findAll().stream()
+                .filter(product -> !(product instanceof Movile) && !(product instanceof Reloj) && !(product instanceof Charger))
+                .collect(Collectors.toList());
+        if(products.isEmpty()) return 0;
+        for (Product product : products) {
+            total += product.getCant();
+        }
+        return total;
     }
 }

@@ -64,8 +64,8 @@ public /*abstract*/ class Product implements Comparable<Product> {
     @Schema(
             description = "List of sales of the product"
     )
-    @JsonIgnoreProperties({"products"})
-    @ManyToMany(mappedBy = "products", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonIgnoreProperties({"product"})
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<Sell> sales = new LinkedList<>();
 
     @Override

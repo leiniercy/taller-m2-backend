@@ -74,6 +74,12 @@ public class ChargerController {
         }
     }
 
+    @Operation(summary = "Count cant of charger", description = "count chargers", tags = "charger")
+    @GetMapping(value = "/getCant")
+    public ResponseEntity<?> getCant()  {
+            return ResponseEntity.ok(service.count());
+    }
+
     @Operation(
             summary = "Create new charger",
             description = "Create a new charger",

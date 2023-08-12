@@ -20,6 +20,10 @@ import tallerM2.tallerM2.repository.MovileRepository;
 import tallerM2.tallerM2.services.IMovileService;
 import tallerM2.tallerM2.utils.Util;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+
 
 @Service
 public class MovileService implements IMovileService {
@@ -30,6 +34,8 @@ public class MovileService implements IMovileService {
     private ImageService imageService;
     @Autowired
     private FileService fileService;
+    @PersistenceContext
+    private EntityManager em;
 
     /**
      * METODO PARA VERIFICAR SI EL MOVIL EXISTE, PREGUNTANDO POR EL ID
@@ -258,7 +264,9 @@ public class MovileService implements IMovileService {
      */
     @Override
     public long count() {
-        return movileRepository.count();
+        Query query = em.createQuery("select coalesce(sum(m.cant),0) from Movile m");
+        Long result = (Long) query.getSingleResult();
+        return result != null ? result : 0;
     }
 
     /**

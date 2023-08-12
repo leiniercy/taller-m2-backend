@@ -13,6 +13,9 @@ import tallerM2.tallerM2.repository.ChargerRepository;
 import tallerM2.tallerM2.services.IChargerService;
 import tallerM2.tallerM2.utils.Util;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,6 +31,8 @@ public class ChargerService implements IChargerService {
     private ImageService imageService;
     @Autowired
     private FileService fileService;
+    @PersistenceContext
+    private EntityManager em;
 
     /**
      * METODO PARA VERIFICAR SI EL Cargador EXISTE, PREGUNTANDO POR EL ID
@@ -219,6 +224,10 @@ public class ChargerService implements IChargerService {
      */
     @Override
     public long count() {
-        return chargerRepository.count();
+        Query query = em.createQuery("select coalesce(sum(c.cant),0) from Charger c");
+        Long result = (Long) query.getSingleResult();
+        return result != null ? result : 0;
     }
+
+
 }

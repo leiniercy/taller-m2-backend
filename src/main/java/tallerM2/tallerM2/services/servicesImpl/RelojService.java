@@ -14,6 +14,9 @@ import tallerM2.tallerM2.repository.RelojRepository;
 import tallerM2.tallerM2.services.IRelojService;
 import tallerM2.tallerM2.utils.Util;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -30,6 +33,8 @@ public class RelojService implements IRelojService {
     private ImageService imageService;
     @Autowired
     private FileService fileService;
+    @PersistenceContext
+    private EntityManager em;
 
     /**
      * METODO PARA VERIFICAR SI EL MOVIL EXISTE, PREGUNTANDO POR EL ID
@@ -225,6 +230,8 @@ public class RelojService implements IRelojService {
      * */
     @Override
     public long count() {
-        return relojRepository.count();
+        Query query = em.createQuery("select coalesce(sum(r.cant),0) from Reloj r");
+        Long result = (Long) query.getSingleResult();
+        return result != null ? result : 0;
     }
 }
