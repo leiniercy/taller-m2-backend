@@ -150,6 +150,14 @@ public class SellService implements ISellService {
         Optional<Sell> op = sellRepository.findById(sell.getId());
         if (op.isEmpty()) throw new ValueNotFound("Sell not found");
         sellRepository.delete(sell);
+        Product product = sell.getProduct();
+        product.setId(sell.getProduct().getId());
+        product.setName(sell.getProduct().getName());
+        product.setPrice(sell.getProduct().getPrice());
+        product.setFiles(sell.getProduct().getFiles());
+        //actualizo la cantidad real de productos sumandole la cantidad vendida
+        product.setCant(sell.getProduct().getCant() + sell.getCantProduct());
+        sell.setProduct(productRepository.save(product));
         return op.get();
     }
 
@@ -163,7 +171,16 @@ public class SellService implements ISellService {
     public Sell deleteById(Long id) throws ValueNotFound, BadRequest {
         Optional<Sell> op = sellRepository.findById(id);
         if (op.isEmpty()) throw new ValueNotFound("Sell not found");
+        Sell s = op.get();
         sellRepository.deleteById(id);
+        Product product = s.getProduct();
+        product.setId(s.getProduct().getId());
+        product.setName(s.getProduct().getName());
+        product.setPrice(s.getProduct().getPrice());
+        product.setFiles(s.getProduct().getFiles());
+        //actualizo la cantidad real de productos sumandole la cantidad vendida
+        product.setCant(s.getProduct().getCant() + s.getCantProduct());
+        s.setProduct(productRepository.save(product));
         return op.get();
     }
 
@@ -176,6 +193,16 @@ public class SellService implements ISellService {
     @Override
     public List<Sell> deleteAll(List<Sell> sales) throws ValueNotFound, BadRequest {
         sellRepository.deleteAll(sales);
+        for(Sell s : sales){
+            Product product = s.getProduct();
+            product.setId(s.getProduct().getId());
+            product.setName(s.getProduct().getName());
+            product.setPrice(s.getProduct().getPrice());
+            product.setFiles(s.getProduct().getFiles());
+            //actualizo la cantidad real de productos sumandole la cantidad vendida
+            product.setCant(s.getProduct().getCant() + s.getCantProduct());
+            s.setProduct(productRepository.save(product));
+        }
         return findAllOrderByIdAsc();
     }
 
