@@ -16,6 +16,7 @@ import tallerM2.tallerM2.utils.dto.SellRequest;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -68,6 +69,19 @@ public class SellService implements ISellService {
     @Override
     public List<Sell> findAllOrderByIdAsc() {
         return em.createQuery("SELECT s FROM Sell s ORDER BY s.id")
+                .getResultList();
+    }
+
+    /**
+     * METODO QUE DEVUELVE UNA LISTA ORDENADA ASCENDENTEMENTE CON TODOS LOS
+     * OBJETOS DE UN MISMO TIPO ESPECIFICADO PREVIAMENTE
+     *
+     * @return List<Sell>
+     */
+    @Override
+    public List<Sell> findAllByDate(LocalDate sellDate) {
+        return em.createQuery("SELECT s FROM Sell s WHERE s.sellDate = :fecha ORDER BY s.id")
+                .setParameter("fecha", sellDate)
                 .getResultList();
     }
 
