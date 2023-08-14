@@ -1,11 +1,15 @@
 package tallerM2.tallerM2.controller;
 
+import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -30,7 +34,10 @@ import tallerM2.tallerM2.utils.dto.SellRequest;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.MediaType;
@@ -81,8 +88,8 @@ public class SellController {
         }
     }
 
-    @PostMapping(value = "/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
-    public ResponseEntity<?> generarPDf(
+    @PostMapping(value = "/pdf/diario", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<?> generarPDFReporteDiario(
             HttpServletResponse response,
             @RequestBody List<Sell> sales
     ) throws IOException, DocumentException {
@@ -105,8 +112,9 @@ public class SellController {
         return ResponseEntity.ok(baos.toByteArray());
     }
 
+    //PDF Reporte Diario
     private PdfPTable reportSaleTable(List<Sell> sales) {
-        PdfPTable table = new PdfPTable(new float[]{2, 1, 2, 1});
+        PdfPTable table = new PdfPTable(new float[]{2, 2, 1, 2, 1});
         table.setWidthPercentage(100);
         // Agregar encabezados de columna a la tabla
         // Agregar encabezados de columna a la tabla con estilo
@@ -115,6 +123,10 @@ public class SellController {
         table.addCell(cell);
 
         cell = new PdfPCell(new Paragraph("Producto"));
+        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cell);
+
+        cell = new PdfPCell(new Paragraph("Cantidad"));
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
         table.addCell(cell);
 
@@ -138,6 +150,11 @@ public class SellController {
             cell.setPadding(5);
             cell.setHorizontalAlignment(Element.ALIGN_CENTER);
             table.addCell(cell);
+            //Cantidad de producto
+            cell = new PdfPCell(new Paragraph(Integer.toString(sell.getCantProduct())));
+            cell.setPadding(5);
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            table.addCell(cell);
             //Descripcion
             cell = new PdfPCell(new Paragraph(sell.getDescription()));
             cell.setPadding(5);
@@ -154,7 +171,7 @@ public class SellController {
 
         // Agregar una fila con la suma total
         cell = new PdfPCell(new Paragraph("Total", new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD)));
-        cell.setColspan(3);
+        cell.setColspan(4);
         cell.setPadding(5);
         cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
         table.addCell(cell);
@@ -163,6 +180,110 @@ public class SellController {
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
         cell.setPadding(5);
         table.addCell(cell);
+
+        return table;
+    }
+
+    @Operation(summary = "Return info of sale", description = "Return info of sale", tags = "sell")
+    @PostMapping(value = "/pdf/venta", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<?> generarPDfVenta(
+            HttpServletResponse response,
+            @RequestBody List<Sell> sales
+    ) throws IOException, DocumentException, ParseException {
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        // Creamos el documento PDF
+        Rectangle carta = new Rectangle(612, 792); // Tamaño carta en puntos (72 puntos por pulgada)
+        Document document = new Document(carta, 72, 72, 72, 72); // Márgenes de 1 pulgada en todos los lados (72 puntos por pulgada)
+        PdfWriter.getInstance(document, baos);
+        // Abrir el documento PDF
+        document.open();
+        // Encabezado del recibo
+        Paragraph header = new Paragraph("Taller 2M\n", new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD));
+        header.setAlignment(Element.ALIGN_CENTER);
+        document.add(header);
+        Paragraph compra = new Paragraph("COMPRA\n", new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD));
+        compra.setAlignment(Element.ALIGN_CENTER);
+        document.add(compra);
+        //Fecha y hora        
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+        String dateStr = dateFormat.format(new Date());
+
+        SimpleDateFormat dateOnlyFormat = new SimpleDateFormat("dd/MM/yyyy");
+        String date = dateOnlyFormat.format(dateFormat.parse(dateStr));
+
+        SimpleDateFormat timeOnlyFormat = new SimpleDateFormat("HH:mm");
+        String time = timeOnlyFormat.format(dateFormat.parse(dateStr));
+
+        Paragraph customerInfo = new Paragraph("Cliente: " + sales.get(0).getCustomer().getCustomerName() + "\nFecha: " + date + "  Hora: " + time + "\n\n", new Font(Font.FontFamily.HELVETICA, 12));
+        customerInfo.setAlignment(Element.ALIGN_CENTER);
+        document.add(customerInfo);
+        
+        // Tabla de detalles de venta
+        document.add(reporteVenta(sales));
+        //Importe de compra
+        double total = sales.stream().mapToDouble(Sell::getSalePrice).sum();
+        Paragraph totalInfo = new Paragraph("\n\nIMPORTE DE VENTA $" + String.format("%.2f", total), new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD));
+        totalInfo.setAlignment(Element.ALIGN_CENTER);
+        document.add(totalInfo);
+        //Saludo 
+        Paragraph saludo = new Paragraph("\n\nCOPIA DEL CLIENTE\nGracias por su visita", new Font(Font.FontFamily.HELVETICA, 10));
+        saludo.setAlignment(Element.ALIGN_CENTER);
+        document.add(saludo);
+        //Cerramos el documento PDF
+        document.close();
+        response.setHeader("Content-Disposition", "attachment; filename=venta.pdf");
+        response.setContentType("application/pdf");
+        response.setContentLength(baos.size());
+        return ResponseEntity.ok(baos.toByteArray());
+    }
+
+    private PdfPTable reporteVenta(List<Sell> sales) throws DocumentException {
+        // Tabla de detalles de venta
+        PdfPTable table = new PdfPTable(3);
+        table.setWidthPercentage(50);
+        table.setWidths(new int[]{2, 1, 1});
+        PdfPCell cell = new PdfPCell(new Phrase("Producto"));
+        cell.setPadding(5);
+        cell.setBorderColor(BaseColor.WHITE);
+        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cell);
+        //Cantidad
+        cell = new PdfPCell(new Phrase("Cantidad"));
+        cell.setPadding(5);
+        cell.setBorderColor(BaseColor.WHITE);
+        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cell);
+        //Precio
+        cell = new PdfPCell(new Phrase("Precio"));
+        cell.setPadding(5);
+        cell.setBorderColor(BaseColor.WHITE);
+        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cell);
+
+        for (Sell sell : sales) {
+            //Nombre del producto
+            cell = new PdfPCell(new Phrase(String.valueOf(sell.getProduct().getName())));
+            cell.setPadding(5);
+            cell.setBorderColor(BaseColor.WHITE);
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            table.addCell(cell);
+
+            //Nombre del producto
+            cell = new PdfPCell(new Phrase(String.valueOf(sell.getCantProduct())));
+            cell.setBorderColor(BaseColor.WHITE);
+            cell.setPadding(5);
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            table.addCell(cell);
+
+            //Nombre del producto
+            cell = new PdfPCell(new Phrase(String.valueOf(sell.getSalePrice())));
+            cell.setBorderColor(BaseColor.WHITE);
+            cell.setPadding(5);
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            table.addCell(cell);
+
+        }
 
         return table;
     }
