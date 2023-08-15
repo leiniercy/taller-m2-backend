@@ -28,6 +28,8 @@ public class User {
 
     @Column
     private String email;
+    @Column
+    private String taller;
 
     @Column
     private String password;

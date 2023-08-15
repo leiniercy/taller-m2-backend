@@ -45,14 +45,15 @@ public class TallerM2Application {
         }
         logger.info("Generating demo data");
         logger.info("... generando Usuarios");
-        createAdmin("leiniercy", "leiniercy@uci.cu", "admin");
+        createAdmin("leiniercy", "leiniercy@uci.cu", "Taller 2M","admin");
 
     }
 
-    private User createAdmin(String username, String email, String password) throws ValueNotFound {
+    private User createAdmin(String username, String email, String taller, String password) throws ValueNotFound {
         User user = new User();
         user.setUsername(username);
         user.setEmail(email);
+        user.setTaller(taller);
         user.setPassword(passwordEncoder.encode(password));
         Set<Role> roles = new HashSet<>();
         Optional<Role> userRole = roleRepository.findByName(ERole.ROLE_ADMIN);

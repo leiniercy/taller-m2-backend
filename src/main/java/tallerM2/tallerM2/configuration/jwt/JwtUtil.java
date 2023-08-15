@@ -7,18 +7,18 @@ package tallerM2.tallerM2.configuration.jwt;
 
 import io.jsonwebtoken.*;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import tallerM2.tallerM2.configuration.dto.UserResponse;
 import tallerM2.tallerM2.configuration.service.UserDetailsImpl;
+import tallerM2.tallerM2.model.User;
+import tallerM2.tallerM2.repository.UserRepository;
 import tallerM2.tallerM2.utils.Util;
 
 @Component
@@ -30,6 +30,9 @@ public class JwtUtil {
     @Value("${taller2M.app.jwtExpirationMs}")
     private int jwtExpirationMs;
 
+    @Autowired
+    UserRepository repository;
+
     public String generateJwtToken(Authentication authentication) {
 
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
@@ -40,9 +43,13 @@ public class JwtUtil {
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
 
+        Optional<User> op = repository.findByUsername(userName);
         //Creamos un usuario con la informacion que necesitamos
         UserResponse userResponse = new UserResponse();
-        userResponse.setUsername(userName);
+        userResponse.setId(op.get().getId());
+        userResponse.setName(userName);
+        userResponse.setEmail(op.get().getEmail());
+        userResponse.setTaller(op.get().getTaller());
         userResponse.setRoles(roles);
 
         //Creamos un estructura de datos con la informacion

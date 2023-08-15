@@ -8,6 +8,10 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 public class UserResponse {
-    private String username;
+
+    private Long id;
+    private String name;
+    private String email;
+    private String taller;
     private List<String> roles;
 }
