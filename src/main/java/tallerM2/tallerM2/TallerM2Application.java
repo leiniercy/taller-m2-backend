@@ -46,6 +46,7 @@ public class TallerM2Application {
         logger.info("Generating demo data");
         logger.info("... generando Usuarios");
         createAdmin("leiniercy", "leiniercy@uci.cu", "Taller 2M","admin");
+        createModerator("moderador","leiniercy@uci.cu","Taller 2M","moderador");
 
     }
 
@@ -57,6 +58,22 @@ public class TallerM2Application {
         user.setPassword(passwordEncoder.encode(password));
         Set<Role> roles = new HashSet<>();
         Optional<Role> userRole = roleRepository.findByName(ERole.ROLE_ADMIN);
+        if (userRole.isEmpty()) {
+            throw new ValueNotFound("role not found");
+        }
+        roles.add(userRole.get());
+        user.setRoles(roles);
+        userRepository.saveAndFlush(user);
+        return user;
+    }
+    private User createModerator(String username, String email, String taller, String password) throws ValueNotFound {
+        User user = new User();
+        user.setUsername(username);
+        user.setEmail(email);
+        user.setTaller(taller);
+        user.setPassword(passwordEncoder.encode(password));
+        Set<Role> roles = new HashSet<>();
+        Optional<Role> userRole = roleRepository.findByName(ERole.ROLE_MODERATOR);
         if (userRole.isEmpty()) {
             throw new ValueNotFound("role not found");
         }
