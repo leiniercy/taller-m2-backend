@@ -115,12 +115,13 @@ public class ChargerController {
             @RequestParam("name") String name,
             @RequestParam("price") int price,
             @RequestParam("cant") int cant,
+            @RequestParam("taller") String taller,
             @RequestParam("connectorType") String connectorType,
             @RequestParam("compatibleDevice") String compatibleDevice,
             @RequestParam("files") List<MultipartFile> files
     ) throws Conflict, BadRequest, IOException {
         try {
-            return ResponseEntity.ok(service.save(files, name, price, cant,
+            return ResponseEntity.ok(service.save(files, name, price, cant, taller,
                     connectorType, compatibleDevice));
         } catch (IOException ex) {
             throw new BadRequest("Error loading file");
@@ -166,12 +167,13 @@ public class ChargerController {
                                     @RequestParam("name") String name,
                                     @RequestParam("price") int price,
                                     @RequestParam("cant") int cant,
+                                    @RequestParam("taller") String taller,
                                     @RequestParam("connectorType") String connectorType,
                                     @RequestParam("compatibleDevice") String compatibleDevice,
                                     @PathVariable(value = "id") Long id)
             throws ValueNotFound, BadRequest, IOException {
         try {
-            return ResponseEntity.ok(service.update(files, name, price, cant, connectorType, compatibleDevice, id));
+            return ResponseEntity.ok(service.update(files, name, price, cant,taller ,connectorType, compatibleDevice, id));
         } catch (IOException ex) {
             throw new BadRequest("Error loading file");
         } catch (ValueNotFound vn) {
