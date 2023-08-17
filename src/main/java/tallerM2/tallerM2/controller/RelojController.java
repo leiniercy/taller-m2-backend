@@ -113,13 +113,14 @@ public class RelojController {
     public ResponseEntity<?> save(@RequestParam("name") String name,
                                   @RequestParam("price") int price,
                                   @RequestParam("cant") int cant,
+                                  @RequestParam("taller") String taller,
                                   @RequestParam("specialFeature") String specialFeature,
                                   @RequestParam("compatibleDevice") String compatibleDevice,
                                   @RequestParam("bateryLife") int bateryLife,
                                   @RequestParam("files") List<MultipartFile> files
     ) throws Conflict, BadRequest, IOException {
         try {
-            return ResponseEntity.ok(service.save(files, name, price, cant,
+            return ResponseEntity.ok(service.save(files, name, price, cant, taller,
                     specialFeature, compatibleDevice, bateryLife));
         } catch (IOException ex) {
             throw new BadRequest("Error loading file");
@@ -165,13 +166,14 @@ public class RelojController {
                                     @RequestParam("name") String name,
                                     @RequestParam("price") int price,
                                     @RequestParam("cant") int cant,
+                                    @RequestParam("taller") String taller,
                                     @RequestParam("specialFeature") String specialFeature,
                                     @RequestParam("compatibleDevice") String compatibleDevice,
                                     @RequestParam("bateryLife") int bateryLife,
                                     @PathVariable(value = "id") Long id)
             throws ValueNotFound, BadRequest, IOException {
         try {
-            return ResponseEntity.ok(service.update(files, name, price, cant, specialFeature, compatibleDevice, bateryLife, id));
+            return ResponseEntity.ok(service.update(files, name, price, cant, taller, specialFeature, compatibleDevice, bateryLife, id));
         } catch (IOException ex) {
             throw new BadRequest("Error loading file");
         } catch (ValueNotFound vn) {

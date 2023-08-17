@@ -16,6 +16,7 @@ import tallerM2.tallerM2.exceptions.custom.Conflict;
 import tallerM2.tallerM2.exceptions.custom.ValueNotFound;
 import tallerM2.tallerM2.model.File;
 import tallerM2.tallerM2.model.Movile;
+import tallerM2.tallerM2.model.Product;
 import tallerM2.tallerM2.repository.MovileRepository;
 import tallerM2.tallerM2.services.IMovileService;
 import tallerM2.tallerM2.utils.Util;
@@ -82,6 +83,7 @@ public class MovileService implements IMovileService {
      * @param name          nombre del producto
      * @param price         precio del producto
      * @param cant          cant de productos
+     * @param taller        nombre del taller al q pertenece
      * @param sizeStorage   capacidad de almacenaniento de producto
      * @param ram           velocidad del procesador
      * @param camaraTrasera cantidad de pixeles de la camara trasera
@@ -94,21 +96,39 @@ public class MovileService implements IMovileService {
      * @return Movile
      */
     @Override
-    public Movile save(List<MultipartFile> files, String name, int price, int cant,
+    public Movile save(List<MultipartFile> files, String name, int price, int cant, String taller,
                        int sizeStorage, int ram, int camaraTrasera, int camaraFrontal,
                        boolean banda2G, boolean banda3G, boolean banda4G, boolean banda5G, long bateria)
             throws Conflict, BadRequest, IOException {
 
-        Optional<Movile> op = movileRepository.findByNameAndPriceAndCantAndSizeStorageAndRamAndCamaraTraseraAndCamaraFrontalAndBanda2GAndBanda3GAndBanda4GAndBanda5GAndBateria(name, price, cant,
-                sizeStorage, ram, camaraTrasera, camaraFrontal,
-                banda2G, banda3G, banda4G, banda5G, bateria);
-        if (op.isPresent()) {
+        List<Movile> products = em.createQuery("SELECT m FROM Movile m " +
+                        "WHERE m.name LIKE :name AND  m.cant = :cant AND  m.price = :price AND  m.taller = :taller " +
+                        "AND  m.sizeStorage = :sizeStorage AND  m.ram = :ram AND  m.camaraTrasera = :camaraTrasera " +
+                        "AND  m.camaraFrontal = :camaraFrontal AND  m.banda2G = :banda2G AND  m.banda3G = :banda3G " +
+                        "AND  m.banda4G = :banda4G AND  m.banda5G = :banda5G AND  m.bateria = :bateria")
+                .setParameter("name", name)
+                .setParameter("cant", cant)
+                .setParameter("price", price)
+                .setParameter("taller", taller)
+                .setParameter("sizeStorage", sizeStorage)
+                .setParameter("ram", ram)
+                .setParameter("camaraTrasera", camaraTrasera)
+                .setParameter("camaraFrontal", camaraFrontal)
+                .setParameter("banda2G", banda2G)
+                .setParameter("banda3G", banda3G)
+                .setParameter("banda4G", banda4G)
+                .setParameter("banda5G", banda5G)
+                .setParameter("bateria", bateria)
+                .setMaxResults(1)
+                .getResultList();
+        if (!products.isEmpty()) {
             throw new Conflict("This movile is aviable");
         }
         Movile movile = new Movile();
         movile.setName(name);
         movile.setPrice(price);
         movile.setCant(cant);
+        movile.setTaller(taller);
         movile.setSizeStorage(sizeStorage);
         movile.setRam(ram);
         movile.setCamaraTrasera(camaraTrasera);
@@ -140,6 +160,7 @@ public class MovileService implements IMovileService {
      * @param name          nombre del producto
      * @param price         precio del producto
      * @param cant          cant de productos
+     * @param taller        nombre del taller al q pertenece
      * @param sizeStorage   capacidad de almacenaniento de producto
      * @param ram           velocidad del procesador
      * @param camaraTrasera cantidad de pixeles de la camara trasera
@@ -152,7 +173,7 @@ public class MovileService implements IMovileService {
      * @return Movile
      */
     @Override
-    public Movile update(List<MultipartFile> files, String name, int price, int cant,
+    public Movile update(List<MultipartFile> files, String name, int price, int cant, String taller,
                          int sizeStorage, int ram, int camaraTrasera, int camaraFrontal,
                          boolean banda2G, boolean banda3G, boolean banda4G, boolean banda5G
             , long bateria, Long id) throws ValueNotFound, BadRequest, IOException {
@@ -167,6 +188,7 @@ public class MovileService implements IMovileService {
         movile.setName(name);
         movile.setPrice(price);
         movile.setCant(cant);
+        movile.setTaller(taller);
         movile.setSizeStorage(sizeStorage);
         movile.setRam(ram);
         movile.setCamaraTrasera(camaraTrasera);

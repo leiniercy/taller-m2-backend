@@ -17,9 +17,9 @@ public interface IChargerService {
 
     public List<Charger> findAllByOrderByIdAsc();
 
-    public Charger save(List<MultipartFile> files, String name, int price, int cant, String connectorType, String compatibleDevice) throws Conflict, BadRequest, IOException;
+    public Charger save(List<MultipartFile> files, String name, int price, int cant, String taller, String connectorType, String compatibleDevice) throws Conflict, BadRequest, IOException;
 
-    public Charger update(List<MultipartFile> files, String name, int price, int cant, String connectorType, String compatibleDevice, Long id) throws ValueNotFound, BadRequest, IOException;
+    public Charger update(List<MultipartFile> files, String name, int price, int cant, String taller, String connectorType, String compatibleDevice, Long id) throws ValueNotFound, BadRequest, IOException;
 
     public Charger delete(Charger charger) throws ValueNotFound, BadRequest;
 

@@ -9,6 +9,7 @@ import tallerM2.tallerM2.exceptions.custom.Conflict;
 import tallerM2.tallerM2.exceptions.custom.ValueNotFound;
 import tallerM2.tallerM2.model.Charger;
 import tallerM2.tallerM2.model.File;
+import tallerM2.tallerM2.model.Product;
 import tallerM2.tallerM2.repository.ChargerRepository;
 import tallerM2.tallerM2.services.IChargerService;
 import tallerM2.tallerM2.utils.Util;
@@ -79,16 +80,28 @@ public class ChargerService implements IChargerService {
      * @param name             nombre del producto
      * @param price            precio del producto
      * @param cant             cant de productos
+     * @param taller           nombre del taller al q pertenece
      * @param connectorType    tipo de conector que utiliza
      * @param compatibleDevice dispositivos compatibles
      * @return Charger
      */
     @Override
-    public Charger save(List<MultipartFile> files, String name, int price,
-                        int cant, String connectorType, String compatibleDevice)
+    public Charger save(List<MultipartFile> files, String name, int price, int cant, String taller,
+                        String connectorType, String compatibleDevice)
             throws Conflict, BadRequest, IOException {
-        Optional<Charger> op = chargerRepository.findByNameAndPriceAndCantAndConnectorTypeAndCompatibleDevice(name, price, cant, connectorType, compatibleDevice);
-        if (op.isPresent()) {
+        List<Charger> products = em.createQuery("SELECT c FROM Charger c " +
+                        "WHERE c.name LIKE :name AND  c.cant = :cant AND  c.price = :price AND  c.taller = :taller " +
+                        "AND  c.connectorType = :connectorType " +
+                        "AND  c.compatibleDevice = :compatibleDevice")
+                .setParameter("name", name)
+                .setParameter("cant", cant)
+                .setParameter("price", price)
+                .setParameter("taller", taller)
+                .setParameter("connectorType", connectorType)
+                .setParameter("compatibleDevice", compatibleDevice)
+                .setMaxResults(1)
+                .getResultList();
+        if (!products.isEmpty()) {
             throw new Conflict("This charger is aviable");
         }
 
@@ -96,6 +109,7 @@ public class ChargerService implements IChargerService {
         charger.setName(name);
         charger.setPrice(price);
         charger.setCant(cant);
+        charger.setTaller(taller);
         charger.setConnectorType(connectorType);
         charger.setCompatibleDevice(compatibleDevice);
 
@@ -120,12 +134,13 @@ public class ChargerService implements IChargerService {
      * @param name             nombre del producto
      * @param price            precio del producto
      * @param cant             cant de productos
+     * @param taller           nombre del taller al q pertenece
      * @param connectorType    tipo de conector que utiliza
      * @param compatibleDevice dispositivos compatibles
      * @return Charger
      */
     @Override
-    public Charger update(List<MultipartFile> files, String name, int price, int cant, String connectorType, String compatibleDevice, Long id) throws ValueNotFound, BadRequest, IOException {
+    public Charger update(List<MultipartFile> files, String name, int price, int cant, String taller, String connectorType, String compatibleDevice, Long id) throws ValueNotFound, BadRequest, IOException {
         Optional<Charger> op = chargerRepository.findById(id);
         if (op.isEmpty()) {
             throw new ValueNotFound("Charger not found");
@@ -134,6 +149,7 @@ public class ChargerService implements IChargerService {
         charger.setName(name);
         charger.setPrice(price);
         charger.setCant(cant);
+        charger.setTaller(taller);
         charger.setConnectorType(connectorType);
         charger.setCompatibleDevice(compatibleDevice);
 

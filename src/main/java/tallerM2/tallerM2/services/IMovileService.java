@@ -17,12 +17,12 @@ public interface IMovileService {
 
     public List<Movile> findAllByOrderByIdAsc();
 
-    public Movile save(List<MultipartFile> files, String name, int price, int cant,
+    public Movile save(List<MultipartFile> files, String name, int price, int cant, String taller,
                        int sizeStorage, int ram, int camaraTrasera, int camaraFrontal,
                        boolean banda2G, boolean banda3G, boolean banda4G, boolean banda5G, long bateria)
             throws Conflict, BadRequest, IOException;
 
-    public Movile update(List<MultipartFile> files, String name, int price, int cant,
+    public Movile update(List<MultipartFile> files, String name, int price, int cant, String taller,
                          int sizeStorage, int ram, int camaraTrasera, int camaraFrontal,
                          boolean banda2G, boolean banda3G, boolean banda4G, boolean banda5G
             , long bateria, Long id) throws ValueNotFound, BadRequest, IOException;

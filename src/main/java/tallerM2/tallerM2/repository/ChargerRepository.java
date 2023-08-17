@@ -12,14 +12,5 @@ import java.util.Optional;
 
 @Repository
 public interface ChargerRepository extends JpaRepository<Charger, Long> {
-
     List<Charger> findAllByOrderByIdAsc();
-
-    /**
-     * Metodo para comprobar que no existen objetos duplicados
-     */
-    Optional<Charger> findByNameAndPriceAndCantAndConnectorTypeAndCompatibleDevice(
-            String name, int price, int cant, String connectorType, String compatibleDevice
-    );
-
 }

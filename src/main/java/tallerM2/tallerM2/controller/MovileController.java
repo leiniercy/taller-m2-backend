@@ -74,9 +74,10 @@ public class MovileController {
             throw new BadRequest("Bad request");
         }
     }
+
     @Operation(summary = "Count cant of movile", description = "count moviles", tags = "movile")
     @GetMapping(value = "/getCant")
-    public ResponseEntity<?> getCant()  {
+    public ResponseEntity<?> getCant() {
         return ResponseEntity.ok(service.count());
     }
 
@@ -114,6 +115,7 @@ public class MovileController {
     public ResponseEntity<?> save(@RequestParam("name") String name,
                                   @RequestParam("price") int price,
                                   @RequestParam("cant") int cant,
+                                  @RequestParam("taller") String taller,
                                   @RequestParam("sizeStorage") int sizeStorage,
                                   @RequestParam("ram") int ram,
                                   @RequestParam("camaraTrasera") int camaraTrasera,
@@ -126,7 +128,7 @@ public class MovileController {
                                   @RequestParam("files") List<MultipartFile> files
     ) throws Conflict, BadRequest, IOException {
         try {
-            return ResponseEntity.ok(service.save(files, name, price, cant,
+            return ResponseEntity.ok(service.save(files, name, price, cant, taller,
                     sizeStorage, ram, camaraTrasera, camaraFrontal,
                     banda2G, banda3G, banda4G, banda5G, bateria));
         } catch (IOException ex) {
@@ -173,6 +175,7 @@ public class MovileController {
                                     @RequestParam("name") String name,
                                     @RequestParam("price") int price,
                                     @RequestParam("cant") int cant,
+                                    @RequestParam("taller") String taller,
                                     @RequestParam("sizeStorage") int sizeStorage,
                                     @RequestParam("ram") int ram,
                                     @RequestParam("camaraTrasera") int camaraTrasera,
@@ -185,7 +188,7 @@ public class MovileController {
                                     @PathVariable(value = "id") Long id)
             throws ValueNotFound, BadRequest, IOException {
         try {
-            return ResponseEntity.ok(service.update(files, name, price, cant,
+            return ResponseEntity.ok(service.update(files, name, price, cant, taller,
                     sizeStorage, ram, camaraTrasera, camaraFrontal,
                     banda2G, banda3G, banda4G, banda5G, bateria, id));
         } catch (IOException ex) {

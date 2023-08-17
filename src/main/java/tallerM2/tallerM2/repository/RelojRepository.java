@@ -10,11 +10,4 @@ import java.util.Optional;
 @Repository
 public interface RelojRepository extends JpaRepository<Reloj, Long> {
     List<Reloj> findAllByOrderByIdAsc();
-
-    /**
-     * Metodo para comprobar que no existen objetos duplicados
-     */
-    Optional<Reloj> findByNameAndPriceAndCantAndSpecialFeatureAndCompatibleDeviceAndBateryLife(
-            String name, int price, int cant, String specialFeature, String compatibleDevice, int bateryLife
-    );
 }

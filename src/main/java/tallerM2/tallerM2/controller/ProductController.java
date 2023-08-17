@@ -142,12 +142,13 @@ public class ProductController {
             @RequestParam("name") String name,
             @RequestParam("price") int price,
             @RequestParam("cant") int cant,
+            @RequestParam("taller") String taller,
             @RequestParam("files") List<MultipartFile> files
     )
             throws Conflict, BadRequest, IOException {
 
         try {
-            return ResponseEntity.ok(service.save(files,name, price, cant));
+            return ResponseEntity.ok(service.save(files,name, price, cant,taller));
         } catch (IOException ex) {
             throw new BadRequest("Error loading file");
         } catch (Conflict c) {
@@ -193,11 +194,12 @@ public class ProductController {
             @RequestParam("name") String name,
             @RequestParam("price") int price,
             @RequestParam("cant") int cant,
+            @RequestParam("taller") String taller,
             @RequestParam("id") Long id
     ) throws ValueNotFound, BadRequest, IOException {
 
         try {
-            return ResponseEntity.ok( service.update(files,name, price, cant, id) );
+            return ResponseEntity.ok( service.update(files,name, price, cant,taller, id) );
         } catch (IOException ex) {
             throw new BadRequest("Error loading file");
         } catch (ValueNotFound vn) {

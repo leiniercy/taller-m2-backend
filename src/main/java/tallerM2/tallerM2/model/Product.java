@@ -36,7 +36,6 @@ public /*abstract*/ class Product implements Comparable<Product> {
             example = "Samsung Galaxy A10"
     )
     @Column(nullable = false)
-
     protected String name;
 
     @Schema(
@@ -53,6 +52,14 @@ public /*abstract*/ class Product implements Comparable<Product> {
     )
     @Column(nullable = false)
     protected int cant;
+
+    @Schema(
+            description = "Name of the taller",
+            example = "Taller 2M"
+    )
+    @Column(nullable = false)
+    protected String taller;
+
 
     @Schema(
             description = "List of images of the product"

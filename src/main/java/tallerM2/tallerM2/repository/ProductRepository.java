@@ -18,9 +18,5 @@ import tallerM2.tallerM2.model.Product;
  */
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
-
-    Optional<Product> findByNameAndCantAndPrice(String name, int cant, int price);
-
     List<Product> findAllByOrderByIdAsc();
-    List<Product> findAllByOrderByPriceAsc();
 }

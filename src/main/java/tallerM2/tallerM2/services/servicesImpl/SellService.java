@@ -122,6 +122,7 @@ public class SellService implements ISellService {
             product.setId(s.getProduct().getId());
             product.setName(s.getProduct().getName());
             product.setPrice(s.getProduct().getPrice());
+            product.setTaller(s.getProduct().getTaller());
             product.setFiles(s.getProduct().getFiles());
             //actualizo la cantidad real de productos restandole la cantidad vendida
             product.setCant(s.getProduct().getCant() - s.getCantProduct());

@@ -6,10 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 import tallerM2.tallerM2.exceptions.custom.BadRequest;
 import tallerM2.tallerM2.exceptions.custom.Conflict;
 import tallerM2.tallerM2.exceptions.custom.ValueNotFound;
-import tallerM2.tallerM2.model.Charger;
-import tallerM2.tallerM2.model.File;
-import tallerM2.tallerM2.model.Movile;
-import tallerM2.tallerM2.model.Reloj;
+import tallerM2.tallerM2.model.*;
 import tallerM2.tallerM2.repository.RelojRepository;
 import tallerM2.tallerM2.services.IRelojService;
 import tallerM2.tallerM2.utils.Util;
@@ -81,23 +78,38 @@ public class RelojService implements IRelojService {
      * @param name             nombre del producto
      * @param price            precio del producto
      * @param cant             cant de productos
+     * @param taller           nombre del taller al q pertenece
      * @param specialFeature   funcionalidades del reloj
      * @param compatibleDevice dispositivos compatibles
      * @param bateryLife       timepo de uso de la bateria en dias
      * @return Reloj
      */
     @Override
-    public Reloj save(List<MultipartFile> files, String name, int price, int cant,
+    public Reloj save(List<MultipartFile> files, String name, int price, int cant, String taller,
                       String specialFeature, String compatibleDevice, int bateryLife)
             throws Conflict, BadRequest, IOException {
-        Optional<Reloj> op = relojRepository.findByNameAndPriceAndCantAndSpecialFeatureAndCompatibleDeviceAndBateryLife(name, price, cant, specialFeature, compatibleDevice, bateryLife);
-        if (op.isPresent()) {
+        List<Reloj> products = em.createQuery("SELECT r FROM Reloj r " +
+                        "WHERE r.name LIKE :name AND  r.cant = :cant AND  r.price = :price AND  r.taller = :taller " +
+                        "AND  r.specialFeature = :specialFeature " +
+                        "AND  r.compatibleDevice = :compatibleDevice " +
+                        "AND  r.bateryLife = :bateryLife")
+                .setParameter("name", name)
+                .setParameter("cant", cant)
+                .setParameter("price", price)
+                .setParameter("taller", taller)
+                .setParameter("specialFeature", specialFeature)
+                .setParameter("compatibleDevice", compatibleDevice)
+                .setParameter("bateryLife", bateryLife)
+                .setMaxResults(1)
+                .getResultList();
+        if (!products.isEmpty()) {
             throw new Conflict("This reloj is aviable");
         }
         Reloj reloj = new Reloj();
         reloj.setName(name);
         reloj.setPrice(price);
         reloj.setCant(cant);
+        reloj.setTaller(taller);
         reloj.setCompatibleDevice(compatibleDevice);
         reloj.setSpecialFeature(specialFeature);
         reloj.setBateryLife(bateryLife);
@@ -123,13 +135,14 @@ public class RelojService implements IRelojService {
      * @param name             nombre del producto
      * @param price            precio del producto
      * @param cant             cant de productos
+     * @param taller           nombre del taller al q pertenece
      * @param specialFeature   funcionalidades del reloj
      * @param compatibleDevice dispositivos compatibles
      * @param bateryLife       timepo de uso de la bateria en dias
      * @return Reloj
      */
     @Override
-    public Reloj update(List<MultipartFile> files, String name, int price, int cant,
+    public Reloj update(List<MultipartFile> files, String name, int price, int cant, String taller,
                         String specialFeature, String compatibleDevice, int bateryLife, Long id)
             throws ValueNotFound, BadRequest, IOException {
         Optional<Reloj> op = relojRepository.findById(id);
@@ -141,6 +154,7 @@ public class RelojService implements IRelojService {
         reloj.setName(name);
         reloj.setPrice(price);
         reloj.setCant(cant);
+        reloj.setTaller(taller);
         reloj.setCompatibleDevice(compatibleDevice);
         reloj.setSpecialFeature(specialFeature);
         reloj.setBateryLife(bateryLife);
@@ -226,8 +240,9 @@ public class RelojService implements IRelojService {
 
     /**
      * METODO QUE DEVUELVE LA CANTIDAD DE OBJETOS QUE EXISTE
+     *
      * @return long
-     * */
+     */
     @Override
     public long count() {
         Query query = em.createQuery("select coalesce(sum(r.cant),0) from Reloj r");

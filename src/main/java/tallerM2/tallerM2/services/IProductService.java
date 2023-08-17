@@ -19,9 +19,9 @@ public interface IProductService {
 
     public List<Product> findAllCantThanCero();
 
-    public Product save(List<MultipartFile> files, String name, int price, int cant) throws Conflict, BadRequest,IOException;
+    public Product save(List<MultipartFile> files, String name, int price, int cant, String taller) throws Conflict, BadRequest,IOException;
 
-    public Product update(List<MultipartFile> files, String name, int price, int cant, Long id) throws ValueNotFound, BadRequest, IOException, Conflict;
+    public Product update(List<MultipartFile> files, String name, int price, int cant, String taller, Long id) throws ValueNotFound, BadRequest, IOException, Conflict;
 
     public Product delete(Product p) throws ValueNotFound, BadRequest;
 

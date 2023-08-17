@@ -88,7 +88,7 @@ public class ProductService implements IProductService {
      * @return List<Product>
      */
     @Override
-    public List<Product> findAllCantThanCero(){
+    public List<Product> findAllCantThanCero() {
         return em.createQuery("SELECT p FROM Product p WHERE p.cant > 0 ORDER BY p.id")
                 .getResultList();
     }
@@ -97,17 +97,28 @@ public class ProductService implements IProductService {
      * PRIMERO SE VERIFICA QUE EL OBJETO NO EXISTA, Y LUEGO SE GURADA LA
      * INFORMACION
      *
-     * @param files listado de imagenes del producto
-     * @param name  nombre del producto
-     * @param price precio del producto
-     * @param cant  cant de productos
+     * @param files  listado de imagenes del producto
+     * @param name   nombre del producto
+     * @param price  precio del producto
+     * @param cant   cant de productos
+     * @param taller nombre del taller al q pertenece
      * @return Product
      */
     @Override
-    public Product save(List<MultipartFile> files, String name, int price, int cant) throws Conflict, BadRequest, IOException {
+    public Product save(List<MultipartFile> files, String name, int price, int cant, String taller) throws Conflict, BadRequest, IOException {
 
-        Optional<Product> op = productRepository.findByNameAndCantAndPrice(name, price, cant);
-        if (op.isPresent()) {
+        List<Product> products = em.createQuery("SELECT p FROM Product p " +
+                        "WHERE p.name LIKE :name " +
+                        "AND  p.cant = :cant " +
+                        "AND  p.price = :price " +
+                        "AND  p.taller = :taller")
+                .setParameter("name", name)
+                .setParameter("cant", cant)
+                .setParameter("price", price)
+                .setParameter("taller", taller)
+                .setMaxResults(1)
+                .getResultList();
+        if (!products.isEmpty()) {
             throw new Conflict("This product is aviable");
         }
 
@@ -115,6 +126,7 @@ public class ProductService implements IProductService {
         product.setName(name);
         product.setPrice(price);
         product.setCant(cant);
+        product.setTaller(taller);
 
         Product pro = productRepository.save(product);
         //Asignacion de sus imagenes
@@ -135,15 +147,16 @@ public class ProductService implements IProductService {
      * PRIMERO SE VERIFICA QUE EL OBJETO EXISTA, SE MAPEA SU NUEVA INFORMACION,
      * Y LUEGO SE GURADA LA INFORMACION
      *
-     * @param files listado de imagenes del producto
-     * @param name  nombre del producto
-     * @param price precio del producto
-     * @param cant  cant de productos
-     * @param id    cant del producto a modificar
+     * @param files  listado de imagenes del producto
+     * @param name   nombre del producto
+     * @param price  precio del producto
+     * @param cant   cant de productos
+     * @param taller nombre del taller al q pertenece
+     * @param id     cant del producto a modificar
      * @return Product
      */
     @Override
-    public Product update(List<MultipartFile> files, String name, int price, int cant, Long id) throws ValueNotFound, BadRequest, IOException {
+    public Product update(List<MultipartFile> files, String name, int price, int cant, String taller, Long id) throws ValueNotFound, BadRequest, IOException {
         Optional<Product> op = productRepository.findById(id);
         if (op.isEmpty()) {
             throw new ValueNotFound("Product not found");
@@ -152,7 +165,7 @@ public class ProductService implements IProductService {
         product.setName(name);
         product.setPrice(price);
         product.setCant(cant);
-
+        product.setTaller(taller);
 
         //Eliminando todos las imagenes vinculadas a este cargador
         for (File file : product.getFiles()) {
@@ -239,7 +252,7 @@ public class ProductService implements IProductService {
         List<Product> products = findAll().stream()
                 .filter(product -> !(product instanceof Movile) && !(product instanceof Reloj) && !(product instanceof Charger))
                 .collect(Collectors.toList());
-        if(products.isEmpty()) return 0;
+        if (products.isEmpty()) return 0;
         for (Product product : products) {
             total += product.getCant();
         }

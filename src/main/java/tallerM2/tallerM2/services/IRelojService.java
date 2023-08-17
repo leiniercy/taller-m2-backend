@@ -17,9 +17,9 @@ public interface IRelojService {
 
     public List<Reloj> findAllByOrderByIdAsc();
 
-    public Reloj save(List<MultipartFile> files, String name, int price, int cant, String specialFeature, String compatibleDevice, int bateryLife) throws Conflict, BadRequest, IOException;
+    public Reloj save(List<MultipartFile> files, String name, int price, int cant, String taller, String specialFeature, String compatibleDevice, int bateryLife) throws Conflict, BadRequest, IOException;
 
-    public Reloj update(List<MultipartFile> files, String name, int price, int cant, String specialFeature, String compatibleDevice,int bateryLife, Long id) throws ValueNotFound, BadRequest, IOException;
+    public Reloj update(List<MultipartFile> files, String name, int price, int cant, String taller, String specialFeature, String compatibleDevice,int bateryLife, Long id) throws ValueNotFound, BadRequest, IOException;
 
     public Reloj delete(Reloj reloj) throws ValueNotFound, BadRequest;
 
