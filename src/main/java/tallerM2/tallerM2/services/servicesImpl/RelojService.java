@@ -60,6 +60,30 @@ public class RelojService implements IRelojService {
     }
 
     /**
+     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO
+     * DEL TALLER 2M
+     *
+     * @return List<Reloj> listado de objetos del taller 2M
+     */
+    @Override
+    public List<Reloj> findAllTaller2M(){
+        return em.createQuery("SELECT r FROM Reloj r WHERE r.taller LIKE 'Taller 2M' ORDER BY r.name")
+                .getResultList();
+    }
+
+    /**
+     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO
+     * DEL TALLER MJ
+     *
+     * @return List<Reloj> listado de objetos del taller MJ
+     */
+    @Override
+    public List<Reloj> findAllTallerMJ(){
+        return em.createQuery("SELECT r FROM Reloj r WHERE r.taller LIKE 'Taller MJ' ORDER BY r.name")
+                .getResultList();
+    }
+
+    /**
      * METODO QUE DEVUELVE UNA LISTA ORDENADA ASCENDENTEMENTE CON TODOS LOS
      * OBJETOS DE UN MISMO TIPO ESPECIFICADO PREVIAMENTE
      *

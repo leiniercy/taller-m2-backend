@@ -14,6 +14,9 @@ public interface IProductService {
     public Product findById(Long id) throws ValueNotFound, BadRequest;
 
     public List<Product> findAll();
+    public List<Product> findAllTaller2M();
+    public List<Product> findAllTallerMJ();
+    public List<Product> findAllAccesorios();
 
     public List<Product> findAllByOrderByIdAsc();
 

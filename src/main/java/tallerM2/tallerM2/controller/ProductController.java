@@ -47,7 +47,7 @@ public class ProductController {
     @PersistenceContext
     public EntityManager em;
 
-    @Operation(summary = "Find all accesories", description = "Find all accesories", tags = "product")
+    @Operation(summary = "Find all products", description = "Find all products", tags = "product")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Product.class)))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
@@ -56,13 +56,31 @@ public class ProductController {
     public ResponseEntity<?> all() {
         return ResponseEntity.ok(service.findAll());
     }
+    @Operation(summary = "Find all accesories, Taller 2M", description = "Find all accesories, Taller 2M", tags = "product")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Product.class)))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+    })
+    @GetMapping(path = {"/all/2M"}, produces = "application/json")
+    public ResponseEntity<?> all2M() {
+        return ResponseEntity.ok(service.findAllTaller2M());
+    }
+    @Operation(summary = "Find all accesories, Taller MJ", description = "Find all accesories Taller MJ", tags = "product")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Product.class)))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+    })
+    @GetMapping(path = {"/all/MJ"}, produces = "application/json")
+    public ResponseEntity<?> allMJ() {
+        return ResponseEntity.ok(service.findAllTallerMJ());
+    }
 
     @Operation(summary = "Find all than 0", description = "Find all product where cant > 0", tags = "product")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Product.class)))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
-    @GetMapping(path = {"/allProduct-cant"}, produces = "application/json")
+    @GetMapping(path = {"/all/product/cant"}, produces = "application/json")
     public ResponseEntity<?> allProductsThanCero() {
         return ResponseEntity.ok(service.findAllCantThanCero());
     }
@@ -72,15 +90,9 @@ public class ProductController {
             @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Product.class)))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
-    @GetMapping(path = {"/allProducts"}, produces = "application/json")
-    public ResponseEntity<?> allProducts() {
-        List<Product> products = new LinkedList<>();
-        service.findAll().forEach(product -> {
-            if( !(product instanceof Movile) && !(product instanceof Reloj) && !(product instanceof Charger)  ){
-                products.add(product);
-            }
-        });
-        return ResponseEntity.ok(products);
+    @GetMapping(path = {"/all/accesorio"}, produces = "application/json")
+    public ResponseEntity<?> allAccesorios() {
+        return ResponseEntity.ok(service.findAllAccesorios());
     }
 
     @Operation(summary = "Cuenta la cant de accesorios", description = "count accesorios", tags = "product")

@@ -14,6 +14,8 @@ public interface IRelojService {
     public Reloj findById(Long id) throws ValueNotFound, BadRequest;
 
     public List<Reloj> findAll();
+    public List<Reloj> findAllTaller2M();
+    public List<Reloj> findAllTallerMJ();
 
     public List<Reloj> findAllByOrderByIdAsc();
 

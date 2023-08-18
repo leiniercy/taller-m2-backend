@@ -45,6 +45,24 @@ public class RelojController {
     ResponseEntity<?> all() {
         return ResponseEntity.ok(service.findAll());
     }
+    @Operation(summary = "Find all reloj, Taller 2M", description = "Find all reloj, Taller 2M", tags = "reloj")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Reloj.class)))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+    })
+    @GetMapping(path = {"/all/2M"}, produces = "application/json")
+    ResponseEntity<?> all2M() {
+        return ResponseEntity.ok(service.findAllTaller2M());
+    }
+    @Operation(summary = "Find all reloj, Taller MJ", description = "Find all reloj, Taller MJ", tags = "reloj")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Reloj.class)))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+    })
+    @GetMapping(path = {"/all/MJ"}, produces = "application/json")
+    ResponseEntity<?> allMJ() {
+        return ResponseEntity.ok(service.findAllTallerMJ());
+    }
 
     @Operation(summary = "Find all reloj sorted by id", description = "Find all reloj", tags = "reloj")
     @ApiResponses(value = {

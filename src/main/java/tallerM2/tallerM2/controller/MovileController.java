@@ -48,6 +48,26 @@ public class MovileController {
         return ResponseEntity.ok(service.findAll());
     }
 
+    @Operation(summary = "Find all moviles, Taller 2M", description = "Find all moviles Taller 2M", tags = "movile")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Movile.class)))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+    })
+    @GetMapping(path = {"/all/2M"}, produces = "application/json")
+    ResponseEntity<?> all2M() {
+        return ResponseEntity.ok(service.findAllTaller2M());
+    }
+
+    @Operation(summary = "Find all moviles, Taller MJ", description = "Find all moviles, Taller MJ", tags = "movile")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Movile.class)))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+    })
+    @GetMapping(path = {"/all/MJ"}, produces = "application/json")
+    ResponseEntity<?> allMJ() {
+        return ResponseEntity.ok(service.findAllTallerMJ());
+    }
+
     @Operation(summary = "Find all moviles sorted by id", description = "Find all moviles", tags = "movile")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Movile.class)))),

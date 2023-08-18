@@ -14,6 +14,8 @@ public interface IMovileService {
     public Movile findById(Long id) throws ValueNotFound, BadRequest;
 
     public List<Movile> findAll();
+    public List<Movile> findAllTaller2M();
+    public List<Movile> findAllTallerMJ();
 
     public List<Movile> findAllByOrderByIdAsc();
 
