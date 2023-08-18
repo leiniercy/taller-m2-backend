@@ -17,7 +17,7 @@ public interface ISellService {
 
     public List<Sell> findAllOrderByIdAsc();
 
-    public List<Sell> findAllByDate(LocalDate sellDate);
+    public List<Sell> findAllByDate(LocalDate sellDate, String taller);
 
     public List<Sell> save(SellRequest sellRequest) throws Conflict, BadRequest;
 

@@ -79,9 +79,12 @@ public class SellService implements ISellService {
      * @return List<Sell>
      */
     @Override
-    public List<Sell> findAllByDate(LocalDate sellDate) {
-        return em.createQuery("SELECT s FROM Sell s WHERE s.sellDate = :fecha ORDER BY s.id")
+    public List<Sell> findAllByDate(LocalDate sellDate, String taller) {
+        return em.createQuery("SELECT s FROM Sell s WHERE s.sellDate = :fecha " +
+                        "AND s.product.taller LIKE :taller "+
+                        "ORDER BY s.id")
                 .setParameter("fecha", sellDate)
+                .setParameter("taller", taller)
                 .getResultList();
     }
 

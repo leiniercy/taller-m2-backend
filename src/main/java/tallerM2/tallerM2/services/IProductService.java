@@ -2,7 +2,7 @@ package tallerM2.tallerM2.services;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
+
 import org.springframework.web.multipart.MultipartFile;
 import tallerM2.tallerM2.exceptions.custom.BadRequest;
 import tallerM2.tallerM2.exceptions.custom.Conflict;
@@ -14,15 +14,22 @@ public interface IProductService {
     public Product findById(Long id) throws ValueNotFound, BadRequest;
 
     public List<Product> findAll();
-    public List<Product> findAllTaller2M();
-    public List<Product> findAllTallerMJ();
+
+    public List<Product> findAllProductsTaller2M();
+
+    public List<Product> findAllProductsTallerMJ();
+
+    public List<Product> findAllAccesoriosTaller2M();
+
+    public List<Product> findAllAccesoriosTallerMJ();
+
     public List<Product> findAllAccesorios();
 
     public List<Product> findAllByOrderByIdAsc();
 
-    public List<Product> findAllCantThanCero();
+    public List<Product> findAllCantThanCero(String taller);
 
-    public Product save(List<MultipartFile> files, String name, int price, int cant, String taller) throws Conflict, BadRequest,IOException;
+    public Product save(List<MultipartFile> files, String name, int price, int cant, String taller) throws Conflict, BadRequest, IOException;
 
     public Product update(List<MultipartFile> files, String name, int price, int cant, String taller, Long id) throws ValueNotFound, BadRequest, IOException, Conflict;
 

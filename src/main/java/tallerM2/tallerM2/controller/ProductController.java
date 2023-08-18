@@ -29,9 +29,7 @@ import tallerM2.tallerM2.services.servicesImpl.ImageService;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.io.IOException;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/api/v1/product")
@@ -56,23 +54,42 @@ public class ProductController {
     public ResponseEntity<?> all() {
         return ResponseEntity.ok(service.findAll());
     }
+    @Operation(summary = "Find all products, Taller 2M", description = "Find all products, Taller 2M", tags = "product")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Product.class)))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+    })
+    @GetMapping(path = {"/all/products/2M"}, produces = "application/json")
+    public ResponseEntity<?> allProducts2M() {
+        return ResponseEntity.ok(service.findAllProductsTaller2M());
+    }
+    @Operation(summary = "Find all products, Taller MJ", description = "Find all products Taller MJ", tags = "product")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Product.class)))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+    })
+    @GetMapping(path = {"/all/products/MJ"}, produces = "application/json")
+    public ResponseEntity<?> allProductsMJ() {
+        return ResponseEntity.ok(service.findAllProductsTallerMJ());
+    }
+
     @Operation(summary = "Find all accesories, Taller 2M", description = "Find all accesories, Taller 2M", tags = "product")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Product.class)))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
-    @GetMapping(path = {"/all/2M"}, produces = "application/json")
-    public ResponseEntity<?> all2M() {
-        return ResponseEntity.ok(service.findAllTaller2M());
+    @GetMapping(path = {"/all/accesorios/2M"}, produces = "application/json")
+    public ResponseEntity<?> allAccesorios2M() {
+        return ResponseEntity.ok(service.findAllAccesoriosTaller2M());
     }
     @Operation(summary = "Find all accesories, Taller MJ", description = "Find all accesories Taller MJ", tags = "product")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Product.class)))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
-    @GetMapping(path = {"/all/MJ"}, produces = "application/json")
-    public ResponseEntity<?> allMJ() {
-        return ResponseEntity.ok(service.findAllTallerMJ());
+    @GetMapping(path = {"/all/accesorios/MJ"}, produces = "application/json")
+    public ResponseEntity<?> allAccesoriosMJ() {
+        return ResponseEntity.ok(service.findAllAccesoriosTallerMJ());
     }
 
     @Operation(summary = "Find all than 0", description = "Find all product where cant > 0", tags = "product")
@@ -80,9 +97,9 @@ public class ProductController {
             @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Product.class)))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
-    @GetMapping(path = {"/all/product/cant"}, produces = "application/json")
-    public ResponseEntity<?> allProductsThanCero() {
-        return ResponseEntity.ok(service.findAllCantThanCero());
+    @GetMapping(path = {"/all/product/cant/{taller}"}, produces = "application/json")
+    public ResponseEntity<?> allProductsThanCero(@PathVariable(value = "taller") String taller ){
+        return ResponseEntity.ok(service.findAllCantThanCero(taller));
     }
 
     @Operation(summary = "Find all accesories", description = "Find all accesories", tags = "product")

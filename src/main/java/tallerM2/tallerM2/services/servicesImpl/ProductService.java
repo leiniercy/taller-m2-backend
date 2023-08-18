@@ -88,9 +88,32 @@ public class ProductService implements IProductService {
      * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO
      * DEL TALLER 2M
      *
-     * @return List<Product> listado de objetos del taller 2M
+     * @return List<Product> listado de productos del taller 2M
      */
-    public List<Product> findAllTaller2M(){
+    public List<Product> findAllProductsTaller2M(){
+        return em.createQuery("SELECT p FROM Product p WHERE p.taller LIKE 'Taller 2M' ORDER BY p.name")
+                .getResultList();
+    }
+
+    /**
+     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO
+     * DEL TALLER MJ
+     *
+     * @return List<Product> listado de productos del taller MJ
+     */
+    public List<Product> findAllProductsTallerMJ(){
+        return em.createQuery("SELECT p FROM Product p WHERE p.taller LIKE 'Taller MJ' ORDER BY p.name")
+                .getResultList();
+    }
+
+
+    /**
+     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO
+     * DEL TALLER 2M
+     *
+     * @return List<Product> listado de accesorios del taller 2M
+     */
+    public List<Product> findAllAccesoriosTaller2M(){
         return em.createQuery("SELECT p FROM Product p WHERE p.id NOT IN (SELECT c.id FROM Charger c) " +
                         "AND p.id NOT IN (SELECT m.id FROM Movile m) " +
                         "AND p.id NOT IN (SELECT r.id FROM Reloj r) " +
@@ -102,9 +125,9 @@ public class ProductService implements IProductService {
      * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO
      * DEL TALLER MJ
      *
-     * @return List<Product> listado de objetos del taller MJ
+     * @return List<Product> listado de accesorios del taller MJ
      */
-    public List<Product> findAllTallerMJ(){
+    public List<Product> findAllAccesoriosTallerMJ(){
         return em.createQuery("SELECT p FROM Product p WHERE p.id NOT IN (SELECT c.id FROM Charger c) " +
                         "AND p.id NOT IN (SELECT m.id FROM Movile m) " +
                         "AND p.id NOT IN (SELECT r.id FROM Reloj r) " +
@@ -131,8 +154,9 @@ public class ProductService implements IProductService {
      * @return List<Product>
      */
     @Override
-    public List<Product> findAllCantThanCero() {
-        return em.createQuery("SELECT p FROM Product p WHERE p.cant > 0 ORDER BY p.id")
+    public List<Product> findAllCantThanCero(String taller) {
+        return em.createQuery("SELECT p FROM Product p WHERE p.cant > 0 AND p.taller LIKE :taller ORDER BY p.id")
+                .setParameter("taller", taller)
                 .getResultList();
     }
 

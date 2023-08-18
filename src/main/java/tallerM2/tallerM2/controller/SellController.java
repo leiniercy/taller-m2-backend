@@ -76,12 +76,13 @@ public class SellController {
         @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sell.class)))),
         @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
-    @GetMapping(path = {"/all/date/{sellDate}"}, produces = "application/json")
+    @GetMapping(path = {"/all/date/{sellDate}/{taller}"}, produces = "application/json")
     ResponseEntity<?> allByDate(
-            @PathVariable(value = "sellDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate sellDate
+            @PathVariable(value = "sellDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate sellDate,
+            @PathVariable(value = "taller") String taller
     ) throws BadRequest {
         try {
-            List<Sell> ventas = service.findAllByDate(sellDate);
+            List<Sell> ventas = service.findAllByDate(sellDate, taller);
             return ResponseEntity.ok(ventas);
         } catch (Exception ex) {
             throw new BadRequest("Bad request");
