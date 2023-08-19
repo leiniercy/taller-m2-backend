@@ -5,6 +5,7 @@
  */
 package tallerM2.tallerM2.configuration;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -30,7 +31,7 @@ public class SecurityConfiguration {
     private UserDetailsServiceImpl userDetailsService;
     private AuthEntryPointJwt authEntryPointJwt;
     private AuthTokenFilter authTokenFilter;
-
+    
     public SecurityConfiguration(UserDetailsServiceImpl userDetailsService, AuthEntryPointJwt authEntryPointJwt, AuthTokenFilter authTokenFilter) {
         this.userDetailsService = userDetailsService;
         this.authEntryPointJwt = authEntryPointJwt;
@@ -60,7 +61,7 @@ public class SecurityConfiguration {
                 .exceptionHandling().authenticationEntryPoint(authEntryPointJwt).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests().antMatchers("/api/v1/**").permitAll()
-                .antMatchers("/api/test/**").permitAll()
+                .antMatchers("/api/v1/test/**").permitAll()
                 .anyRequest().authenticated();
         http.addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

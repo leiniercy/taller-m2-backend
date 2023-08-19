@@ -22,6 +22,12 @@ import tallerM2.tallerM2.exceptions.custom.ValueNotFound;
 // Custom Errors. Aquí manejamos todos los erroes que pueden surgir en la aplicación y le respuesta que deben enviar.
 @RestControllerAdvice
 public class ErrorHandler {
+   
+   @ResponseStatus(HttpStatus.FORBIDDEN)
+   public ResponseEntity<?> accessDenied() {
+       return new ResponseEntity<>(
+               new ErrorObject(HttpStatus.FORBIDDEN.toString(), /*errorDescription*/"Access denied"), HttpStatus.FORBIDDEN);
+   }
     
    @ResponseStatus(HttpStatus.NOT_FOUND)
    @ExceptionHandler(ValueNotFound.class)

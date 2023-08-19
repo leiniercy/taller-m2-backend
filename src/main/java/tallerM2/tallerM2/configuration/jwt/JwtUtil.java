@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
 import tallerM2.tallerM2.configuration.dto.UserResponse;
 import tallerM2.tallerM2.configuration.service.UserDetailsImpl;
 import tallerM2.tallerM2.model.User;
