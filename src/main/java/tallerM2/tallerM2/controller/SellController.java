@@ -89,9 +89,10 @@ public class SellController {
         }
     }
 
-    @PostMapping(value = "/pdf/diario", produces = MediaType.APPLICATION_PDF_VALUE)
+    @PostMapping(value = "/pdf/diario/{taller}", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<?> generarPDFReporteDiario(
             HttpServletResponse response,
+            @PathVariable(value = "taller") String taller,
             @RequestBody List<Sell> sales
     ) throws IOException, DocumentException {
 
@@ -101,7 +102,8 @@ public class SellController {
         PdfWriter.getInstance(document, baos);
         // Abrir el documento PDF
         document.open();
-        Paragraph header = new Paragraph("Reporte de diario\n\n", new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD));
+
+        Paragraph header = new Paragraph(taller+"\nReporte de diario\n\n", new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD));
         header.setAlignment(Element.ALIGN_CENTER);
         document.add(header);
         document.add(reportSaleTable(sales));
@@ -186,9 +188,10 @@ public class SellController {
     }
 
     @Operation(summary = "Return info of sale", description = "Return info of sale", tags = "sell")
-    @PostMapping(value = "/pdf/venta", produces = MediaType.APPLICATION_PDF_VALUE)
+    @PostMapping(value = "/pdf/venta/{taller}", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<?> generarPDfVenta(
             HttpServletResponse response,
+            @PathVariable(value = "taller") String taller,
             @RequestBody List<Sell> sales
     ) throws IOException, DocumentException, ParseException {
 
@@ -200,7 +203,7 @@ public class SellController {
         // Abrir el documento PDF
         document.open();
         // Encabezado del recibo
-        Paragraph header = new Paragraph("Taller 2M\n", new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD));
+        Paragraph header = new Paragraph(taller+"\n", new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD));
         header.setAlignment(Element.ALIGN_CENTER);
         document.add(header);
         Paragraph compra = new Paragraph("COMPRA\n", new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD));
