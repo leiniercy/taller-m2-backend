@@ -69,6 +69,23 @@ public class UserController {
         }
     }
 
+    @Operation(summary = "Find user by username", description = "Search user by the username", tags = "user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = User.class))),
+            @ApiResponse(responseCode = "404", description = "User not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+    })
+    @GetMapping(value = "/get/name/{username}", produces = "application/json")
+    public ResponseEntity<?> byUsername(@PathVariable(value = "username") String username) throws ValueNotFound, BadRequest {
+        try {
+            return ResponseEntity.ok(service.findByUsername(username));
+        } catch (ValueNotFound vn) {
+            throw new ValueNotFound(vn.getMessage());
+        } catch (BadRequest br) {
+            throw new BadRequest("Bad request");
+        }
+    }
+
     @Operation(summary = "Create new user", description = "Create a new user", tags = "user")
     @ApiResponses(
             value = {@ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = User.class)))
@@ -76,7 +93,7 @@ public class UserController {
                     , @ApiResponse(responseCode = "409", description = "This User already exists", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
             }
     )
-    @PostMapping(path = {"/save"}, produces = "application/json")
+    @PostMapping(path = {"/save"}, consumes = "application/json", produces = "application/json")
     public ResponseEntity<?> save(
             @RequestBody UserSaveRequest userRequest
     ) throws Conflict, BadRequest, ValueNotFound {
@@ -98,12 +115,31 @@ public class UserController {
                     , @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
             }
     )
-    @PutMapping(path = {"/update/{id}"}, produces = "application/json")
+    @PutMapping(path = {"/update/{id}"}, consumes = "application/json", produces = "application/json")
     public ResponseEntity<?> update(@RequestBody UserEditRequest userRequest,
                                     @PathVariable(value = "id") Long id)
             throws ValueNotFound, BadRequest {
         try {
             return ResponseEntity.ok(service.update(userRequest, id));
+        } catch (ValueNotFound vn) {
+            throw new ValueNotFound(vn.getMessage());
+        } catch (BadRequest br) {
+            throw new BadRequest("Bad request");
+        }
+    }
+
+    @Operation(summary = "Update user", description = "Update user info", tags = "user")
+    @ApiResponses(
+            value = {@ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = User.class)))
+                    , @ApiResponse(responseCode = "404", description = "User not found", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+                    , @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+            }
+    )
+    @PutMapping(path = {"/change/password/{id}/{username}"}, produces = "application/json")
+    public ResponseEntity<?> changePassword(@PathVariable(value = "id") Long id, @PathVariable(value = "username") String username)
+            throws ValueNotFound, BadRequest {
+        try {
+            return ResponseEntity.ok(service.changePassword(id,username));
         } catch (ValueNotFound vn) {
             throw new ValueNotFound(vn.getMessage());
         } catch (BadRequest br) {

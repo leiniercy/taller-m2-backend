@@ -50,6 +50,20 @@ public class UserService implements IUserService {
     }
 
     /**
+     * METODO PARA VERIFICAR SI EL OBJETO EXISTE, PREGUNTANDO POR EL NOMBRE DE USUARIO
+     *
+     * @param username no debe ser vacio.
+     * @return Usuario
+     */
+    @Override
+    public User findByUsername(String username) throws ValueNotFound, BadRequest {
+        Optional<User> op = repository.findByUsername(username);
+        if (!repository.existsByUsername(username)) {
+            throw new ValueNotFound("User not found");
+        }
+        return op.get();
+    }
+    /**
      * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO
      * ESPECIFICADO PREVIAMENTE
      *
@@ -76,7 +90,7 @@ public class UserService implements IUserService {
      * PRIMERO SE VERIFICA QUE EL OBJETO NO EXISTA, Y LUEGO SE GURADA LA
      * INFORMACION
      *
-     * @param user contiene la informacion del nuevo usuario
+     * @param userRequest contiene la informacion del nuevo usuario
      * @return User el usuario almacenado
      */
     @Override
@@ -141,6 +155,20 @@ public class UserService implements IUserService {
         }
         roles.add(opRole.get());
         user.setRoles(roles);
+        return repository.saveAndFlush(user);
+    }
+
+    public User changePassword(Long id, String password) throws ValueNotFound, BadRequest{
+        Optional<User> op = repository.findById(id);
+        if (op.isEmpty()) {
+            throw new ValueNotFound("User not found");
+        }
+        User user = op.get();
+        user.setUsername(op.get().getUsername());
+        user.setEmail(op.get().getEmail());
+        user.setTaller(op.get().getTaller());
+        user.setPassword(Util.encrypteMe(password));
+        user.setRoles(op.get().getRoles());
         return repository.saveAndFlush(user);
     }
 
