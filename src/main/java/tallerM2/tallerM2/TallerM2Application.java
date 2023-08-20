@@ -20,6 +20,7 @@ import tallerM2.tallerM2.model.Role;
 import tallerM2.tallerM2.model.User;
 import tallerM2.tallerM2.repository.RoleRepository;
 import tallerM2.tallerM2.repository.UserRepository;
+import tallerM2.tallerM2.utils.EmailSenderService;
 
 @SpringBootApplication
 public class TallerM2Application {
@@ -32,7 +33,6 @@ public class TallerM2Application {
     private UserRepository userRepository;
     @Autowired
     private RoleRepository roleRepository;
-
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -46,7 +46,7 @@ public class TallerM2Application {
         logger.info("Generating demo data");
         logger.info("... generando Usuarios");
         createAdmin("leiniercy", "leiniercy@uci.cu", "Taller 2M","admin");
-        createModerator("moderador","leiniercy@uci.cu","Taller 2M","moderador");
+        createModerator("moderador","yaro71@nauta.cu","Taller 2M","moderador");
 
     }
 
@@ -82,5 +82,15 @@ public class TallerM2Application {
         userRepository.saveAndFlush(user);
         return user;
     }
+    
+//     @Autowired
+//    private EmailSenderService senderService;
+//
+//    @EventListener(ApplicationReadyEvent.class)
+//    public void triggerMail() {  
+//        senderService.sendSimpleEmail("leiniercy@uci.cu",
+//                "This is email body",
+//                "This is email subject");
+//    }
 
 }

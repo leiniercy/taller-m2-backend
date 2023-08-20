@@ -63,6 +63,22 @@ public class UserService implements IUserService {
         }
         return op.get();
     }
+    
+    /**
+     * METODO PARA VERIFICAR SI EL OBJETO EXISTE, PREGUNTANDO POR EL NOMBRE DE USUARIO
+     *
+     * @param email no debe ser vacio.
+     * @return Usuario
+     */
+    @Override
+    public User findByEmail(String email) throws ValueNotFound, BadRequest {
+        Optional<User> op = repository.findByEmail(email);
+        if (!repository.existsByEmail(email)) {
+            throw new ValueNotFound("User not found");
+        }
+        return op.get();
+    }
+    
     /**
      * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO
      * ESPECIFICADO PREVIAMENTE

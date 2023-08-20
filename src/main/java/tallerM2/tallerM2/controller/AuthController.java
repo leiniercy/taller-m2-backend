@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
 import tallerM2.tallerM2.configuration.dto.JwtResponse;
 import tallerM2.tallerM2.configuration.dto.SignInRequest;
 import tallerM2.tallerM2.configuration.dto.SignUpRequest;
@@ -29,6 +30,12 @@ import tallerM2.tallerM2.model.Role;
 import tallerM2.tallerM2.model.User;
 import tallerM2.tallerM2.repository.RoleRepository;
 import tallerM2.tallerM2.repository.UserRepository;
+import tallerM2.tallerM2.utils.EmailSenderService;
+import java.security.SecureRandom;
+import tallerM2.tallerM2.exceptions.custom.BadRequest;
+import tallerM2.tallerM2.exceptions.custom.ValueNotFound;
+import tallerM2.tallerM2.services.servicesImpl.UserService;
+import tallerM2.tallerM2.utils.Util;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -40,6 +47,11 @@ public class AuthController {
     private PasswordEncoder passwordEncoder;
     private AuthenticationManager authenticationManager;
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private EmailSenderService senderService;
+    @Autowired
+    private UserService userService;
 
     public AuthController(UserRepository userRepository,
             PasswordEncoder passwordEncoder,
@@ -87,4 +99,31 @@ public class AuthController {
         userRepository.save(user);
         return ResponseEntity.ok("User registered success");
     }
+    
+    @GetMapping("/get/{email}")
+    public ResponseEntity<?> findByEmail( @PathVariable(value = "email") String email ) throws ValueNotFound, BadRequest{
+    try {
+        return ResponseEntity.ok(userService.findByEmail(email));
+        } catch (ValueNotFound vn) {
+            throw new ValueNotFound(vn.getMessage());
+        }catch (BadRequest bd) {
+            throw new BadRequest("Bad request");
+        }
+    
+    }
+
+    @GetMapping("/email/{email}")
+    public ResponseEntity<String> sendEmail( @PathVariable(value = "email") String email ) throws BadRequest {
+        try {
+        String claveAleatoria = Util.generarClave(8); // Generar una clave aleatoria de 8 caracteres
+                   senderService.sendSimpleEmail(email,
+                "Taller, cambio de contraseña",
+                "Su nueva contraseña es " + claveAleatoria );
+        return ResponseEntity.ok(claveAleatoria);    
+        } catch (Exception ex) {
+            throw new BadRequest("Bad request: " + ex.getMessage());
+        }
+   
+    }
+
 }
