@@ -6,7 +6,9 @@ import tallerM2.tallerM2.exceptions.custom.ValueNotFound;
 import tallerM2.tallerM2.model.User;
 
 import java.util.List;
-import tallerM2.tallerM2.utils.dto.UserRequest;
+
+import tallerM2.tallerM2.utils.dto.UserEditRequest;
+import tallerM2.tallerM2.utils.dto.UserSaveRequest;
 
 public interface IUserService {
 
@@ -16,9 +18,9 @@ public interface IUserService {
     
     public List<User> findAllOrderByIdAsc();
    
-    public User save(UserRequest userRequest) throws Conflict, ValueNotFound, BadRequest;
+    public User save(UserSaveRequest userRequest) throws Conflict, ValueNotFound, BadRequest;
 
-    public User update(UserRequest from, Long id) throws ValueNotFound, BadRequest;
+    public User update(UserEditRequest from, Long id) throws ValueNotFound, BadRequest;
 
     public User delete(User user) throws ValueNotFound, BadRequest;
 

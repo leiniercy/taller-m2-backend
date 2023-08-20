@@ -10,19 +10,17 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import tallerM2.tallerM2.exceptions.ErrorObject;
 import tallerM2.tallerM2.exceptions.custom.BadRequest;
 import tallerM2.tallerM2.exceptions.custom.Conflict;
 import tallerM2.tallerM2.exceptions.custom.ValueNotFound;
-import tallerM2.tallerM2.model.Charger;
 import tallerM2.tallerM2.model.User;
 import tallerM2.tallerM2.services.servicesImpl.UserService;
 
-import java.io.IOException;
 import java.util.List;
-import org.springframework.security.access.prepost.PreAuthorize;
-import tallerM2.tallerM2.utils.dto.UserRequest;
+
+import tallerM2.tallerM2.utils.dto.UserEditRequest;
+import tallerM2.tallerM2.utils.dto.UserSaveRequest;
 
 @RestController
 @RequestMapping(value = "/api/v1/user")
@@ -80,7 +78,7 @@ public class UserController {
     )
     @PostMapping(path = {"/save"}, produces = "application/json")
     public ResponseEntity<?> save(
-            @RequestBody UserRequest userRequest
+            @RequestBody UserSaveRequest userRequest
     ) throws Conflict, BadRequest, ValueNotFound {
         try {
             return ResponseEntity.ok(service.save(userRequest));
@@ -101,7 +99,7 @@ public class UserController {
             }
     )
     @PutMapping(path = {"/update/{id}"}, produces = "application/json")
-    public ResponseEntity<?> update(@RequestBody UserRequest userRequest,
+    public ResponseEntity<?> update(@RequestBody UserEditRequest userRequest,
                                     @PathVariable(value = "id") Long id)
             throws ValueNotFound, BadRequest {
         try {

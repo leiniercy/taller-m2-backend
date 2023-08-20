@@ -20,7 +20,8 @@ import java.util.Set;
 import tallerM2.tallerM2.model.ERole;
 import tallerM2.tallerM2.model.Role;
 import tallerM2.tallerM2.repository.RoleRepository;
-import tallerM2.tallerM2.utils.dto.UserRequest;
+import tallerM2.tallerM2.utils.dto.UserEditRequest;
+import tallerM2.tallerM2.utils.dto.UserSaveRequest;
 
 @Service
 public class UserService implements IUserService {
@@ -79,7 +80,7 @@ public class UserService implements IUserService {
      * @return User el usuario almacenado
      */
     @Override
-    public User save(UserRequest userRequest) throws Conflict, ValueNotFound, BadRequest {
+    public User save(UserSaveRequest userRequest) throws Conflict, ValueNotFound, BadRequest {
         if (repository.existsByUsername(userRequest.getUsername())
                 || repository.existsByEmail(userRequest.getEmail())) {
             throw new Conflict("This user is aviable");
@@ -115,7 +116,7 @@ public class UserService implements IUserService {
      * @return to infomracion actualizada del usuario.
      */
     @Override
-    public User update(UserRequest from, Long id) throws ValueNotFound, BadRequest {
+    public User update(UserEditRequest from, Long id) throws ValueNotFound, BadRequest {
 
         Optional<User> op = repository.findById(id);
         if (op.isEmpty()) {
@@ -125,7 +126,7 @@ public class UserService implements IUserService {
         user.setUsername(from.getUsername());
         user.setEmail(from.getEmail());
         user.setTaller(from.getTaller());
-        user.setPassword(Util.encrypteMe(from.getPassword()));
+        user.setPassword(op.get().getPassword());
         Set<Role> roles = new HashSet<>();
         Optional<Role> opRole;
         if (from.getRol().equals("ROLE_ADMIN")) {

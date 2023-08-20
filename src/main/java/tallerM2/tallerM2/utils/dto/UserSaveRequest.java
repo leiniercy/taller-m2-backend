@@ -5,7 +5,6 @@
  */
 package tallerM2.tallerM2.utils.dto;
 
-import java.util.List;
 import lombok.Data;
 
 /**
@@ -13,7 +12,7 @@ import lombok.Data;
  * @author Admin
  */
 @Data
-public class UserRequest {
+public class UserSaveRequest {
 
     private String username;
     private String email;
