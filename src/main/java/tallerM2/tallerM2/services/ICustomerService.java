@@ -17,7 +17,7 @@ public interface ICustomerService {
 
     public Customer save(Customer customer) throws Conflict, BadRequest;
 
-    public Customer update(Customer customer, Long id) throws ValueNotFound, BadRequest;
+    public Customer update(Customer customer) throws ValueNotFound, BadRequest;
 
     public Customer delete(Customer customer) throws ValueNotFound, BadRequest;
 

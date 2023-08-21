@@ -92,12 +92,13 @@ public class CustomerService implements ICustomerService {
      * @return Product
      */
     @Override
-    public Customer update(Customer from, Long id) throws ValueNotFound, BadRequest {
-        Optional<Customer> op = customerRepository.findById(id);
-        if (op.isEmpty()) {
+    public Customer update(Customer from) throws ValueNotFound, BadRequest {
+        Optional<Customer> op = customerRepository.findById(from.getId());
+        if (!op.isPresent()) {
             throw new ValueNotFound("Customer not found");
         }
-        Customer to = customerRepository.getById(id);
+        Customer to = op.get();
+        to.setId(from.getId());
         to.setCustomerName(from.getCustomerName());
         to.setCustomerMovile(from.getCustomerMovile());
         return customerRepository.save(Util.convertToDto(to, Customer.class));

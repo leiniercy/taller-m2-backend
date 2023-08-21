@@ -138,11 +138,11 @@ public class CustomerController {
                     )
             }
     )
-    @PutMapping(path = {"/update/{id}"}, consumes = "application/json", produces = "application/json")
-    public ResponseEntity<?> update( @RequestBody Customer customer, @RequestParam("id") Long id) throws ValueNotFound, BadRequest, IOException {
+    @PutMapping(path = {"/update"}, consumes = "application/json", produces = "application/json")
+    public ResponseEntity<?> update( @RequestBody Customer customer) throws ValueNotFound, BadRequest, IOException {
 
         try {
-            return ResponseEntity.ok( service.update(customer, id) );
+            return ResponseEntity.ok( service.update(customer) );
         } catch (ValueNotFound vn) {
             throw new ValueNotFound(vn.getMessage());
         } catch (BadRequest br) {
