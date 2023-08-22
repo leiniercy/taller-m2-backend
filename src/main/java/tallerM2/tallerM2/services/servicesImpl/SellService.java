@@ -231,6 +231,13 @@ public class SellService implements ISellService {
     public long count() {
         return sellRepository.count();
     }
+
+    /**
+     * METODO QUE DEVUELVE LA CANTIDAD DE OBJETOS VENDIDOS EL AÑO
+     * ACTUAL EN UN MES ESPECIFICADO
+     *
+     * @return long
+     */
     public Long countSellByMonth(int month) {
         LocalDate date = LocalDate.now();
         Query query = em.createQuery("select coalesce(sum(s.cantProduct),0) from Sell s " +
@@ -241,4 +248,85 @@ public class SellService implements ISellService {
         Long result = (Long) query.getSingleResult();
         return result != null ? result : 0;
     }
+
+    /**
+     * METODO QUE DEVUELVE LA CANTIDAD DE OBJETOS VENDIDOS EL AÑO
+     * ACTUAL EN UN MES Y  UN PRODUCTO ESPECIFICADO
+     *
+     * @return long
+     */
+    public Long countSellByMonthAndAccesorio(int month) {
+        LocalDate date = LocalDate.now();
+        Query query = em.createQuery("SELECT COALESCE(SUM(s.cantProduct),0) FROM Sell s " +
+                        "JOIN Product p ON s.product.id = p.id " +
+                        "WHERE EXTRACT( year FROM s.sellDate ) = :year " +
+                        "AND EXTRACT(MONTH FROM s.sellDate ) = :month " +
+                        "AND p.id NOT IN (SELECT c.id FROM Charger c) " +
+                        "AND p.id NOT IN (SELECT m.id FROM Movile m) "+
+                        "AND p.id NOT IN (SELECT r.id FROM Reloj r) ")
+                .setParameter("year", date.getYear())
+                .setParameter("month", month);
+
+        Long result = (Long) query.getSingleResult();
+        return result != null ? result : 0;
+    }
+
+    /**
+     * METODO QUE DEVUELVE LA CANTIDAD DE OBJETOS VENDIDOS EL AÑO
+     * ACTUAL EN UN MES Y  UN PRODUCTO ESPECIFICADO
+     *
+     * @return long
+     */
+    public Long countSellByMonthAndCharger(int month) {
+        LocalDate date = LocalDate.now();
+        Query query = em.createQuery("select coalesce(sum(s.cantProduct),0) from Sell s " +
+                        "JOIN Charger c ON s.product.id = c.id " +
+                        "WHERE EXTRACT( year FROM s.sellDate ) = :year " +
+                        "AND EXTRACT(MONTH FROM s.sellDate ) = :month ")
+                .setParameter("year", date.getYear())
+                .setParameter("month", month);
+
+        Long result = (Long) query.getSingleResult();
+        return result != null ? result : 0;
+    }
+
+    /**
+     * METODO QUE DEVUELVE LA CANTIDAD DE OBJETOS VENDIDOS EL AÑO
+     * ACTUAL EN UN MES Y  UN PRODUCTO ESPECIFICADO
+     *
+     * @return long
+     */
+    public Long countSellByMonthAndMovile(int month) {
+        LocalDate date = LocalDate.now();
+        Query query = em.createQuery("select coalesce(sum(s.cantProduct),0) from Sell s " +
+                        "JOIN Movile m ON s.product.id = m.id " +
+                        "WHERE EXTRACT( year FROM s.sellDate ) = :year " +
+                        "AND EXTRACT(MONTH FROM s.sellDate ) = :month ")
+                .setParameter("year", date.getYear())
+                .setParameter("month", month);
+
+        Long result = (Long) query.getSingleResult();
+        return result != null ? result : 0;
+    }
+
+    /**
+     * METODO QUE DEVUELVE LA CANTIDAD DE OBJETOS VENDIDOS EL AÑO
+     * ACTUAL EN UN MES Y  UN PRODUCTO ESPECIFICADO
+     *
+     * @return long
+     */
+    public Long countSellByMonthAndReloj(int month) {
+        LocalDate date = LocalDate.now();
+        Query query = em.createQuery("select coalesce(sum(s.cantProduct),0) from Sell s " +
+                        "JOIN Reloj r ON s.product.id = r.id " +
+                        "WHERE EXTRACT( year FROM s.sellDate ) = :year " +
+                        "AND EXTRACT(MONTH FROM s.sellDate ) = :month ")
+                .setParameter("year", date.getYear())
+                .setParameter("month", month);
+
+        Long result = (Long) query.getSingleResult();
+        return result != null ? result : 0;
+    }
+
 }
+

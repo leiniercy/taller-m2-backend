@@ -30,6 +30,7 @@ import tallerM2.tallerM2.exceptions.custom.Conflict;
 import tallerM2.tallerM2.exceptions.custom.ValueNotFound;
 import tallerM2.tallerM2.model.Sell;
 import tallerM2.tallerM2.services.servicesImpl.SellService;
+import tallerM2.tallerM2.utils.dto.SellMonthRequest;
 import tallerM2.tallerM2.utils.dto.SellRequest;
 
 import java.io.ByteArrayOutputStream;
@@ -105,6 +106,41 @@ public class SellController {
             return ResponseEntity.ok(list);
         } catch (Exception ex) {
             throw new BadRequest("Bad request");
+        }
+    }
+
+    @Operation(summary = "Find all sales by month and product", description = "Find all sales by month and product", tags = "sell")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sell.class)))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+    })
+    @GetMapping(path = {"/all/date/month/product"}, produces = "application/json")
+    ResponseEntity<?> allByMonthAndProduct() throws BadRequest {
+        try {
+            SellMonthRequest sellMonthRequest = new SellMonthRequest();
+            List<Long> accesorios = new LinkedList<>();
+            for(int i=0; i<12; i++){
+                accesorios.add(service.countSellByMonthAndAccesorio(i+1));
+            }
+            sellMonthRequest.setAccesorios(accesorios);
+            List<Long> charges = new LinkedList<>();
+            for(int i=0; i<12; i++){
+                charges.add(service.countSellByMonthAndCharger(i+1));
+            }
+            sellMonthRequest.setChargers(charges);
+            List<Long> moviles = new LinkedList<>();
+            for(int i=0; i<12; i++){
+                moviles.add(service.countSellByMonthAndMovile(i+1));
+            }
+            sellMonthRequest.setMoviles(moviles);
+            List<Long> relojes = new LinkedList<>();
+            for(int i=0; i<12; i++){
+                relojes.add(service.countSellByMonthAndReloj(i+1));
+            }
+            sellMonthRequest.setRelojes(relojes);
+            return ResponseEntity.ok(sellMonthRequest);
+        } catch (Exception ex) {
+            throw new BadRequest("Bad request: "+ ex.getMessage());
         }
     }
 
