@@ -11,16 +11,14 @@ import tallerM2.tallerM2.model.Sell;
 import tallerM2.tallerM2.repository.ProductRepository;
 import tallerM2.tallerM2.repository.SellRepository;
 import tallerM2.tallerM2.services.ISellService;
-import tallerM2.tallerM2.utils.Util;
+import tallerM2.tallerM2.utils.dto.SellMonthRequest;
 import tallerM2.tallerM2.utils.dto.SellRequest;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import java.time.LocalDate;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 @Service
 public class SellService implements ISellService {
@@ -81,7 +79,7 @@ public class SellService implements ISellService {
     @Override
     public List<Sell> findAllByDate(LocalDate sellDate, String taller) {
         return em.createQuery("SELECT s FROM Sell s WHERE s.sellDate = :fecha " +
-                        "AND s.product.taller LIKE :taller "+
+                        "AND s.product.taller LIKE :taller " +
                         "ORDER BY s.id")
                 .setParameter("fecha", sellDate)
                 .setParameter("taller", taller)
@@ -106,13 +104,13 @@ public class SellService implements ISellService {
         //Realizo las ventas de los objetos
         List<Sell> sales = new LinkedList<>();
         Random random = new Random();
-        for(int i=0; i < sellRequest.getProducts().size(); i++){
+        for (int i = 0; i < sellRequest.getProducts().size(); i++) {
             Sell sell = new Sell();
             sell.setId(random.nextLong());
             sell.setTallerName(sellRequest.getTallerName());
             sell.setSellDate(sellRequest.getDate());
             sell.setCustomer(sellRequest.getCustomer());
-            sell.setDescription( sellRequest.getDescriptions().get(i));
+            sell.setDescription(sellRequest.getDescriptions().get(i));
             sell.setCantProduct(sellRequest.getQuantities().get(i));
             sell.setSalePrice(sellRequest.getPrices().get(i) * sell.getCantProduct());
             sell.setProduct(sellRequest.getProducts().get(i));
@@ -120,7 +118,7 @@ public class SellService implements ISellService {
         }
 
         //Actualizo la informacion de los productos vendidos
-        for(Sell s : sales){
+        for (Sell s : sales) {
             Product product = s.getProduct();
             product.setId(s.getProduct().getId());
             product.setName(s.getProduct().getName());
@@ -211,7 +209,7 @@ public class SellService implements ISellService {
     @Override
     public List<Sell> deleteAll(List<Sell> sales) throws ValueNotFound, BadRequest {
         sellRepository.deleteAll(sales);
-        for(Sell s : sales){
+        for (Sell s : sales) {
             Product product = s.getProduct();
             product.setId(s.getProduct().getId());
             product.setName(s.getProduct().getName());
@@ -232,5 +230,15 @@ public class SellService implements ISellService {
     @Override
     public long count() {
         return sellRepository.count();
+    }
+    public Long countSellByMonth(int month) {
+        LocalDate date = LocalDate.now();
+        Query query = em.createQuery("select coalesce(sum(s.cantProduct),0) from Sell s " +
+                        "WHERE EXTRACT( year FROM s.sellDate ) = :year " +
+                        "AND EXTRACT(MONTH FROM s.sellDate ) = :month")
+                .setParameter("year", date.getYear())
+                .setParameter("month", month);
+        Long result = (Long) query.getSingleResult();
+        return result != null ? result : 0;
     }
 }

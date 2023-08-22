@@ -38,6 +38,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.MediaType;
@@ -84,6 +85,24 @@ public class SellController {
         try {
             List<Sell> ventas = service.findAllByDate(sellDate, taller);
             return ResponseEntity.ok(ventas);
+        } catch (Exception ex) {
+            throw new BadRequest("Bad request");
+        }
+    }
+
+    @Operation(summary = "Find all sales by month", description = "Find all sales by month", tags = "sell")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sell.class)))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+    })
+    @GetMapping(path = {"/all/date/month"}, produces = "application/json")
+    ResponseEntity<?> allByMonth() throws BadRequest {
+        try {
+            List<Long> list = new LinkedList<>();
+            for(int i=0; i<12; i++){
+                list.add(service.countSellByMonth(i+1));
+            }
+            return ResponseEntity.ok(list);
         } catch (Exception ex) {
             throw new BadRequest("Bad request");
         }
