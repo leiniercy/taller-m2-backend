@@ -71,8 +71,8 @@ public class MovileService implements IMovileService {
      * @return List<Movile> listado de objetos del taller 2M
      */
     @Override
-    public List<Movile> findAllTaller2M(){
-       return em.createQuery("SELECT m FROM Movile m WHERE m.taller LIKE 'Taller 2M' ORDER BY m.name")
+    public List<Movile> findAllTaller2M() {
+        return em.createQuery("SELECT m FROM Movile m WHERE m.taller LIKE 'Taller 2M' ORDER BY m.name")
                 .getResultList();
     }
 
@@ -83,8 +83,8 @@ public class MovileService implements IMovileService {
      * @return List<Movile> listado de objetos del taller MJ
      */
     @Override
-    public List<Movile> findAllTallerMJ(){
-        return  em.createQuery("SELECT m FROM Movile m WHERE m.taller LIKE 'Taller MJ' ORDER BY m.name")
+    public List<Movile> findAllTallerMJ() {
+        return em.createQuery("SELECT m FROM Movile m WHERE m.taller LIKE 'Taller MJ' ORDER BY m.name")
                 .getResultList();
     }
 
@@ -168,7 +168,7 @@ public class MovileService implements IMovileService {
         for (MultipartFile file : files) {
             File f = new File();
             f.setName(imageService.guardarArchivo(file));
-            f.setUrl("http://localhost:8080/api/v1/movile/image/" + f.getName());
+            f.setUrl("http://localhost:8080/api/v1/product/image/" + f.getName());
             f.setProduct(m);
             images.add(fileService.save(f));
         }
@@ -208,7 +208,7 @@ public class MovileService implements IMovileService {
         }
 
         //Creo uno nuevo con sus mismas caracteristicas
-        Movile movile = movileRepository.getById(id);
+        Movile movile = op.get();
         movile.setName(name);
         movile.setPrice(price);
         movile.setCant(cant);
@@ -223,24 +223,40 @@ public class MovileService implements IMovileService {
         movile.setBanda5G(banda5G);
         movile.setBateria(bateria);
 
-        //Eliminando todos las imagenes vinculadas a este movile
-        for (File file : movile.getFiles()) {
-            imageService.eliminarImagen(file.getName());
-            fileService.deleteById(file.getId());
+        //Listado de imagenes actual
+        List<File> previousImages = movile.getFiles();
+        //Comprobando si no son las mismas imagenes
+        boolean band = true;
+        if(files.size()  == movile.getFiles().size()) {
+            for (int i = 0; i < files.size() && band; i++) {
+                if (!files.get(i).getOriginalFilename().equals(movile.getFiles().get(i).getName())) {
+                    band = false;
+                }
+            }
+        }else{
+            band=false;
         }
 
-        Movile m = movileRepository.save(Util.convertToDto(movile, Movile.class));
+        Movile m = movileRepository.save(movile);
 
-        //Actualizo el movile con la nueva lista de imagenes
-        List<File> images = new LinkedList<>();
-        for (MultipartFile file : files) {
-            File f = new File();
-            f.setName(imageService.guardarArchivo(file));
-            f.setUrl("http://localhost:8080/api/v1/movile/image/" + f.getName());
-            f.setProduct(m);
-            images.add(fileService.save(f));
+        if (!band) {
+            //Actualizo el movile con la nueva lista de imagenes
+            List<File> images = new LinkedList<>();
+            for (MultipartFile file : files) {
+                File f = new File();
+                f.setName(imageService.guardarArchivo(file));
+                f.setUrl("http://localhost:8080/api/v1/product/image/" + f.getName());
+                f.setProduct(m);
+                images.add(fileService.save(f));
+            }
+            m.setFiles(images);
+
+            //Eliminando todos las imagenes anteriores vinculadas a este movile
+            for (File file : previousImages) {
+                imageService.eliminarImagen(file.getName());
+                fileService.deleteById(file.getId());
+            }
         }
-        m.setFiles(images);
 
         return m;
     }

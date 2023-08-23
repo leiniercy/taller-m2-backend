@@ -66,7 +66,7 @@ public class RelojService implements IRelojService {
      * @return List<Reloj> listado de objetos del taller 2M
      */
     @Override
-    public List<Reloj> findAllTaller2M(){
+    public List<Reloj> findAllTaller2M() {
         return em.createQuery("SELECT r FROM Reloj r WHERE r.taller LIKE 'Taller 2M' ORDER BY r.name")
                 .getResultList();
     }
@@ -78,7 +78,7 @@ public class RelojService implements IRelojService {
      * @return List<Reloj> listado de objetos del taller MJ
      */
     @Override
-    public List<Reloj> findAllTallerMJ(){
+    public List<Reloj> findAllTallerMJ() {
         return em.createQuery("SELECT r FROM Reloj r WHERE r.taller LIKE 'Taller MJ' ORDER BY r.name")
                 .getResultList();
     }
@@ -143,7 +143,7 @@ public class RelojService implements IRelojService {
         for (MultipartFile file : files) {
             File f = new File();
             f.setName(imageService.guardarArchivo(file));
-            f.setUrl("http://localhost:8080/api/v1/reloj/image/" + f.getName());
+            f.setUrl("http://localhost:8080/api/v1/product/image/" + f.getName());
             f.setProduct(r);
             images.add(fileService.save(f));
         }
@@ -183,23 +183,39 @@ public class RelojService implements IRelojService {
         reloj.setSpecialFeature(specialFeature);
         reloj.setBateryLife(bateryLife);
 
-        //Eliminando todos las imagenes vinculadas a este cargador
-        for (File file : reloj.getFiles()) {
-            imageService.eliminarImagen(file.getName());
-            fileService.deleteById(file.getId());
+        //Listado de imagenes actual
+        List<File> previousImages = reloj.getFiles();
+        //Comprobando si no son las mismas imagenes
+        boolean band = true;
+        if (files.size() == reloj.getFiles().size()) {
+            for (int i = 0; i < files.size() && band; i++) {
+                if (!files.get(i).getOriginalFilename().equals(reloj.getFiles().get(i).getName())) {
+                    band = false;
+                }
+            }
+        } else {
+            band = false;
         }
 
-        Reloj r = relojRepository.save(Util.convertToDto(reloj, Reloj.class));
-        //Actualizo el movile con la nueva lista de imagenes
-        List<File> images = new LinkedList<>();
-        for (MultipartFile file : files) {
-            File f = new File();
-            f.setName(imageService.guardarArchivo(file));
-            f.setUrl("http://localhost:8080/api/v1/reloj/image/" + f.getName());
-            f.setProduct(r);
-            images.add(fileService.save(f));
+        Reloj r = relojRepository.save(reloj);
+        if(!band) {
+            //Actualizo el movile con la nueva lista de imagenes
+            List<File> images = new LinkedList<>();
+            for (MultipartFile file : files) {
+                File f = new File();
+                f.setName(imageService.guardarArchivo(file));
+                f.setUrl("http://localhost:8080/api/v1/product/image/" + f.getName());
+                f.setProduct(r);
+                images.add(fileService.save(f));
+            }
+            r.setFiles(images);
+
+            //Eliminando todos las imagenes previas vinculadas a este cargador
+            for (File file : previousImages) {
+                imageService.eliminarImagen(file.getName());
+                fileService.deleteById(file.getId());
+            }
         }
-        r.setFiles(images);
 
         return r;
     }

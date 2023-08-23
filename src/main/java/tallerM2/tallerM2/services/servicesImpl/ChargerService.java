@@ -69,7 +69,7 @@ public class ChargerService implements IChargerService {
      */
     @Override
     public List<Charger> findAllTaller2M() {
-        return  em.createQuery("SELECT c FROM Charger c WHERE c.taller LIKE 'Taller 2M' ORDER BY c.name")
+        return em.createQuery("SELECT c FROM Charger c WHERE c.taller LIKE 'Taller 2M' ORDER BY c.name")
                 .getResultList();
     }
 
@@ -81,7 +81,7 @@ public class ChargerService implements IChargerService {
      */
     @Override
     public List<Charger> findAllTallerMJ() {
-        return  em.createQuery("SELECT c FROM Charger c WHERE c.taller LIKE 'Taller MJ' ORDER BY c.name")
+        return em.createQuery("SELECT c FROM Charger c WHERE c.taller LIKE 'Taller MJ' ORDER BY c.name")
                 .getResultList();
     }
 
@@ -143,7 +143,7 @@ public class ChargerService implements IChargerService {
         for (MultipartFile file : files) {
             File f = new File();
             f.setName(imageService.guardarArchivo(file));
-            f.setUrl("http://localhost:8080/api/v1/charger/image/" + f.getName());
+            f.setUrl("http://localhost:8080/api/v1/product/image/" + f.getName());
             f.setProduct(c);
             images.add(fileService.save(f));
         }
@@ -177,25 +177,40 @@ public class ChargerService implements IChargerService {
         charger.setConnectorType(connectorType);
         charger.setCompatibleDevice(compatibleDevice);
 
-        //Eliminando todos las imagenes vinculadas a este cargador
-        for (File file : charger.getFiles()) {
-            imageService.eliminarImagen(file.getName());
-            fileService.deleteById(file.getId());
+        //Listado de imagenes actual
+        List<File> previousImages = charger.getFiles();
+        //Comprobando si no son las mismas imagenes
+        boolean band = true;
+        if (files.size() == charger.getFiles().size()) {
+            for (int i = 0; i < files.size() && band; i++) {
+                if (!files.get(i).getOriginalFilename().equals(charger.getFiles().get(i).getName())) {
+                    band = false;
+                }
+            }
+        } else {
+            band = false;
         }
 
-        Charger c = chargerRepository.save(Util.convertToDto(charger, Charger.class));
+        Charger c = chargerRepository.save(charger);
 
-        //Actualizo el movile con la nueva lista de imagenes
-        List<File> images = new LinkedList<>();
-        for (MultipartFile file : files) {
-            File f = new File();
-            f.setName(imageService.guardarArchivo(file));
-            f.setUrl("http://localhost:8080/api/v1/charger/image/" + f.getName());
-            f.setProduct(c);
-            images.add(fileService.save(f));
+        if (!band) {
+            //Actualizo el movile con la nueva lista de imagenes
+            List<File> images = new LinkedList<>();
+            for (MultipartFile file : files) {
+                File f = new File();
+                f.setName(imageService.guardarArchivo(file));
+                f.setUrl("http://localhost:8080/api/v1/product/image/" + f.getName());
+                f.setProduct(c);
+                images.add(fileService.save(f));
+            }
+            c.setFiles(images);
+
+            //Eliminando todos las imagenes previas vinculadas a este cargador
+            for (File file : previousImages) {
+                imageService.eliminarImagen(file.getName());
+                fileService.deleteById(file.getId());
+            }
         }
-        c.setFiles(images);
-
         return c;
     }
 

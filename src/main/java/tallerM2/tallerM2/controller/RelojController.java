@@ -283,16 +283,4 @@ public class RelojController {
         }
     }
 
-    @Operation(
-            summary = "Get image by name",
-            description = "Get image by name from the server",
-            tags = "reloj"
-    )
-    @GetMapping(path = "/image/{name}")
-    public ResponseEntity<?> obtenerImagen(@PathVariable(value = "name") String name) throws IOException {
-        return ResponseEntity.status(HttpStatus.OK)
-                .contentType(MediaType.valueOf("image/png"))
-                .body(imageService.obtenerImagen(name));
-    }
-
 }

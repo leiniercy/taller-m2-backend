@@ -302,17 +302,4 @@ public class MovileController {
         }
     }
 
-    @Operation(
-            summary = "Get image by name",
-            description = "Get image by name from the server",
-            tags = "movile"
-    )
-    @GetMapping(path = "/image/{name}")
-    public ResponseEntity<?> obtenerImagen(@PathVariable(value = "name") String name) throws IOException {
-        return ResponseEntity.status(HttpStatus.OK)
-                .contentType(MediaType.valueOf("image/png"))
-                .body(imageService.obtenerImagen(name));
-    }
-
-
 }

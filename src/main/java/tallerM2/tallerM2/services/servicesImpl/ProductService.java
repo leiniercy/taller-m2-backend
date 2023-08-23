@@ -77,7 +77,7 @@ public class ProductService implements IProductService {
      */
     @Override
     public List<Product> findAllAccesorios() {
-       return em.createQuery("SELECT p FROM Product p WHERE p.id NOT IN (SELECT c.id FROM Charger c) " +
+        return em.createQuery("SELECT p FROM Product p WHERE p.id NOT IN (SELECT c.id FROM Charger c) " +
                         "AND p.id NOT IN (SELECT m.id FROM Movile m) " +
                         "AND p.id NOT IN (SELECT r.id FROM Reloj r) " +
                         "ORDER BY p.name")
@@ -90,7 +90,7 @@ public class ProductService implements IProductService {
      *
      * @return List<Product> listado de productos del taller 2M
      */
-    public List<Product> findAllProductsTaller2M(){
+    public List<Product> findAllProductsTaller2M() {
         return em.createQuery("SELECT p FROM Product p WHERE p.taller LIKE 'Taller 2M' ORDER BY p.name")
                 .getResultList();
     }
@@ -101,7 +101,7 @@ public class ProductService implements IProductService {
      *
      * @return List<Product> listado de productos del taller MJ
      */
-    public List<Product> findAllProductsTallerMJ(){
+    public List<Product> findAllProductsTallerMJ() {
         return em.createQuery("SELECT p FROM Product p WHERE p.taller LIKE 'Taller MJ' ORDER BY p.name")
                 .getResultList();
     }
@@ -113,7 +113,7 @@ public class ProductService implements IProductService {
      *
      * @return List<Product> listado de accesorios del taller 2M
      */
-    public List<Product> findAllAccesoriosTaller2M(){
+    public List<Product> findAllAccesoriosTaller2M() {
         return em.createQuery("SELECT p FROM Product p WHERE p.id NOT IN (SELECT c.id FROM Charger c) " +
                         "AND p.id NOT IN (SELECT m.id FROM Movile m) " +
                         "AND p.id NOT IN (SELECT r.id FROM Reloj r) " +
@@ -127,7 +127,7 @@ public class ProductService implements IProductService {
      *
      * @return List<Product> listado de accesorios del taller MJ
      */
-    public List<Product> findAllAccesoriosTallerMJ(){
+    public List<Product> findAllAccesoriosTallerMJ() {
         return em.createQuery("SELECT p FROM Product p WHERE p.id NOT IN (SELECT c.id FROM Charger c) " +
                         "AND p.id NOT IN (SELECT m.id FROM Movile m) " +
                         "AND p.id NOT IN (SELECT r.id FROM Reloj r) " +
@@ -234,24 +234,41 @@ public class ProductService implements IProductService {
         product.setCant(cant);
         product.setTaller(taller);
 
-        //Eliminando todos las imagenes vinculadas a este cargador
-        for (File file : product.getFiles()) {
-            imageService.eliminarImagen(file.getName());
-            fileService.deleteById(file.getId());
+
+        //Listado de imagenes actual
+        List<File> previousImages = product.getFiles();
+        //Comprobando si no son las mismas imagenes
+        boolean band = true;
+        if (files.size() == product.getFiles().size()) {
+            for (int i = 0; i < files.size() && band; i++) {
+                if (!files.get(i).getOriginalFilename().equals(product.getFiles().get(i).getName())) {
+                    band = false;
+                }
+            }
+        } else {
+            band = false;
         }
 
         Product pro = productRepository.save(product);
+        if (!band) {
+            //Actualizo el movile con la nueva lista de imagenes
+            List<File> images = new LinkedList<>();
+            for (MultipartFile file : files) {
+                File f = new File();
+                f.setName(imageService.guardarArchivo(file));
+                f.setUrl("http://localhost:8080/api/v1/product/image/" + f.getName());
+                f.setProduct(pro);
+                images.add(fileService.save(f));
+            }
+            pro.setFiles(images);
 
-        //Actualizo el movile con la nueva lista de imagenes
-        List<File> images = new LinkedList<>();
-        for (MultipartFile file : files) {
-            File f = new File();
-            f.setName(imageService.guardarArchivo(file));
-            f.setUrl("http://localhost:8080/api/v1/product/image/" + f.getName());
-            f.setProduct(pro);
-            images.add(fileService.save(f));
+            //Eliminando todos las imagenes anteriores vinculadas a este accesorio
+            for (File file : previousImages) {
+                imageService.eliminarImagen(file.getName());
+                fileService.deleteById(file.getId());
+            }
+
         }
-        pro.setFiles(images);
 
         return pro;
     }
