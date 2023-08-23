@@ -1,6 +1,7 @@
 package tallerM2.tallerM2.services.servicesImpl;
 
 
+import java.time.DayOfWeek;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tallerM2.tallerM2.exceptions.custom.BadRequest;
@@ -18,6 +19,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
 @Service
@@ -233,14 +235,14 @@ public class SellService implements ISellService {
     }
 
     /**
-     * METODO QUE DEVUELVE LA CANTIDAD DE OBJETOS VENDIDOS EL AÑO
+     * METODO QUE DEVUELVE EL TOTAL RECAUDADO POR OBJETOS VENDIDOS EL AÑO
      * ACTUAL EN UN MES ESPECIFICADO
      *
      * @return long
      */
     public Long countSellByMonth(int month) {
         LocalDate date = LocalDate.now();
-        Query query = em.createQuery("select coalesce(sum(s.cantProduct),0) from Sell s " +
+        Query query = em.createQuery("select coalesce(sum(s.salePrice),0) from Sell s " +
                         "WHERE EXTRACT( year FROM s.sellDate ) = :year " +
                         "AND EXTRACT(MONTH FROM s.sellDate ) = :month")
                 .setParameter("year", date.getYear())
@@ -327,6 +329,49 @@ public class SellService implements ISellService {
         Long result = (Long) query.getSingleResult();
         return result != null ? result : 0;
     }
+   
+    
+    /**
+     * METODO QUE DEVUELVE UNA LISTA CON EL TOTAL RECAUDADO POR OBJETOS VENDIDOS
+     * POR CADA DIA DE LA SEMANA ACTUAL
+     *
+     * @return long
+     */
+    public List<Long> getSalesByCurrentWeek(){
+        
+        List<Long> list = new LinkedList<>();
+        LocalDate currentDate = LocalDate.now();
+        LocalDate firstDayofWeek = currentDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate lastDayofWeek = currentDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+
+        
+        LocalDate day  = firstDayofWeek;
+        while (!day.isAfter(lastDayofWeek)) {
+            list.add(countSellByDayOfWeek(day));
+            day = day.plusDays(1);
+        }
+        
+        
+        return list;
+    }
+    
+     /**
+     * METODO QUE DEVUELVE EL TOTAL RECAUDADO POR OBJETOS VENDIDOS EN UN DIA DE LA SEMANA
+     * ESPECIFICADO PREVIAMENTE
+     *
+      * @param date
+     * @return long
+     */
+    public Long countSellByDayOfWeek(LocalDate date) {
+        Query query = em.createQuery("SELECT COALESCE(SUM(s.salePrice),0) FROM Sell s " +
+                        "JOIN Product p ON s.product.id = p.id " +
+                        "WHERE s.sellDate = :date ")
+                .setParameter("date", date);
+       
+        Long result = (Long) query.getSingleResult();
+        return result != null ? result : 0;
+    }
+    
 
 }
 

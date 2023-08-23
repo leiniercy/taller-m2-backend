@@ -91,6 +91,21 @@ public class SellController {
         }
     }
 
+    @Operation(summary = "Find all sales by week", description = "Find all sales by week", tags = "sell")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sell.class)))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+    })
+    @GetMapping(path = {"/all/date/week"}, produces = "application/json")
+    ResponseEntity<?> allByWeek() throws BadRequest {
+        try {
+            return ResponseEntity.ok(service.getSalesByCurrentWeek());
+        } catch (Exception ex) {
+            throw new BadRequest("Bad request");
+        }
+    }
+
+
     @Operation(summary = "Find all sales by month", description = "Find all sales by month", tags = "sell")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sell.class)))),
