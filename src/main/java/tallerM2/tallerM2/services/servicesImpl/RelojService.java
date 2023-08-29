@@ -19,15 +19,16 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import tallerM2.tallerM2.utils.MinioAdapter;
 
 @Service
 public class RelojService implements IRelojService {
 
     @Autowired
     private RelojRepository relojRepository;
-
     @Autowired
-    private ImageService imageService;
+    MinioAdapter minioAdapter;
     @Autowired
     private FileService fileService;
     @PersistenceContext
@@ -60,8 +61,8 @@ public class RelojService implements IRelojService {
     }
 
     /**
-     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO
-     * DEL TALLER 2M
+     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO DEL
+     * TALLER 2M
      *
      * @return List<Reloj> listado de objetos del taller 2M
      */
@@ -72,8 +73,8 @@ public class RelojService implements IRelojService {
     }
 
     /**
-     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO
-     * DEL TALLER MJ
+     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO DEL
+     * TALLER MJ
      *
      * @return List<Reloj> listado de objetos del taller MJ
      */
@@ -98,25 +99,25 @@ public class RelojService implements IRelojService {
      * PRIMERO SE VERIFICA QUE EL OBJETO NO EXISTA, Y LUEGO SE GURADA LA
      * INFORMACION
      *
-     * @param files            listado de imagenes
-     * @param name             nombre del producto
-     * @param price            precio del producto
-     * @param cant             cant de productos
-     * @param taller           nombre del taller al q pertenece
-     * @param specialFeature   funcionalidades del reloj
+     * @param files listado de imagenes
+     * @param name nombre del producto
+     * @param price precio del producto
+     * @param cant cant de productos
+     * @param taller nombre del taller al q pertenece
+     * @param specialFeature funcionalidades del reloj
      * @param compatibleDevice dispositivos compatibles
-     * @param bateryLife       timepo de uso de la bateria en dias
+     * @param bateryLife timepo de uso de la bateria en dias
      * @return Reloj
      */
     @Override
     public Reloj save(List<MultipartFile> files, String name, int price, int cant, String taller,
-                      String specialFeature, String compatibleDevice, int bateryLife)
+            String specialFeature, String compatibleDevice, int bateryLife)
             throws Conflict, BadRequest, IOException {
-        List<Reloj> products = em.createQuery("SELECT r FROM Reloj r " +
-                        "WHERE r.name LIKE :name AND  r.cant = :cant AND  r.price = :price AND  r.taller = :taller " +
-                        "AND  r.specialFeature = :specialFeature " +
-                        "AND  r.compatibleDevice = :compatibleDevice " +
-                        "AND  r.bateryLife = :bateryLife")
+        List<Reloj> products = em.createQuery("SELECT r FROM Reloj r "
+                + "WHERE r.name LIKE :name AND  r.cant = :cant AND  r.price = :price AND  r.taller = :taller "
+                + "AND  r.specialFeature = :specialFeature "
+                + "AND  r.compatibleDevice = :compatibleDevice "
+                + "AND  r.bateryLife = :bateryLife")
                 .setParameter("name", name)
                 .setParameter("cant", cant)
                 .setParameter("price", price)
@@ -142,7 +143,9 @@ public class RelojService implements IRelojService {
         List<File> images = new LinkedList<>();
         for (MultipartFile file : files) {
             File f = new File();
-            f.setName(imageService.guardarArchivo(file));
+            String nombreImagen = UUID.randomUUID().toString() + "-" + file.getOriginalFilename();
+            minioAdapter.uploadFile(nombreImagen, file.getInputStream(), file.getSize());
+            f.setName(nombreImagen);
             f.setUrl("http://localhost:8080/api/v1/product/image/" + f.getName());
             f.setProduct(r);
             images.add(fileService.save(f));
@@ -154,20 +157,20 @@ public class RelojService implements IRelojService {
     /**
      * ACUTAULIZAR LA INFORMACION TODA LA INFORMACION DE UN OBJETO
      *
-     * @param id               identificador del objeto
-     * @param files            listado de imagenes
-     * @param name             nombre del producto
-     * @param price            precio del producto
-     * @param cant             cant de productos
-     * @param taller           nombre del taller al q pertenece
-     * @param specialFeature   funcionalidades del reloj
+     * @param id identificador del objeto
+     * @param files listado de imagenes
+     * @param name nombre del producto
+     * @param price precio del producto
+     * @param cant cant de productos
+     * @param taller nombre del taller al q pertenece
+     * @param specialFeature funcionalidades del reloj
      * @param compatibleDevice dispositivos compatibles
-     * @param bateryLife       timepo de uso de la bateria en dias
+     * @param bateryLife timepo de uso de la bateria en dias
      * @return Reloj
      */
     @Override
     public Reloj update(List<MultipartFile> files, String name, int price, int cant, String taller,
-                        String specialFeature, String compatibleDevice, int bateryLife, Long id)
+            String specialFeature, String compatibleDevice, int bateryLife, Long id)
             throws ValueNotFound, BadRequest, IOException {
         Optional<Reloj> op = relojRepository.findById(id);
         if (op.isEmpty()) {
@@ -198,12 +201,14 @@ public class RelojService implements IRelojService {
         }
 
         Reloj r = relojRepository.save(reloj);
-        if(!band) {
+        if (!band) {
             //Actualizo el movile con la nueva lista de imagenes
             List<File> images = new LinkedList<>();
             for (MultipartFile file : files) {
                 File f = new File();
-                f.setName(imageService.guardarArchivo(file));
+                String nombreImagen = UUID.randomUUID().toString() + "-" + file.getOriginalFilename();
+                minioAdapter.uploadFile(nombreImagen, file.getInputStream(), file.getSize());
+                f.setName(nombreImagen);
                 f.setUrl("http://localhost:8080/api/v1/product/image/" + f.getName());
                 f.setProduct(r);
                 images.add(fileService.save(f));
@@ -212,7 +217,7 @@ public class RelojService implements IRelojService {
 
             //Eliminando todos las imagenes previas vinculadas a este cargador
             for (File file : previousImages) {
-                imageService.eliminarImagen(file.getName());
+                 minioAdapter.deleteFile(file.getName());
                 fileService.deleteById(file.getId());
             }
         }
@@ -235,7 +240,7 @@ public class RelojService implements IRelojService {
 
         Reloj r = relojRepository.getById(reloj.getId());
         for (File file : reloj.getFiles()) {
-            imageService.eliminarImagen(file.getName());
+           minioAdapter.deleteFile(file.getName());
         }
         relojRepository.deleteById(reloj.getId());
         return r;
@@ -256,7 +261,7 @@ public class RelojService implements IRelojService {
 
         Reloj reloj = relojRepository.getById(id);
         for (File file : reloj.getFiles()) {
-            imageService.eliminarImagen(file.getName());
+             minioAdapter.deleteFile(file.getName());
         }
         relojRepository.deleteById(id);
         return reloj;
@@ -266,14 +271,15 @@ public class RelojService implements IRelojService {
      * METODO PARA ELIMINAR UN CONJUNTO DE OBJETOS.
      *
      * @param relojs listado de objetos que se quieren eliminar
-     * @return List<Reloj>  objetos que aun existen en la BD
+     * @return List<Reloj> objetos que aun existen en la BD
      */
     @Override
     public List<Reloj> deleteAll(List<Reloj> relojs) throws ValueNotFound, BadRequest {
-        for (Reloj reloj : relojs)
+        for (Reloj reloj : relojs) {
             for (File file : reloj.getFiles()) {
-                imageService.eliminarImagen(file.getName());
+                minioAdapter.deleteFile(file.getName());
             }
+        }
         relojRepository.deleteAll(relojs);
         return findAllByOrderByIdAsc();
     }

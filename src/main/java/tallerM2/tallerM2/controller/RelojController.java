@@ -8,8 +8,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,7 +16,6 @@ import tallerM2.tallerM2.exceptions.custom.BadRequest;
 import tallerM2.tallerM2.exceptions.custom.Conflict;
 import tallerM2.tallerM2.exceptions.custom.ValueNotFound;
 import tallerM2.tallerM2.model.Reloj;
-import tallerM2.tallerM2.services.servicesImpl.ImageService;
 import tallerM2.tallerM2.services.servicesImpl.RelojService;
 
 import java.io.IOException;
@@ -33,8 +30,6 @@ public class RelojController {
 
     @Autowired
     private RelojService service;
-    @Autowired
-    private ImageService imageService;
 
     @Operation(summary = "Find all reloj", description = "Find all reloj", tags = "reloj")
     @ApiResponses(value = {

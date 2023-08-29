@@ -24,12 +24,12 @@ import tallerM2.tallerM2.exceptions.custom.Conflict;
 import tallerM2.tallerM2.exceptions.custom.ValueNotFound;
 import tallerM2.tallerM2.model.*;
 import tallerM2.tallerM2.services.servicesImpl.ProductService;
-import tallerM2.tallerM2.services.servicesImpl.ImageService;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.util.List;
+import tallerM2.tallerM2.utils.MinioAdapter;
 
 @RestController
 @RequestMapping(value = "/api/v1/product")
@@ -40,7 +40,7 @@ public class ProductController {
     @Autowired
     ProductService service;
     @Autowired
-    private ImageService imageService;
+    MinioAdapter minioAdapter;
 
     @PersistenceContext
     public EntityManager em;
@@ -329,7 +329,7 @@ public class ProductController {
     public ResponseEntity<?> obtenerImagen(@PathVariable(value = "name") String name) throws IOException {
         return ResponseEntity.status(HttpStatus.OK)
                 .contentType(MediaType.valueOf("image/png"))
-                .body(imageService.obtenerImagen(name));
+                .body(minioAdapter.getFile(name));
     }
-
+    
 }

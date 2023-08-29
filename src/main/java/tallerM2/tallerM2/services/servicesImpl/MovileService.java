@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ import tallerM2.tallerM2.utils.Util;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-
+import tallerM2.tallerM2.utils.MinioAdapter;
 
 @Service
 public class MovileService implements IMovileService {
@@ -32,9 +32,9 @@ public class MovileService implements IMovileService {
     @Autowired
     private MovileRepository movileRepository;
     @Autowired
-    private ImageService imageService;
-    @Autowired
     private FileService fileService;
+    @Autowired
+    MinioAdapter minioAdapter;
     @PersistenceContext
     private EntityManager em;
 
@@ -65,8 +65,8 @@ public class MovileService implements IMovileService {
     }
 
     /**
-     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO
-     * DEL TALLER 2M
+     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO DEL
+     * TALLER 2M
      *
      * @return List<Movile> listado de objetos del taller 2M
      */
@@ -77,8 +77,8 @@ public class MovileService implements IMovileService {
     }
 
     /**
-     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO
-     * DEL TALLER MJ
+     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO DEL
+     * TALLER MJ
      *
      * @return List<Movile> listado de objetos del taller MJ
      */
@@ -103,33 +103,33 @@ public class MovileService implements IMovileService {
      * PRIMERO SE VERIFICA QUE EL OBJETO NO EXISTA, Y LUEGO SE GURADA LA
      * INFORMACION
      *
-     * @param files         listado de imagenes
-     * @param name          nombre del producto
-     * @param price         precio del producto
-     * @param cant          cant de productos
-     * @param taller        nombre del taller al q pertenece
-     * @param sizeStorage   capacidad de almacenaniento de producto
-     * @param ram           velocidad del procesador
+     * @param files listado de imagenes
+     * @param name nombre del producto
+     * @param price precio del producto
+     * @param cant cant de productos
+     * @param taller nombre del taller al q pertenece
+     * @param sizeStorage capacidad de almacenaniento de producto
+     * @param ram velocidad del procesador
      * @param camaraTrasera cantidad de pixeles de la camara trasera
      * @param camaraFrontal cantidad de pixeles de la camara frontal
-     * @param banda2G       tipo de conexion que accepta
-     * @param banda3G       tipo de conexion que accepta
-     * @param banda4G       tipo de conexion que accepta
-     * @param banda5G       tipo de conexion que accepta
-     * @param bateria       duracion de la bateria en dias
+     * @param banda2G tipo de conexion que accepta
+     * @param banda3G tipo de conexion que accepta
+     * @param banda4G tipo de conexion que accepta
+     * @param banda5G tipo de conexion que accepta
+     * @param bateria duracion de la bateria en dias
      * @return Movile
      */
     @Override
     public Movile save(List<MultipartFile> files, String name, int price, int cant, String taller,
-                       int sizeStorage, int ram, int camaraTrasera, int camaraFrontal,
-                       boolean banda2G, boolean banda3G, boolean banda4G, boolean banda5G, long bateria)
+            int sizeStorage, int ram, int camaraTrasera, int camaraFrontal,
+            boolean banda2G, boolean banda3G, boolean banda4G, boolean banda5G, long bateria)
             throws Conflict, BadRequest, IOException {
 
-        List<Movile> products = em.createQuery("SELECT m FROM Movile m " +
-                        "WHERE m.name LIKE :name AND  m.cant = :cant AND  m.price = :price AND  m.taller = :taller " +
-                        "AND  m.sizeStorage = :sizeStorage AND  m.ram = :ram AND  m.camaraTrasera = :camaraTrasera " +
-                        "AND  m.camaraFrontal = :camaraFrontal AND  m.banda2G = :banda2G AND  m.banda3G = :banda3G " +
-                        "AND  m.banda4G = :banda4G AND  m.banda5G = :banda5G AND  m.bateria = :bateria")
+        List<Movile> products = em.createQuery("SELECT m FROM Movile m "
+                + "WHERE m.name LIKE :name AND  m.cant = :cant AND  m.price = :price AND  m.taller = :taller "
+                + "AND  m.sizeStorage = :sizeStorage AND  m.ram = :ram AND  m.camaraTrasera = :camaraTrasera "
+                + "AND  m.camaraFrontal = :camaraFrontal AND  m.banda2G = :banda2G AND  m.banda3G = :banda3G "
+                + "AND  m.banda4G = :banda4G AND  m.banda5G = :banda5G AND  m.bateria = :bateria")
                 .setParameter("name", name)
                 .setParameter("cant", cant)
                 .setParameter("price", price)
@@ -167,7 +167,9 @@ public class MovileService implements IMovileService {
         List<File> images = new LinkedList<>();
         for (MultipartFile file : files) {
             File f = new File();
-            f.setName(imageService.guardarArchivo(file));
+            String nombreImagen = UUID.randomUUID().toString() + "-" + file.getOriginalFilename();
+            minioAdapter.uploadFile(nombreImagen, file.getInputStream(), file.getSize());
+            f.setName(nombreImagen);
             f.setUrl("http://localhost:8080/api/v1/product/image/" + f.getName());
             f.setProduct(m);
             images.add(fileService.save(f));
@@ -179,28 +181,28 @@ public class MovileService implements IMovileService {
     /**
      * ACUTAULIZAR LA INFORMACION TODA LA INFORMACION DE UN OBJETO
      *
-     * @param id            identificador del producto
-     * @param files         listado de imagenes
-     * @param name          nombre del producto
-     * @param price         precio del producto
-     * @param cant          cant de productos
-     * @param taller        nombre del taller al q pertenece
-     * @param sizeStorage   capacidad de almacenaniento de producto
-     * @param ram           velocidad del procesador
+     * @param id identificador del producto
+     * @param files listado de imagenes
+     * @param name nombre del producto
+     * @param price precio del producto
+     * @param cant cant de productos
+     * @param taller nombre del taller al q pertenece
+     * @param sizeStorage capacidad de almacenaniento de producto
+     * @param ram velocidad del procesador
      * @param camaraTrasera cantidad de pixeles de la camara trasera
      * @param camaraFrontal cantidad de pixeles de la camara frontal
-     * @param banda2G       tipo de conexion que accepta
-     * @param banda3G       tipo de conexion que accepta
-     * @param banda4G       tipo de conexion que accepta
-     * @param banda5G       tipo de conexion que accepta
-     * @param bateria       duracion de la bateria en dias
+     * @param banda2G tipo de conexion que accepta
+     * @param banda3G tipo de conexion que accepta
+     * @param banda4G tipo de conexion que accepta
+     * @param banda5G tipo de conexion que accepta
+     * @param bateria duracion de la bateria en dias
      * @return Movile
      */
     @Override
     public Movile update(List<MultipartFile> files, String name, int price, int cant, String taller,
-                         int sizeStorage, int ram, int camaraTrasera, int camaraFrontal,
-                         boolean banda2G, boolean banda3G, boolean banda4G, boolean banda5G
-            , long bateria, Long id) throws ValueNotFound, BadRequest, IOException {
+            int sizeStorage, int ram, int camaraTrasera, int camaraFrontal,
+            boolean banda2G, boolean banda3G, boolean banda4G, boolean banda5G,
+            long bateria, Long id) throws ValueNotFound, BadRequest, IOException {
 
         Optional<Movile> op = movileRepository.findById(id);
         if (op.isEmpty()) {
@@ -227,14 +229,14 @@ public class MovileService implements IMovileService {
         List<File> previousImages = movile.getFiles();
         //Comprobando si no son las mismas imagenes
         boolean band = true;
-        if(files.size()  == movile.getFiles().size()) {
+        if (files.size() == movile.getFiles().size()) {
             for (int i = 0; i < files.size() && band; i++) {
                 if (!files.get(i).getOriginalFilename().equals(movile.getFiles().get(i).getName())) {
                     band = false;
                 }
             }
-        }else{
-            band=false;
+        } else {
+            band = false;
         }
 
         Movile m = movileRepository.save(movile);
@@ -244,7 +246,9 @@ public class MovileService implements IMovileService {
             List<File> images = new LinkedList<>();
             for (MultipartFile file : files) {
                 File f = new File();
-                f.setName(imageService.guardarArchivo(file));
+                String nombreImagen = UUID.randomUUID().toString() + "-" + file.getOriginalFilename();
+                minioAdapter.uploadFile(nombreImagen, file.getInputStream(), file.getSize());
+                f.setName(nombreImagen);
                 f.setUrl("http://localhost:8080/api/v1/product/image/" + f.getName());
                 f.setProduct(m);
                 images.add(fileService.save(f));
@@ -253,7 +257,7 @@ public class MovileService implements IMovileService {
 
             //Eliminando todos las imagenes anteriores vinculadas a este movile
             for (File file : previousImages) {
-                imageService.eliminarImagen(file.getName());
+                 minioAdapter.deleteFile(file.getName());
                 fileService.deleteById(file.getId());
             }
         }
@@ -276,7 +280,7 @@ public class MovileService implements IMovileService {
 
         Movile movile = movileRepository.getById(m.getId());
         for (File file : movile.getFiles()) {
-            imageService.eliminarImagen(file.getName());
+             minioAdapter.deleteFile(file.getName());
         }
         movileRepository.delete(m);
         return movile;
@@ -297,7 +301,7 @@ public class MovileService implements IMovileService {
 
         Movile movile = movileRepository.getById(id);
         for (File file : movile.getFiles()) {
-            imageService.eliminarImagen(file.getName());
+             minioAdapter.deleteFile(file.getName());
         }
         movileRepository.deleteById(id);
         return movile;
@@ -307,14 +311,15 @@ public class MovileService implements IMovileService {
      * METODO PARA ELIMINAR UN CONJUNTO DE OBJETOS.
      *
      * @param moviles listado de objetos que se quieren eliminar
-     * @return List<Movile>  objetos que aun existen en la BD
+     * @return List<Movile> objetos que aun existen en la BD
      */
     @Override
     public List<Movile> deleteAll(List<Movile> moviles) throws ValueNotFound, BadRequest {
-        for (Movile movile : moviles)
+        for (Movile movile : moviles) {
             for (File file : movile.getFiles()) {
-                imageService.eliminarImagen(file.getName());
+                 minioAdapter.deleteFile(file.getName());
             }
+        }
         movileRepository.deleteAll(moviles);
         return findAllByOrderByIdAsc();
     }

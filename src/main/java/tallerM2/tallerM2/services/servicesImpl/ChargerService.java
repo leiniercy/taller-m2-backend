@@ -21,7 +21,8 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-
+import java.util.UUID;
+import tallerM2.tallerM2.utils.MinioAdapter;
 
 @Service
 public class ChargerService implements IChargerService {
@@ -29,7 +30,7 @@ public class ChargerService implements IChargerService {
     @Autowired
     private ChargerRepository chargerRepository;
     @Autowired
-    private ImageService imageService;
+    MinioAdapter minioAdapter;
     @Autowired
     private FileService fileService;
     @PersistenceContext
@@ -62,8 +63,8 @@ public class ChargerService implements IChargerService {
     }
 
     /**
-     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO
-     * DEL TALLER 2M
+     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO DEL
+     * TALLER 2M
      *
      * @return List<Charger> listado de cargadores del taller 2M
      */
@@ -74,8 +75,8 @@ public class ChargerService implements IChargerService {
     }
 
     /**
-     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO
-     * DEL TALLER MJ
+     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO DEL
+     * TALLER MJ
      *
      * @return List<Charger> listado de cargadores del taller MJ
      */
@@ -100,23 +101,23 @@ public class ChargerService implements IChargerService {
      * PRIMERO SE VERIFICA QUE EL OBJETO NO EXISTA, Y LUEGO SE GURADA LA
      * INFORMACION
      *
-     * @param files            listado de imagenes
-     * @param name             nombre del producto
-     * @param price            precio del producto
-     * @param cant             cant de productos
-     * @param taller           nombre del taller al q pertenece
-     * @param connectorType    tipo de conector que utiliza
+     * @param files listado de imagenes
+     * @param name nombre del producto
+     * @param price precio del producto
+     * @param cant cant de productos
+     * @param taller nombre del taller al q pertenece
+     * @param connectorType tipo de conector que utiliza
      * @param compatibleDevice dispositivos compatibles
      * @return Charger
      */
     @Override
     public Charger save(List<MultipartFile> files, String name, int price, int cant, String taller,
-                        String connectorType, String compatibleDevice)
+            String connectorType, String compatibleDevice)
             throws Conflict, BadRequest, IOException {
-        List<Charger> products = em.createQuery("SELECT c FROM Charger c " +
-                        "WHERE c.name LIKE :name AND  c.cant = :cant AND  c.price = :price AND  c.taller = :taller " +
-                        "AND  c.connectorType = :connectorType " +
-                        "AND  c.compatibleDevice = :compatibleDevice")
+        List<Charger> products = em.createQuery("SELECT c FROM Charger c "
+                + "WHERE c.name LIKE :name AND  c.cant = :cant AND  c.price = :price AND  c.taller = :taller "
+                + "AND  c.connectorType = :connectorType "
+                + "AND  c.compatibleDevice = :compatibleDevice")
                 .setParameter("name", name)
                 .setParameter("cant", cant)
                 .setParameter("price", price)
@@ -142,7 +143,9 @@ public class ChargerService implements IChargerService {
         List<File> images = new LinkedList<>();
         for (MultipartFile file : files) {
             File f = new File();
-            f.setName(imageService.guardarArchivo(file));
+            String nombreImagen = UUID.randomUUID().toString() + "-" + file.getOriginalFilename();
+            minioAdapter.uploadFile(nombreImagen, file.getInputStream(), file.getSize());
+            f.setName(nombreImagen);
             f.setUrl("http://localhost:8080/api/v1/product/image/" + f.getName());
             f.setProduct(c);
             images.add(fileService.save(f));
@@ -154,12 +157,12 @@ public class ChargerService implements IChargerService {
     /**
      * ACUTAULIZAR LA INFORMACION TODA LA INFORMACION DE UN OBJETO
      *
-     * @param files            listado de imagenes
-     * @param name             nombre del producto
-     * @param price            precio del producto
-     * @param cant             cant de productos
-     * @param taller           nombre del taller al q pertenece
-     * @param connectorType    tipo de conector que utiliza
+     * @param files listado de imagenes
+     * @param name nombre del producto
+     * @param price precio del producto
+     * @param cant cant de productos
+     * @param taller nombre del taller al q pertenece
+     * @param connectorType tipo de conector que utiliza
      * @param compatibleDevice dispositivos compatibles
      * @return Charger
      */
@@ -198,7 +201,9 @@ public class ChargerService implements IChargerService {
             List<File> images = new LinkedList<>();
             for (MultipartFile file : files) {
                 File f = new File();
-                f.setName(imageService.guardarArchivo(file));
+                String nombreImagen = UUID.randomUUID().toString() + "-" + file.getOriginalFilename();
+                minioAdapter.uploadFile(nombreImagen, file.getInputStream(), file.getSize());
+                f.setName(nombreImagen);
                 f.setUrl("http://localhost:8080/api/v1/product/image/" + f.getName());
                 f.setProduct(c);
                 images.add(fileService.save(f));
@@ -207,7 +212,7 @@ public class ChargerService implements IChargerService {
 
             //Eliminando todos las imagenes previas vinculadas a este cargador
             for (File file : previousImages) {
-                imageService.eliminarImagen(file.getName());
+                minioAdapter.deleteFile(file.getName());
                 fileService.deleteById(file.getId());
             }
         }
@@ -229,7 +234,7 @@ public class ChargerService implements IChargerService {
 
         Charger c = chargerRepository.getById(charger.getId());
         for (File file : charger.getFiles()) {
-            imageService.eliminarImagen(file.getName());
+             minioAdapter.deleteFile(file.getName());
         }
         chargerRepository.deleteById(charger.getId());
         return c;
@@ -250,7 +255,7 @@ public class ChargerService implements IChargerService {
 
         Charger charger = chargerRepository.getById(id);
         for (File file : charger.getFiles()) {
-            imageService.eliminarImagen(file.getName());
+             minioAdapter.deleteFile(file.getName());
         }
         chargerRepository.deleteById(id);
         return charger;
@@ -260,14 +265,15 @@ public class ChargerService implements IChargerService {
      * METODO PARA ELIMINAR UN CONJUNTO DE OBJETOS.
      *
      * @param chargers listado de objetos que se quieren eliminar
-     * @return List<Movile>  objetos que aun existen en la BD
+     * @return List<Movile> objetos que aun existen en la BD
      */
     @Override
     public List<Charger> deleteAll(List<Charger> chargers) throws ValueNotFound, BadRequest {
-        for (Charger charger : chargers)
+        for (Charger charger : chargers) {
             for (File file : charger.getFiles()) {
-                imageService.eliminarImagen(file.getName());
+                minioAdapter.deleteFile(file.getName());
             }
+        }
         chargerRepository.deleteAll(chargers);
         return findAllByOrderByIdAsc();
     }
@@ -283,6 +289,5 @@ public class ChargerService implements IChargerService {
         Long result = (Long) query.getSingleResult();
         return result != null ? result : 0;
     }
-
 
 }

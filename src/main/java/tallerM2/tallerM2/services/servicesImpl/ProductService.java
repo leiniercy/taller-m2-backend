@@ -6,13 +6,11 @@
 package tallerM2.tallerM2.services.servicesImpl;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import tallerM2.tallerM2.exceptions.custom.BadRequest;
@@ -26,6 +24,7 @@ import tallerM2.tallerM2.repository.ProductRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import tallerM2.tallerM2.utils.MinioAdapter;
 
 /**
  * @author Admin
@@ -36,13 +35,12 @@ public class ProductService implements IProductService {
     @Autowired
     ProductRepository productRepository;
     @Autowired
-    ImageService imageService;
-    @Autowired
     FileService fileService;
+    @Autowired
+    MinioAdapter minioAdapter;
     @PersistenceContext
     public EntityManager em;
-
-
+    
     /**
      * METODO PARA VERIFICAR SI EL OBJETO EXISTE, PREGUNTANDO POR EL ID
      *
@@ -73,20 +71,21 @@ public class ProductService implements IProductService {
      * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO
      * ESPECIFICADO PREVIAMENTE ORDENADOS POR NOMBRE
      *
-     * @return List<Product> devuelve un listado de productos que no son reloj, movil, cargador
+     * @return List<Product> devuelve un listado de productos que no son reloj,
+     * movil, cargador
      */
     @Override
     public List<Product> findAllAccesorios() {
-        return em.createQuery("SELECT p FROM Product p WHERE p.id NOT IN (SELECT c.id FROM Charger c) " +
-                        "AND p.id NOT IN (SELECT m.id FROM Movile m) " +
-                        "AND p.id NOT IN (SELECT r.id FROM Reloj r) " +
-                        "ORDER BY p.name")
+        return em.createQuery("SELECT p FROM Product p WHERE p.id NOT IN (SELECT c.id FROM Charger c) "
+                + "AND p.id NOT IN (SELECT m.id FROM Movile m) "
+                + "AND p.id NOT IN (SELECT r.id FROM Reloj r) "
+                + "ORDER BY p.name")
                 .getResultList();
     }
 
     /**
-     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO
-     * DEL TALLER 2M
+     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO DEL
+     * TALLER 2M
      *
      * @return List<Product> listado de productos del taller 2M
      */
@@ -96,8 +95,8 @@ public class ProductService implements IProductService {
     }
 
     /**
-     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO
-     * DEL TALLER MJ
+     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO DEL
+     * TALLER MJ
      *
      * @return List<Product> listado de productos del taller MJ
      */
@@ -106,32 +105,31 @@ public class ProductService implements IProductService {
                 .getResultList();
     }
 
-
     /**
-     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO
-     * DEL TALLER 2M
+     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO DEL
+     * TALLER 2M
      *
      * @return List<Product> listado de accesorios del taller 2M
      */
     public List<Product> findAllAccesoriosTaller2M() {
-        return em.createQuery("SELECT p FROM Product p WHERE p.id NOT IN (SELECT c.id FROM Charger c) " +
-                        "AND p.id NOT IN (SELECT m.id FROM Movile m) " +
-                        "AND p.id NOT IN (SELECT r.id FROM Reloj r) " +
-                        "AND p.taller LIKE 'Taller 2M' ORDER BY p.name")
+        return em.createQuery("SELECT p FROM Product p WHERE p.id NOT IN (SELECT c.id FROM Charger c) "
+                + "AND p.id NOT IN (SELECT m.id FROM Movile m) "
+                + "AND p.id NOT IN (SELECT r.id FROM Reloj r) "
+                + "AND p.taller LIKE 'Taller 2M' ORDER BY p.name")
                 .getResultList();
     }
 
     /**
-     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO
-     * DEL TALLER MJ
+     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO DEL
+     * TALLER MJ
      *
      * @return List<Product> listado de accesorios del taller MJ
      */
     public List<Product> findAllAccesoriosTallerMJ() {
-        return em.createQuery("SELECT p FROM Product p WHERE p.id NOT IN (SELECT c.id FROM Charger c) " +
-                        "AND p.id NOT IN (SELECT m.id FROM Movile m) " +
-                        "AND p.id NOT IN (SELECT r.id FROM Reloj r) " +
-                        "AND p.taller LIKE 'Taller MJ' ORDER BY p.name")
+        return em.createQuery("SELECT p FROM Product p WHERE p.id NOT IN (SELECT c.id FROM Charger c) "
+                + "AND p.id NOT IN (SELECT m.id FROM Movile m) "
+                + "AND p.id NOT IN (SELECT r.id FROM Reloj r) "
+                + "AND p.taller LIKE 'Taller MJ' ORDER BY p.name")
                 .getResultList();
     }
 
@@ -148,8 +146,8 @@ public class ProductService implements IProductService {
 
     /**
      * METODO QUE DEVUELVE UNA LISTA ORDENADA ASCENDENTEMENTE CON TODOS LOS
-     * OBJETOS DE UN MISMO TIPO ESPECIFICADO PREVIAMENTE CUYAS CANTIDADES
-     * SON MAYORES A 0
+     * OBJETOS DE UN MISMO TIPO ESPECIFICADO PREVIAMENTE CUYAS CANTIDADES SON
+     * MAYORES A 0
      *
      * @return List<Product>
      */
@@ -164,21 +162,21 @@ public class ProductService implements IProductService {
      * PRIMERO SE VERIFICA QUE EL OBJETO NO EXISTA, Y LUEGO SE GURADA LA
      * INFORMACION
      *
-     * @param files  listado de imagenes del producto
-     * @param name   nombre del producto
-     * @param price  precio del producto
-     * @param cant   cant de productos
+     * @param files listado de imagenes del producto
+     * @param name nombre del producto
+     * @param price precio del producto
+     * @param cant cant de productos
      * @param taller nombre del taller al q pertenece
      * @return Product
      */
     @Override
     public Product save(List<MultipartFile> files, String name, int price, int cant, String taller) throws Conflict, BadRequest, IOException {
 
-        List<Product> products = em.createQuery("SELECT p FROM Product p " +
-                        "WHERE p.name LIKE :name " +
-                        "AND  p.cant = :cant " +
-                        "AND  p.price = :price " +
-                        "AND  p.taller = :taller")
+        List<Product> products = em.createQuery("SELECT p FROM Product p "
+                + "WHERE p.name LIKE :name "
+                + "AND  p.cant = :cant "
+                + "AND  p.price = :price "
+                + "AND  p.taller = :taller")
                 .setParameter("name", name)
                 .setParameter("cant", cant)
                 .setParameter("price", price)
@@ -199,11 +197,13 @@ public class ProductService implements IProductService {
         //Asignacion de sus imagenes
         List<File> images = new LinkedList<>();
         for (MultipartFile file : files) {
-            File f = new File();
-            f.setName(imageService.guardarArchivo(file));
-            f.setUrl("http://localhost:8080/api/v1/product/image/" + f.getName());
-            f.setProduct(pro);
-            images.add(fileService.save(f));
+                File f = new File();
+                String nombreImagen = UUID.randomUUID().toString() + "-" + file.getOriginalFilename();
+                minioAdapter.uploadFile(nombreImagen, file.getInputStream(),file.getSize());
+                f.setName(nombreImagen);
+                f.setUrl("http://localhost:8080/api/v1/product/image/" + f.getName());
+                f.setProduct(pro);
+                images.add(fileService.save(f));
         }
         pro.setFiles(images);
         return pro;
@@ -214,12 +214,12 @@ public class ProductService implements IProductService {
      * PRIMERO SE VERIFICA QUE EL OBJETO EXISTA, SE MAPEA SU NUEVA INFORMACION,
      * Y LUEGO SE GURADA LA INFORMACION
      *
-     * @param files  listado de imagenes del producto
-     * @param name   nombre del producto
-     * @param price  precio del producto
-     * @param cant   cant de productos
+     * @param files listado de imagenes del producto
+     * @param name nombre del producto
+     * @param price precio del producto
+     * @param cant cant de productos
      * @param taller nombre del taller al q pertenece
-     * @param id     cant del producto a modificar
+     * @param id cant del producto a modificar
      * @return Product
      */
     @Override
@@ -233,7 +233,6 @@ public class ProductService implements IProductService {
         product.setPrice(price);
         product.setCant(cant);
         product.setTaller(taller);
-
 
         //Listado de imagenes actual
         List<File> previousImages = product.getFiles();
@@ -255,7 +254,9 @@ public class ProductService implements IProductService {
             List<File> images = new LinkedList<>();
             for (MultipartFile file : files) {
                 File f = new File();
-                f.setName(imageService.guardarArchivo(file));
+                String nombreImagen = UUID.randomUUID().toString() + "-" + file.getOriginalFilename();
+                minioAdapter.uploadFile(nombreImagen, file.getInputStream(),file.getSize());
+                f.setName(nombreImagen);
                 f.setUrl("http://localhost:8080/api/v1/product/image/" + f.getName());
                 f.setProduct(pro);
                 images.add(fileService.save(f));
@@ -264,7 +265,7 @@ public class ProductService implements IProductService {
 
             //Eliminando todos las imagenes anteriores vinculadas a este accesorio
             for (File file : previousImages) {
-                imageService.eliminarImagen(file.getName());
+                minioAdapter.deleteFile(file.getName());
                 fileService.deleteById(file.getId());
             }
 
@@ -288,7 +289,7 @@ public class ProductService implements IProductService {
 
         Product product = productRepository.getById(a.getId());
         for (File file : product.getFiles()) {
-            imageService.eliminarImagen(file.getName());
+            minioAdapter.deleteFile(file.getName());
         }
         productRepository.delete(a);
         return product;
@@ -309,7 +310,7 @@ public class ProductService implements IProductService {
 
         Product product = productRepository.getById(id);
         for (File file : product.getFiles()) {
-            imageService.eliminarImagen(file.getName());
+            minioAdapter.deleteFile(file.getName());
         }
         productRepository.deleteById(id);
         return product;
@@ -317,10 +318,11 @@ public class ProductService implements IProductService {
 
     @Override
     public List<Product> deleteAll(List<Product> products) throws ValueNotFound, BadRequest {
-        for (Product product : products)
+        for (Product product : products) {
             for (File file : product.getFiles()) {
-                imageService.eliminarImagen(file.getName());
+                minioAdapter.deleteFile(file.getName());
             }
+        }
         productRepository.deleteAll(products);
         return findAllByOrderByIdAsc();
     }
@@ -336,7 +338,9 @@ public class ProductService implements IProductService {
         List<Product> products = findAll().stream()
                 .filter(product -> !(product instanceof Movile) && !(product instanceof Reloj) && !(product instanceof Charger))
                 .collect(Collectors.toList());
-        if (products.isEmpty()) return 0;
+        if (products.isEmpty()) {
+            return 0;
+        }
         for (Product product : products) {
             total += product.getCant();
         }
