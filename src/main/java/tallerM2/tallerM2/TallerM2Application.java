@@ -10,6 +10,7 @@ import javax.persistence.PersistenceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -36,6 +37,13 @@ public class TallerM2Application {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Value("${taller2M.app.secret.user}")
+    private String user;
+    @Value("${taller2M.app.secret.password}")
+    private String password;
+    @Value("${taller2M.app.secret.email}")
+    private String email;
+
     @EventListener(ApplicationReadyEvent.class)
     public void fillDB() throws ValueNotFound, SQLException {
         Logger logger = LoggerFactory.getLogger(getClass());
@@ -45,9 +53,7 @@ public class TallerM2Application {
         }
         logger.info("Generating demo data");
         logger.info("... generando Usuarios...");
-        createAdmin("leiniercy", "leiniercy@uci.cu", "Taller 2M", "admin");
-        createModerator("moderador", "yaro71@nauta.cu", "Taller 2M", "moderador");
-
+        createAdmin(user, email, "Taller 2M", password);
     }
    
 
@@ -67,31 +73,4 @@ public class TallerM2Application {
         userRepository.saveAndFlush(user);
         return user;
     }
-
-    private User createModerator(String username, String email, String taller, String password) throws ValueNotFound {
-        User user = new User();
-        user.setUsername(username);
-        user.setEmail(email);
-        user.setTaller(taller);
-        user.setPassword(passwordEncoder.encode(password));
-        Set<Role> roles = new HashSet<>();
-        Optional<Role> userRole = roleRepository.findByName(ERole.ROLE_MODERATOR);
-        if (userRole.isEmpty()) {
-            throw new ValueNotFound("role not found");
-        }
-        roles.add(userRole.get());
-        user.setRoles(roles);
-        userRepository.saveAndFlush(user);
-        return user;
-    }
-
-//     @Autowired
-//    private EmailSenderService senderService;
-//
-//    @EventListener(ApplicationReadyEvent.class)
-//    public void triggerMail() {  
-//        senderService.sendSimpleEmail("leiniercy@uci.cu",
-//                "This is email body",
-//                "This is email subject");
-//    }
 }
