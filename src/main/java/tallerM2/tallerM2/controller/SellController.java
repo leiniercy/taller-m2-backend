@@ -258,10 +258,11 @@ public class SellController {
     }
 
     @Operation(summary = "Return info of sale", description = "Return info of sale", tags = "sell")
-    @PostMapping(value = "/pdf/venta/{taller}", produces = MediaType.APPLICATION_PDF_VALUE)
+    @PostMapping(value = "/pdf/venta/{taller}/{name}", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<?> generarPDfVenta(
             HttpServletResponse response,
             @PathVariable(value = "taller") String taller,
+            @PathVariable(value = "name") String name,
             @RequestBody List<Sell> sales
     ) throws IOException, DocumentException, ParseException {
 
@@ -272,13 +273,16 @@ public class SellController {
         PdfWriter.getInstance(document, baos);
         // Abrir el documento PDF
         document.open();
+        String tallerName="";
+        if(taller.equals("Taller 2M")){
+           tallerName="Taller T2";
+        }else {
+            tallerName="Taller TM";
+        }
         // Encabezado del recibo
-        Paragraph header = new Paragraph(taller+"\n", new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD));
+        Paragraph header = new Paragraph(tallerName+"\n", new Font(Font.FontFamily.HELVETICA, 16, Font.BOLD));
         header.setAlignment(Element.ALIGN_CENTER);
         document.add(header);
-        Paragraph compra = new Paragraph("COMPRA\n", new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD));
-        compra.setAlignment(Element.ALIGN_CENTER);
-        document.add(compra);
         //Fecha y hora        
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         String dateStr = dateFormat.format(new Date());
@@ -289,17 +293,21 @@ public class SellController {
         SimpleDateFormat timeOnlyFormat = new SimpleDateFormat("HH:mm");
         String time = timeOnlyFormat.format(dateFormat.parse(dateStr));
 
-        Paragraph customerInfo = new Paragraph("Cliente: " + sales.get(0).getCustomer().getCustomerName() + "\nFecha: " + date + "  Hora: " + time + "\n\n", new Font(Font.FontFamily.HELVETICA, 12));
-        customerInfo.setAlignment(Element.ALIGN_CENTER);
+        Paragraph customerInfo = new Paragraph("Usuario: "+name+"\nCliente: " + sales.get(0).getCustomer().getCustomerName() + "\nFecha: " + date + "  Hora: " + time + "\n\n", new Font(Font.FontFamily.HELVETICA, 12));
+        customerInfo.setAlignment(Element.ALIGN_JUSTIFIED);
         document.add(customerInfo);
-        
+
         // Tabla de detalles de venta
         document.add(reporteVenta(sales));
         //Importe de compra
         double total = sales.stream().mapToDouble(Sell::getSalePrice).sum();
-        Paragraph totalInfo = new Paragraph("\n\nIMPORTE DE VENTA $" + String.format("%.2f", total), new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD));
-        totalInfo.setAlignment(Element.ALIGN_CENTER);
+        Paragraph totalInfo = new Paragraph("\n\nSALDO TOTAL: $" + String.format("%.2f", total), new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD));
+        totalInfo.setAlignment(Element.ALIGN_RIGHT);
         document.add(totalInfo);
+        //Garantia
+        Paragraph garantia = new Paragraph("Garantía: 7 días \nNota: La garantía no incluye daños causados como: golpes, caídas, que se moje, etc.",new Font(Font.FontFamily.HELVETICA, 12));
+        garantia.setAlignment(Element.ALIGN_JUSTIFIED);
+        document.add(garantia);
         //Saludo 
         Paragraph saludo = new Paragraph("\n\nCOPIA DEL CLIENTE\nGracias por su visita", new Font(Font.FontFamily.HELVETICA, 10));
         saludo.setAlignment(Element.ALIGN_CENTER);
@@ -315,24 +323,24 @@ public class SellController {
     private PdfPTable reporteVenta(List<Sell> sales) throws DocumentException {
         // Tabla de detalles de venta
         PdfPTable table = new PdfPTable(3);
-        table.setWidthPercentage(50);
+        table.setWidthPercentage(100);
         table.setWidths(new int[]{2, 1, 1});
-        PdfPCell cell = new PdfPCell(new Phrase("Producto"));
+        PdfPCell cell = new PdfPCell(new Phrase("Servicio"));
         cell.setPadding(5);
         cell.setBorderColor(BaseColor.WHITE);
-        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        cell.setHorizontalAlignment(Element.ALIGN_JUSTIFIED);
         table.addCell(cell);
         //Cantidad
         cell = new PdfPCell(new Phrase("Cantidad"));
         cell.setPadding(5);
         cell.setBorderColor(BaseColor.WHITE);
-        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
         table.addCell(cell);
         //Precio
         cell = new PdfPCell(new Phrase("Precio"));
         cell.setPadding(5);
         cell.setBorderColor(BaseColor.WHITE);
-        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
         table.addCell(cell);
 
         for (Sell sell : sales) {
@@ -340,21 +348,21 @@ public class SellController {
             cell = new PdfPCell(new Phrase(String.valueOf(sell.getProduct().getName())));
             cell.setPadding(5);
             cell.setBorderColor(BaseColor.WHITE);
-            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            cell.setHorizontalAlignment(Element.ALIGN_JUSTIFIED);
             table.addCell(cell);
 
             //Nombre del producto
             cell = new PdfPCell(new Phrase(String.valueOf(sell.getCantProduct())));
             cell.setBorderColor(BaseColor.WHITE);
             cell.setPadding(5);
-            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
             table.addCell(cell);
 
             //Nombre del producto
             cell = new PdfPCell(new Phrase(String.valueOf(sell.getSalePrice())));
             cell.setBorderColor(BaseColor.WHITE);
             cell.setPadding(5);
-            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
             table.addCell(cell);
 
         }
