@@ -37,13 +37,6 @@ public class SecurityConfiguration {
     private final UserDetailsServiceImpl userDetailsService;
     private final AuthEntryPointJwt authEntryPointJwt;
     private final AuthTokenFilter authTokenFilter;
-
-    @Value("${taller2M.app.allowed.origin.server}")
-    private String url_server;
-    @Value("${taller2M.app.allowed.origin.local}")
-    private String url_local;
-    @Value("${taller2M.app.allowed.origin.ext}")
-    private String url_ext;
     
     public SecurityConfiguration(UserDetailsServiceImpl userDetailsService, AuthEntryPointJwt authEntryPointJwt, AuthTokenFilter authTokenFilter) {
         this.userDetailsService = userDetailsService;
@@ -78,17 +71,5 @@ public class SecurityConfiguration {
                 .anyRequest().authenticated();
         http.addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
-    }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(url_local, url_ext));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-//        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration(url_server+"/**", configuration);
-        return source;
     }
 }
