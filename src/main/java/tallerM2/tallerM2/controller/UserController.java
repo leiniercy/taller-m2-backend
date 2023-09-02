@@ -24,8 +24,8 @@ import tallerM2.tallerM2.utils.dto.UserSaveRequest;
 
 @RestController
 @RequestMapping(value = "/api/v1/user")
-@CrossOrigin("*")
 //@PreAuthorize("authenticated")
+@CrossOrigin(origins = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
 @Tag(name = "user", description = "The movile API")
 public class UserController {
 

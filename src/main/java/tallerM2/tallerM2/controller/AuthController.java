@@ -39,7 +39,7 @@ import tallerM2.tallerM2.utils.Util;
 
 @RestController
 @RequestMapping("/api/v1/auth")
-@CrossOrigin("*")
+@CrossOrigin(origins = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
 public class AuthController {
 
     private UserRepository userRepository;

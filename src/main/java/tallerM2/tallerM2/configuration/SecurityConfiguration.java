@@ -5,7 +5,7 @@
  */
 package tallerM2.tallerM2.configuration;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -15,22 +15,35 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import tallerM2.tallerM2.configuration.filters.AuthTokenFilter;
 import tallerM2.tallerM2.configuration.service.AuthEntryPointJwt;
 import tallerM2.tallerM2.configuration.service.UserDetailsServiceImpl;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration {
-    private UserDetailsServiceImpl userDetailsService;
-    private AuthEntryPointJwt authEntryPointJwt;
-    private AuthTokenFilter authTokenFilter;
+    private final UserDetailsServiceImpl userDetailsService;
+    private final AuthEntryPointJwt authEntryPointJwt;
+    private final AuthTokenFilter authTokenFilter;
+
+    @Value("${taller2M.app.allowed.origin.server}")
+    private String url_server;
+    @Value("${taller2M.app.allowed.origin.local}")
+    private String url_local;
+    @Value("${taller2M.app.allowed.origin.ext}")
+    private String url_ext;
     
     public SecurityConfiguration(UserDetailsServiceImpl userDetailsService, AuthEntryPointJwt authEntryPointJwt, AuthTokenFilter authTokenFilter) {
         this.userDetailsService = userDetailsService;
@@ -65,5 +78,17 @@ public class SecurityConfiguration {
                 .anyRequest().authenticated();
         http.addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList(url_local, url_ext));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+//        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration(url_server+"/**", configuration);
+        return source;
     }
 }
