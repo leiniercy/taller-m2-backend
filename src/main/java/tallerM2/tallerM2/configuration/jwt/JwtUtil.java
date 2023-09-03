@@ -53,6 +53,7 @@ public class JwtUtil {
 
         //Creamos un estructura de datos con la informacion
         Map<String, Object> claims = new HashMap<>();
+        claims.put("sub", (userPrincipal.getUsername()));
         claims.put("user", Util.convertToDto(userResponse, UserResponse.class));
 
         return Jwts.builder()

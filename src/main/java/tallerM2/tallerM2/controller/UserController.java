@@ -18,13 +18,13 @@ import tallerM2.tallerM2.model.User;
 import tallerM2.tallerM2.services.servicesImpl.UserService;
 
 import java.util.List;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import tallerM2.tallerM2.utils.dto.UserEditRequest;
 import tallerM2.tallerM2.utils.dto.UserSaveRequest;
 
 @RestController
 @RequestMapping(value = "/api/v1/user")
-//@PreAuthorize("authenticated")
 @CrossOrigin("*")
 @Tag(name = "user", description = "The movile API")
 public class UserController {
@@ -34,9 +34,10 @@ public class UserController {
 
     @Operation(summary = "Find all users", description = "Find all users", tags = "user")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = User.class)))),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = User.class)))),
+        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(path = {"/all"}, produces = "application/json")
     ResponseEntity<?> all() {
         return ResponseEntity.ok(service.findAll());
@@ -44,9 +45,10 @@ public class UserController {
 
     @Operation(summary = "Find all users sorted by id", description = "Find all users", tags = "user")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = User.class)))),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = User.class)))),
+        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(path = {"/all/sorted"}, produces = "application/json")
     ResponseEntity<?> allSorted() {
         return ResponseEntity.ok(service.findAllOrderByIdAsc());
@@ -54,10 +56,11 @@ public class UserController {
 
     @Operation(summary = "Find user by ID", description = "Search user by the id", tags = "user")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = User.class))),
-            @ApiResponse(responseCode = "404", description = "User not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = User.class))),
+        @ApiResponse(responseCode = "404", description = "User not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
+    @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
     @GetMapping(value = "/get/{id}", produces = "application/json")
     public ResponseEntity<?> byId(@PathVariable(value = "id") Long id) throws ValueNotFound, BadRequest {
         try {
@@ -71,10 +74,11 @@ public class UserController {
 
     @Operation(summary = "Find user by username", description = "Search user by the username", tags = "user")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = User.class))),
-            @ApiResponse(responseCode = "404", description = "User not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = User.class))),
+        @ApiResponse(responseCode = "404", description = "User not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
+    @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
     @GetMapping(value = "/get/name/{username}", produces = "application/json")
     public ResponseEntity<?> byUsername(@PathVariable(value = "username") String username) throws ValueNotFound, BadRequest {
         try {
@@ -88,11 +92,13 @@ public class UserController {
 
     @Operation(summary = "Create new user", description = "Create a new user", tags = "user")
     @ApiResponses(
-            value = {@ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = User.class)))
-                    , @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
-                    , @ApiResponse(responseCode = "409", description = "This User already exists", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+            value = {
+                @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = User.class))),
+                @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+                @ApiResponse(responseCode = "409", description = "This User already exists", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
             }
     )
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(path = {"/save"}, consumes = "application/json", produces = "application/json")
     public ResponseEntity<?> save(
             @RequestBody UserSaveRequest userRequest
@@ -101,23 +107,25 @@ public class UserController {
             return ResponseEntity.ok(service.save(userRequest));
         } catch (Conflict c) {
             throw new Conflict(c.getMessage());
-        }catch (ValueNotFound vn) {
+        } catch (ValueNotFound vn) {
             throw new ValueNotFound(vn.getMessage());
-        }catch (BadRequest br) {
+        } catch (BadRequest br) {
             throw new BadRequest("Bad request");
         }
     }
 
     @Operation(summary = "Update user", description = "Update user info", tags = "user")
     @ApiResponses(
-            value = {@ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = User.class)))
-                    , @ApiResponse(responseCode = "404", description = "User not found", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
-                    , @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+            value = {
+                @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = User.class))),
+                @ApiResponse(responseCode = "404", description = "User not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+                @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
             }
     )
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(path = {"/update/{id}"}, consumes = "application/json", produces = "application/json")
     public ResponseEntity<?> update(@RequestBody UserEditRequest userRequest,
-                                    @PathVariable(value = "id") Long id)
+            @PathVariable(value = "id") Long id)
             throws ValueNotFound, BadRequest {
         try {
             return ResponseEntity.ok(service.update(userRequest, id));
@@ -130,16 +138,18 @@ public class UserController {
 
     @Operation(summary = "Update user", description = "Update user info", tags = "user")
     @ApiResponses(
-            value = {@ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = User.class)))
-                    , @ApiResponse(responseCode = "404", description = "User not found", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
-                    , @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+            value = {
+                @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = User.class))),
+                @ApiResponse(responseCode = "404", description = "User not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+                @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
             }
     )
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     @PutMapping(path = {"/change/password/{id}/{username}"}, produces = "application/json")
     public ResponseEntity<?> changePassword(@PathVariable(value = "id") Long id, @PathVariable(value = "username") String username)
             throws ValueNotFound, BadRequest {
         try {
-            return ResponseEntity.ok(service.changePassword(id,username));
+            return ResponseEntity.ok(service.changePassword(id, username));
         } catch (ValueNotFound vn) {
             throw new ValueNotFound(vn.getMessage());
         } catch (BadRequest br) {
@@ -149,11 +159,13 @@ public class UserController {
 
     @Operation(summary = "Delete a user", description = "Delete a user", tags = "user")
     @ApiResponses(
-            value = {@ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = User.class))),
-                    @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
-                    @ApiResponse(responseCode = "404", description = "User not found", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+            value = {
+                @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = User.class))),
+                @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+                @ApiResponse(responseCode = "404", description = "User not found", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
             }
     )
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(value = "/delete/{id}", produces = "application/json")
     public ResponseEntity<?> delete(@PathVariable(value = "id") Long id) throws ValueNotFound, BadRequest {
         try {
@@ -168,11 +180,12 @@ public class UserController {
     @Operation(summary = "Delete users", description = "Delete list of users", tags = "user")
     @ApiResponses(
             value = {
-                    @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = User.class))),
-                    @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
-                    @ApiResponse(responseCode = "404", description = "User not found", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+                @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = User.class))),
+                @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+                @ApiResponse(responseCode = "404", description = "User not found", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
             }
     )
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(value = "/deleteAll", produces = "application/json")
     public ResponseEntity<?> deleteAll(@RequestBody List<User> users) throws ValueNotFound, BadRequest {
         try {
@@ -183,6 +196,5 @@ public class UserController {
             throw new BadRequest("Bad request");
         }
     }
-
 
 }

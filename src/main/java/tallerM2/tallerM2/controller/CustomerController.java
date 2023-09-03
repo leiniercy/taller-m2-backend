@@ -1,6 +1,5 @@
 package tallerM2.tallerM2.controller;
 
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -20,6 +19,7 @@ import tallerM2.tallerM2.services.servicesImpl.CustomerService;
 
 import java.io.IOException;
 import java.util.List;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping(value = "/api/v1/customer")
@@ -32,9 +32,10 @@ public class CustomerController {
 
     @Operation(summary = "Find all customers", description = "Find all customers", tags = "customer")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Customer.class)))),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Customer.class)))),
+        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
+    @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
     @GetMapping(path = {"/all"}, produces = "application/json")
     ResponseEntity<?> all() {
         return ResponseEntity.ok(service.findAll());
@@ -42,9 +43,10 @@ public class CustomerController {
 
     @Operation(summary = "Find all customers order by id", description = "Find all customers order by id", tags = "customer")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Customer.class)))),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Customer.class)))),
+        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
+    @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
     @GetMapping(path = {"/all-sorted"}, produces = "application/json")
     ResponseEntity<?> allSortedById() {
         return ResponseEntity.ok(service.findAllOrderByIdAsc());
@@ -52,10 +54,11 @@ public class CustomerController {
 
     @Operation(summary = "Find a customer by ID", description = "Search customer by the id", tags = "customer")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successful operation", content = @Content(schema = @Schema(implementation = Customer.class))),
-            @ApiResponse(responseCode = "404", description = "Customer not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+        @ApiResponse(responseCode = "200", description = "Successful operation", content = @Content(schema = @Schema(implementation = Customer.class))),
+        @ApiResponse(responseCode = "404", description = "Customer not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
+    @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
     @GetMapping(value = "/get/{id}", produces = "application/json")
     public ResponseEntity<?> byId(@PathVariable(value = "id") Long id) throws ValueNotFound, BadRequest {
         try {
@@ -67,82 +70,36 @@ public class CustomerController {
         }
     }
 
-    @Operation(
-            summary = "Create new customer",
-            description = "Create a new customer",
-            tags = "customer"
-    )
-    @ApiResponses(
-            value = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "successful operation",
-                            content = @Content(
-                                    schema = @Schema(implementation = Customer.class)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Bad request",
-                            content = @Content(
-                                    schema = @Schema(implementation = ErrorObject.class)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "409",
-                            description = "This customer already exists",
-                            content = @Content(
-                                    schema = @Schema(implementation = ErrorObject.class)
-                            )
-                    )
-            }
-    )
+    @Operation(summary = "Create new customer", description = "Create a new customer", tags = "customer")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Customer.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+        @ApiResponse(responseCode = "409", description = "This customer already exists", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+    })
+    @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
     @PostMapping(path = {"/save"}, consumes = "application/json", produces = "application/json")
     public ResponseEntity<?> save(@RequestBody Customer customer) throws Conflict, BadRequest {
         try {
             return ResponseEntity.ok(service.save(customer));
         } catch (Conflict conflict) {
             throw new Conflict(conflict.getMessage());
-        }catch (BadRequest badRequest) {
-           throw new BadRequest("Bad request");
+        } catch (BadRequest badRequest) {
+            throw new BadRequest("Bad request");
         }
     }
 
-    @Operation(
-            summary = "Update customer",
-            description = "Update customer info",
-            tags = "customer"
-    )
-    @ApiResponses(
-            value = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "successful operation",
-                            content = @Content(
-                                    schema = @Schema(implementation = Customer.class)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Customer not found",
-                            content = @Content(
-                                    schema = @Schema(implementation = ErrorObject.class)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Bad request",
-                            content = @Content(
-                                    schema = @Schema(implementation = ErrorObject.class)
-                            )
-                    )
-            }
-    )
+    @Operation(summary = "Update customer", description = "Update customer info", tags = "customer")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Customer.class))),
+        @ApiResponse(responseCode = "404", description = "Customer not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+    })
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(path = {"/update"}, consumes = "application/json", produces = "application/json")
-    public ResponseEntity<?> update( @RequestBody Customer customer) throws ValueNotFound, BadRequest, IOException {
+    public ResponseEntity<?> update(@RequestBody Customer customer) throws ValueNotFound, BadRequest, IOException {
 
         try {
-            return ResponseEntity.ok( service.update(customer) );
+            return ResponseEntity.ok(service.update(customer));
         } catch (ValueNotFound vn) {
             throw new ValueNotFound(vn.getMessage());
         } catch (BadRequest br) {
@@ -150,36 +107,13 @@ public class CustomerController {
         }
     }
 
-    @Operation(
-            summary = "Delete a customer by id",
-            description = "Delete a customer",
-            tags = "customer"
-    )
-    @ApiResponses(
-            value = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "successful operation",
-                            content = @Content(
-                                    schema = @Schema(implementation = Customer.class)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Bad request",
-                            content = @Content(
-                                    schema = @Schema(implementation = ErrorObject.class)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Customer not found",
-                            content = @Content(
-                                    schema = @Schema(implementation = ErrorObject.class)
-                            )
-                    )
-            }
-    )
+    @Operation(summary = "Delete a customer by id", description = "Delete a customer", tags = "customer")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Customer.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+        @ApiResponse(responseCode = "404", description = "Customer not found", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+    })
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(value = "/delete/{id}", produces = "application/json")
     public ResponseEntity<?> delete(@PathVariable(value = "id") Long id) throws ValueNotFound, BadRequest {
         try {
@@ -191,36 +125,14 @@ public class CustomerController {
         }
     }
 
-    @Operation(
-            summary = "Delete customers",
-            description = "Delete list of customers",
-            tags = "customer"
+    @Operation(summary = "Delete customers", description = "Delete list of customers", tags = "customer")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Customer.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+        @ApiResponse(responseCode = "404", description = "Customer not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))
+        )}
     )
-    @ApiResponses(
-            value = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "successful operation",
-                            content = @Content(
-                                    schema = @Schema(implementation = Customer.class)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Bad request",
-                            content = @Content(
-                                    schema = @Schema(implementation = ErrorObject.class)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Customer not found",
-                            content = @Content(
-                                    schema = @Schema(implementation = ErrorObject.class)
-                            )
-                    )
-            }
-    )
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(value = "/deleteAll", produces = "application/json")
     public ResponseEntity<?> deleteAll(@RequestBody List<Customer> customers) throws ValueNotFound, BadRequest {
         try {
@@ -231,6 +143,5 @@ public class CustomerController {
             throw new BadRequest("Bad request");
         }
     }
-
 
 }

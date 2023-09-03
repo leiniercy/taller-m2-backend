@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import tallerM2.tallerM2.exceptions.ErrorObject;
@@ -36,6 +37,7 @@ public class MovileController {
             @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Movile.class)))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     @GetMapping(path = {"/all"}, produces = "application/json")
     ResponseEntity<?> all() {
         return ResponseEntity.ok(service.findAll());
@@ -46,6 +48,7 @@ public class MovileController {
             @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Movile.class)))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     @GetMapping(path = {"/all/2M"}, produces = "application/json")
     ResponseEntity<?> all2M() {
         return ResponseEntity.ok(service.findAllTaller2M());
@@ -56,6 +59,7 @@ public class MovileController {
             @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Movile.class)))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     @GetMapping(path = {"/all/MJ"}, produces = "application/json")
     ResponseEntity<?> allMJ() {
         return ResponseEntity.ok(service.findAllTallerMJ());
@@ -66,6 +70,7 @@ public class MovileController {
             @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Movile.class)))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     @GetMapping(path = {"/all-sorted"}, produces = "application/json")
     ResponseEntity<?> allSorted() {
         return ResponseEntity.ok(service.findAllByOrderByIdAsc());
@@ -77,6 +82,7 @@ public class MovileController {
             @ApiResponse(responseCode = "404", description = "movile not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     @GetMapping(value = "/get/{id}", produces = "application/json")
     public ResponseEntity<?> byId(@PathVariable(value = "id") Long id) throws ValueNotFound, BadRequest {
         try {
@@ -89,41 +95,19 @@ public class MovileController {
     }
 
     @Operation(summary = "Count cant of movile", description = "count moviles", tags = "movile")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     @GetMapping(value = "/getCant")
     public ResponseEntity<?> getCant() {
         return ResponseEntity.ok(service.count());
     }
 
-    @Operation(
-            summary = "Create new movile",
-            description = "Create a new movile",
-            tags = "movile"
-    )
-    @ApiResponses(
-            value = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "successful operation",
-                            content = @Content(
-                                    schema = @Schema(implementation = Movile.class)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Bad request",
-                            content = @Content(
-                                    schema = @Schema(implementation = ErrorObject.class)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "409",
-                            description = "This Movile already exists",
-                            content = @Content(
-                                    schema = @Schema(implementation = ErrorObject.class)
-                            )
-                    )
-            }
-    )
+    @Operation(summary = "Create new movile", description = "Create a new movile", tags = "movile")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Movile.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+        @ApiResponse(responseCode = "409", description = "This movile already exists", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+    })
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(path = {"/save"}, produces = "application/json")
     public ResponseEntity<?> save(@RequestParam("name") String name,
                                   @RequestParam("price") int price,
@@ -153,36 +137,13 @@ public class MovileController {
         }
     }
 
-    @Operation(
-            summary = "Update movile",
-            description = "Update movile info",
-            tags = "movile"
-    )
-    @ApiResponses(
-            value = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "successful operation",
-                            content = @Content(
-                                    schema = @Schema(implementation = Movile.class)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Movile not found",
-                            content = @Content(
-                                    schema = @Schema(implementation = ErrorObject.class)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Bad request",
-                            content = @Content(
-                                    schema = @Schema(implementation = ErrorObject.class)
-                            )
-                    )
-            }
-    )
+    @Operation(summary = "Update movile", description = "Update movile info", tags = "movile")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Movile.class))),
+        @ApiResponse(responseCode = "404", description = "Movile not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+    })
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(path = {"/update/{id}"}, produces = "application/json")
     public ResponseEntity<?> update(@RequestParam("files") List<MultipartFile> files,
                                     @RequestParam("name") String name,
@@ -213,36 +174,13 @@ public class MovileController {
         }
     }
 
-    @Operation(
-            summary = "Delete a movile",
-            description = "Delete a movile",
-            tags = "movile"
-    )
-    @ApiResponses(
-            value = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "successful operation",
-                            content = @Content(
-                                    schema = @Schema(implementation = Movile.class)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Bad request",
-                            content = @Content(
-                                    schema = @Schema(implementation = ErrorObject.class)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Movile not found",
-                            content = @Content(
-                                    schema = @Schema(implementation = ErrorObject.class)
-                            )
-                    )
-            }
-    )
+    @Operation(summary = "Delete a movile by id", description = "Delete a movile", tags = "movile")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Movile.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+        @ApiResponse(responseCode = "404", description = "Movile not found", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+    })
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(value = "/delete/{id}", produces = "application/json")
     public ResponseEntity<?> delete(@PathVariable(value = "id") Long id) throws ValueNotFound, BadRequest {
         try {
@@ -254,36 +192,14 @@ public class MovileController {
         }
     }
 
-    @Operation(
-            summary = "Delete moviles",
-            description = "Delete list of moviles",
-            tags = "movile"
+    @Operation(summary = "Delete moviles", description = "Delete list of moviles", tags = "movile")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Movile.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+        @ApiResponse(responseCode = "404", description = "Movile not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))
+        )}
     )
-    @ApiResponses(
-            value = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "successful operation",
-                            content = @Content(
-                                    schema = @Schema(implementation = Movile.class)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Bad request",
-                            content = @Content(
-                                    schema = @Schema(implementation = ErrorObject.class)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Movile not found",
-                            content = @Content(
-                                    schema = @Schema(implementation = ErrorObject.class)
-                            )
-                    )
-            }
-    )
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(value = "/deleteAll", produces = "application/json")
     public ResponseEntity<?> deleteAll(@RequestBody List<Movile> moviles) throws ValueNotFound, BadRequest {
         try {

@@ -43,6 +43,7 @@ import java.util.LinkedList;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping(value = "/api/v1/sell")
@@ -58,6 +59,7 @@ public class SellController {
         @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sell.class)))),
         @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
+    @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
     @GetMapping(path = {"/all"}, produces = "application/json")
     ResponseEntity<?> all() {
         return ResponseEntity.ok(service.findAll());
@@ -68,6 +70,7 @@ public class SellController {
         @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sell.class)))),
         @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
+    @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
     @GetMapping(path = {"/all-sorted"}, produces = "application/json")
     ResponseEntity<?> allOrderById() {
         return ResponseEntity.ok(service.findAllOrderByIdAsc());
@@ -78,6 +81,7 @@ public class SellController {
         @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sell.class)))),
         @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(path = {"/all/date/{sellDate}/{taller}"}, produces = "application/json")
     ResponseEntity<?> allByDate(
             @PathVariable(value = "sellDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate sellDate,
@@ -93,9 +97,10 @@ public class SellController {
 
     @Operation(summary = "Find all sales by week", description = "Find all sales by week", tags = "sell")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sell.class)))),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sell.class)))),
+        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(path = {"/all/date/week"}, produces = "application/json")
     ResponseEntity<?> allByWeek() throws BadRequest {
         try {
@@ -105,18 +110,18 @@ public class SellController {
         }
     }
 
-
     @Operation(summary = "Find all sales by month", description = "Find all sales by month", tags = "sell")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sell.class)))),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sell.class)))),
+        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(path = {"/all/date/month"}, produces = "application/json")
     ResponseEntity<?> allByMonth() throws BadRequest {
         try {
             List<Long> list = new LinkedList<>();
-            for(int i=0; i<12; i++){
-                list.add(service.countSellByMonth(i+1));
+            for (int i = 0; i < 12; i++) {
+                list.add(service.countSellByMonth(i + 1));
             }
             return ResponseEntity.ok(list);
         } catch (Exception ex) {
@@ -126,39 +131,42 @@ public class SellController {
 
     @Operation(summary = "Find all sales by month and product", description = "Find all sales by month and product", tags = "sell")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sell.class)))),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sell.class)))),
+        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(path = {"/all/date/month/product"}, produces = "application/json")
     ResponseEntity<?> allByMonthAndProduct() throws BadRequest {
         try {
             SellMonthRequest sellMonthRequest = new SellMonthRequest();
             List<Long> accesorios = new LinkedList<>();
-            for(int i=0; i<12; i++){
-                accesorios.add(service.countSellByMonthAndAccesorio(i+1));
+            for (int i = 0; i < 12; i++) {
+                accesorios.add(service.countSellByMonthAndAccesorio(i + 1));
             }
             sellMonthRequest.setAccesorios(accesorios);
             List<Long> charges = new LinkedList<>();
-            for(int i=0; i<12; i++){
-                charges.add(service.countSellByMonthAndCharger(i+1));
+            for (int i = 0; i < 12; i++) {
+                charges.add(service.countSellByMonthAndCharger(i + 1));
             }
             sellMonthRequest.setChargers(charges);
             List<Long> moviles = new LinkedList<>();
-            for(int i=0; i<12; i++){
-                moviles.add(service.countSellByMonthAndMovile(i+1));
+            for (int i = 0; i < 12; i++) {
+                moviles.add(service.countSellByMonthAndMovile(i + 1));
             }
             sellMonthRequest.setMoviles(moviles);
             List<Long> relojes = new LinkedList<>();
-            for(int i=0; i<12; i++){
-                relojes.add(service.countSellByMonthAndReloj(i+1));
+            for (int i = 0; i < 12; i++) {
+                relojes.add(service.countSellByMonthAndReloj(i + 1));
             }
             sellMonthRequest.setRelojes(relojes);
             return ResponseEntity.ok(sellMonthRequest);
         } catch (Exception ex) {
-            throw new BadRequest("Bad request: "+ ex.getMessage());
+            throw new BadRequest("Bad request: " + ex.getMessage());
         }
     }
 
+    @Operation(summary = "Get daily report", description = "Get daily report", tags = "sell")
+    @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
     @PostMapping(value = "/pdf/diario/{taller}", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<?> generarPDFReporteDiario(
             HttpServletResponse response,
@@ -173,7 +181,7 @@ public class SellController {
         // Abrir el documento PDF
         document.open();
 
-        Paragraph header = new Paragraph(taller+"\nReporte de diario\n\n", new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD));
+        Paragraph header = new Paragraph(taller + "\nReporte de diario\n\n", new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD));
         header.setAlignment(Element.ALIGN_CENTER);
         document.add(header);
         document.add(reportSaleTable(sales));
@@ -258,6 +266,7 @@ public class SellController {
     }
 
     @Operation(summary = "Return info of sale", description = "Return info of sale", tags = "sell")
+    @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
     @PostMapping(value = "/pdf/venta/{taller}/{name}", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<?> generarPDfVenta(
             HttpServletResponse response,
@@ -273,14 +282,14 @@ public class SellController {
         PdfWriter.getInstance(document, baos);
         // Abrir el documento PDF
         document.open();
-        String tallerName="";
-        if(taller.equals("Taller 2M")){
-           tallerName="Taller T2";
-        }else {
-            tallerName="Taller TM";
+        String tallerName = "";
+        if (taller.equals("Taller 2M")) {
+            tallerName = "Taller T2";
+        } else {
+            tallerName = "Taller TM";
         }
         // Encabezado del recibo
-        Paragraph header = new Paragraph(tallerName+"\n", new Font(Font.FontFamily.HELVETICA, 16, Font.BOLD));
+        Paragraph header = new Paragraph(tallerName + "\n", new Font(Font.FontFamily.HELVETICA, 16, Font.BOLD));
         header.setAlignment(Element.ALIGN_CENTER);
         document.add(header);
         //Fecha y hora        
@@ -293,7 +302,7 @@ public class SellController {
         SimpleDateFormat timeOnlyFormat = new SimpleDateFormat("HH:mm");
         String time = timeOnlyFormat.format(dateFormat.parse(dateStr));
 
-        Paragraph customerInfo = new Paragraph("Usuario: "+name+"\nCliente: " + sales.get(0).getCustomer().getCustomerName() + "\nFecha: " + date + "  Hora: " + time + "\n\n", new Font(Font.FontFamily.HELVETICA, 12));
+        Paragraph customerInfo = new Paragraph("Usuario: " + name + "\nCliente: " + sales.get(0).getCustomer().getCustomerName() + "\nFecha: " + date + "  Hora: " + time + "\n\n", new Font(Font.FontFamily.HELVETICA, 12));
         customerInfo.setAlignment(Element.ALIGN_JUSTIFIED);
         document.add(customerInfo);
 
@@ -305,7 +314,7 @@ public class SellController {
         totalInfo.setAlignment(Element.ALIGN_RIGHT);
         document.add(totalInfo);
         //Garantia
-        Paragraph garantia = new Paragraph("Garantía: 7 días \nNota: La garantía no incluye daños causados como: golpes, caídas, que se moje, etc.",new Font(Font.FontFamily.HELVETICA, 12));
+        Paragraph garantia = new Paragraph("Garantía: 7 días \nNota: La garantía no incluye daños causados como: golpes, caídas, que se moje, etc.", new Font(Font.FontFamily.HELVETICA, 12));
         garantia.setAlignment(Element.ALIGN_JUSTIFIED);
         document.add(garantia);
         //Saludo 
@@ -376,6 +385,7 @@ public class SellController {
         @ApiResponse(responseCode = "404", description = "Sell not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
         @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
+    @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
     @GetMapping(value = "/get/{id}", produces = "application/json")
     public ResponseEntity<?> byId(@PathVariable(value = "id") Long id) throws ValueNotFound, BadRequest {
         try {
@@ -387,36 +397,13 @@ public class SellController {
         }
     }
 
-    @Operation(
-            summary = "Create new sell",
-            description = "Create a new sell",
-            tags = "sell"
-    )
-    @ApiResponses(
-            value = {
-                @ApiResponse(
-                        responseCode = "200",
-                        description = "successful operation",
-                        content = @Content(
-                                schema = @Schema(implementation = Sell.class)
-                        )
-                ),
-                @ApiResponse(
-                        responseCode = "400",
-                        description = "Bad request",
-                        content = @Content(
-                                schema = @Schema(implementation = ErrorObject.class)
-                        )
-                ),
-                @ApiResponse(
-                        responseCode = "409",
-                        description = "This sell already exists",
-                        content = @Content(
-                                schema = @Schema(implementation = ErrorObject.class)
-                        )
-                )
-            }
-    )
+    @Operation(summary = "Create new sell", description = "Create a new sell", tags = "sell")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Sell.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+        @ApiResponse(responseCode = "409", description = "This sell already exists", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+    })
+    @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
     @PostMapping(path = {"/save"}, consumes = "application/json", produces = "application/json")
     public ResponseEntity<?> save(@RequestBody SellRequest sellRequest) throws Conflict, BadRequest {
         try {
@@ -428,36 +415,13 @@ public class SellController {
         }
     }
 
-    @Operation(
-            summary = "Update sell",
-            description = "Update sell info",
-            tags = "sell"
-    )
-    @ApiResponses(
-            value = {
-                @ApiResponse(
-                        responseCode = "200",
-                        description = "successful operation",
-                        content = @Content(
-                                schema = @Schema(implementation = Sell.class)
-                        )
-                ),
-                @ApiResponse(
-                        responseCode = "404",
-                        description = "Sell not found",
-                        content = @Content(
-                                schema = @Schema(implementation = ErrorObject.class)
-                        )
-                ),
-                @ApiResponse(
-                        responseCode = "400",
-                        description = "Bad request",
-                        content = @Content(
-                                schema = @Schema(implementation = ErrorObject.class)
-                        )
-                )
-            }
-    )
+    @Operation(summary = "Update sale", description = "Update sale info", tags = "sell")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Sell.class))),
+        @ApiResponse(responseCode = "404", description = "Sell not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+    })
+    @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
     @PutMapping(path = {"/update/{id}"}, consumes = "application/json", produces = "application/json")
     public ResponseEntity<?> update(@RequestBody Sell sell, @RequestParam("id") Long id) throws ValueNotFound, BadRequest, IOException {
 
@@ -470,36 +434,13 @@ public class SellController {
         }
     }
 
-    @Operation(
-            summary = "Delete a sell by id",
-            description = "Delete a sell",
-            tags = "sell"
-    )
-    @ApiResponses(
-            value = {
-                @ApiResponse(
-                        responseCode = "200",
-                        description = "successful operation",
-                        content = @Content(
-                                schema = @Schema(implementation = Sell.class)
-                        )
-                ),
-                @ApiResponse(
-                        responseCode = "400",
-                        description = "Bad request",
-                        content = @Content(
-                                schema = @Schema(implementation = ErrorObject.class)
-                        )
-                ),
-                @ApiResponse(
-                        responseCode = "404",
-                        description = "Sell not found",
-                        content = @Content(
-                                schema = @Schema(implementation = ErrorObject.class)
-                        )
-                )
-            }
-    )
+    @Operation(summary = "Delete a sale by id", description = "Delete a sale", tags = "sell")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Sell.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+        @ApiResponse(responseCode = "404", description = "Sell not found", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+    })
+    @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
     @DeleteMapping(value = "/delete/{id}", produces = "application/json")
     public ResponseEntity<?> delete(@PathVariable(value = "id") Long id) throws ValueNotFound, BadRequest {
         try {
@@ -511,36 +452,14 @@ public class SellController {
         }
     }
 
-    @Operation(
-            summary = "Delete sales",
-            description = "Delete list of sales",
-            tags = "sell"
+    @Operation(summary = "Delete sales", description = "Delete list of sales", tags = "sell")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Sell.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+        @ApiResponse(responseCode = "404", description = "Sell not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))
+        )}
     )
-    @ApiResponses(
-            value = {
-                @ApiResponse(
-                        responseCode = "200",
-                        description = "successful operation",
-                        content = @Content(
-                                schema = @Schema(implementation = Sell.class)
-                        )
-                ),
-                @ApiResponse(
-                        responseCode = "400",
-                        description = "Bad request",
-                        content = @Content(
-                                schema = @Schema(implementation = ErrorObject.class)
-                        )
-                ),
-                @ApiResponse(
-                        responseCode = "404",
-                        description = "Sell not found",
-                        content = @Content(
-                                schema = @Schema(implementation = ErrorObject.class)
-                        )
-                )
-            }
-    )
+    @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
     @DeleteMapping(value = "/deleteAll", produces = "application/json")
     public ResponseEntity<?> deleteAll(@RequestBody List<Sell> sales) throws ValueNotFound, BadRequest {
         try {
