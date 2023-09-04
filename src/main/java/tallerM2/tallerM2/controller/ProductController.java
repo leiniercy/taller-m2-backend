@@ -243,7 +243,6 @@ public class ProductController {
 
     @Operation(summary = "Get image by name",description = "Get image by name from the server",tags = "product")
     @GetMapping(path = "/image/{name}")
-    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     public ResponseEntity<?> obtenerImagen(@PathVariable(value = "name") String name) throws IOException {
         return ResponseEntity.status(HttpStatus.OK)
                 .contentType(MediaType.valueOf("image/png"))
