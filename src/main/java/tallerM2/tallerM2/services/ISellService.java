@@ -21,8 +21,6 @@ public interface ISellService {
 
     public List<Sell> save(SellRequest sellRequest) throws Conflict, BadRequest;
 
-    public Sell update(Sell sell, Long id) throws ValueNotFound, BadRequest;
-
     public Sell delete(Sell sell) throws ValueNotFound, BadRequest;
 
     public Sell deleteById(Long id) throws ValueNotFound, BadRequest;

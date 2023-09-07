@@ -111,6 +111,7 @@ public class SellService implements ISellService {
             sell.setId(random.nextLong());
             sell.setTallerName(sellRequest.getTallerName());
             sell.setSellDate(sellRequest.getDate());
+            sell.setUsername(sellRequest.getUsername());
             sell.setCustomer(sellRequest.getCustomer());
             sell.setDescription(sellRequest.getDescriptions().get(i));
             sell.setCantProduct(sellRequest.getQuantities().get(i));
@@ -135,27 +136,6 @@ public class SellService implements ISellService {
         return sales;
     }
 
-    /**
-     * METODO PARA ACTUALIZAR TODA LA INFORMACION DE UNA VENTA MEDIANTE SU IDENTIFICADOR
-     *
-     * @param from informacion actualizada de la venta que se quiere modificar.
-     * @param id   identificador de la venta a modificar.
-     * @return to  infomracion actualizada de la venta
-     */
-    @Override
-    public Sell update(Sell from, Long id) throws ValueNotFound, BadRequest {
-        Optional<Sell> op = sellRepository.findById(id);
-        if (op.isEmpty()) throw new ValueNotFound("Sell not found");
-        Sell to = op.get();
-        to.setDescription(from.getDescription());
-        to.setCantProduct(from.getCantProduct());
-        to.setSalePrice(from.getSalePrice());
-        to.setTallerName(from.getTallerName());
-        to.setSellDate(from.getSellDate());
-        to.setCustomer(from.getCustomer());
-        to.setProduct(from.getProduct());
-        return sellRepository.save(to);
-    }
 
     /**
      * METODO PARA VERIFICAR SI EL MOVIL EXISTE, PREGUNTANDO POR EL ID

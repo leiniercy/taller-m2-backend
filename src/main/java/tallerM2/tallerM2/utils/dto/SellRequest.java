@@ -13,6 +13,7 @@ public class SellRequest {
     List<String> descriptions;
     List<Integer> prices;
     Customer customer;
+    String username;
     String tallerName;
     LocalDate date;
     List<Product> products;

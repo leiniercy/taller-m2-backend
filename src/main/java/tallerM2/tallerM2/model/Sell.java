@@ -43,6 +43,13 @@ public class Sell {
     private String tallerName;
 
     @Schema(
+            description = "Name of user",
+            example = "user"
+    )
+    @Column(nullable = false)
+    private String username;
+
+    @Schema(
             description = "date of sell",
             example = "2023-07-08"
     )
