@@ -58,32 +58,13 @@ public class ChargerService implements IChargerService {
      * @return List<Charger>
      */
     @Override
-    public List<Charger> findAll() {
-        return chargerRepository.findAll();
-    }
-
-    /**
-     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO DEL
-     * TALLER 2M
-     *
-     * @return List<Charger> listado de cargadores del taller 2M
-     */
-    @Override
-    public List<Charger> findAllTaller2M() {
-        return em.createQuery("SELECT c FROM Charger c WHERE c.taller LIKE 'Taller 2M' ORDER BY c.name")
+    public List<Charger> findAll(String taller) {
+        return em.createQuery("SELECT c FROM Charger c " +
+                        "WHERE c.taller LIKE :taller " +
+                        "ORDER BY c.name")
+                .setParameter("taller", taller)
                 .getResultList();
-    }
 
-    /**
-     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO DEL
-     * TALLER MJ
-     *
-     * @return List<Charger> listado de cargadores del taller MJ
-     */
-    @Override
-    public List<Charger> findAllTallerMJ() {
-        return em.createQuery("SELECT c FROM Charger c WHERE c.taller LIKE 'Taller MJ' ORDER BY c.name")
-                .getResultList();
     }
 
     /**

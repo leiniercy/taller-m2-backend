@@ -79,28 +79,6 @@ public class ProductController {
         return ResponseEntity.ok(service.findAllProductsTallerMJ());
     }
 
-    @Operation(summary = "Find all accesories, Taller 2M", description = "Find all accesories, Taller 2M", tags = "product")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Product.class)))),
-        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
-    })
-    @GetMapping(path = {"/all/accesorios/2M"}, produces = "application/json")
-    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<?> allAccesorios2M() {
-        return ResponseEntity.ok(service.findAllAccesoriosTaller2M());
-    }
-
-    @Operation(summary = "Find all accesories, Taller MJ", description = "Find all accesories Taller MJ", tags = "product")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Product.class)))),
-        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
-    })
-    @GetMapping(path = {"/all/accesorios/MJ"}, produces = "application/json")
-    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<?> allAccesoriosMJ() {
-        return ResponseEntity.ok(service.findAllAccesoriosTallerMJ());
-    }
-
     @Operation(summary = "Find all than 0", description = "Find all product where cant > 0", tags = "product")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Product.class)))),
@@ -118,9 +96,9 @@ public class ProductController {
         @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    @GetMapping(path = {"/all/accesorio"}, produces = "application/json")
-    public ResponseEntity<?> allAccesorios() {
-        return ResponseEntity.ok(service.findAllAccesorios());
+    @GetMapping(path = {"/all/accesorio/{taller}"}, produces = "application/json")
+    public ResponseEntity<?> allAccesorios(@PathVariable(value = "taller") String taller) {
+        return ResponseEntity.ok(service.findAllAccesorios(taller));
     }
 
     @Operation(summary = "Cuenta la cant de accesorios", description = "count accesorios", tags = "product")

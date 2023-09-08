@@ -12,11 +12,7 @@ import java.util.List;
 public interface IRelojService {
 
     public Reloj findById(Long id) throws ValueNotFound, BadRequest;
-
-    public List<Reloj> findAll();
-    public List<Reloj> findAllTaller2M();
-    public List<Reloj> findAllTallerMJ();
-
+    public List<Reloj> findAll(String taller);
     public List<Reloj> findAllByOrderByIdAsc();
 
     public Reloj save(List<MultipartFile> files, String name, int price, int cant, String taller, String specialFeature, String compatibleDevice, int bateryLife) throws Conflict, BadRequest, IOException;

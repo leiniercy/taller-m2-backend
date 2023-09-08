@@ -12,11 +12,7 @@ import tallerM2.tallerM2.model.Movile;
 public interface IMovileService {
 
     public Movile findById(Long id) throws ValueNotFound, BadRequest;
-
-    public List<Movile> findAll();
-    public List<Movile> findAllTaller2M();
-    public List<Movile> findAllTallerMJ();
-
+    public List<Movile> findAll(String taller);
     public List<Movile> findAllByOrderByIdAsc();
 
     public Movile save(List<MultipartFile> files, String name, int price, int cant, String taller,

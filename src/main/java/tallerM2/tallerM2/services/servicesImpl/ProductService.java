@@ -77,11 +77,13 @@ public class ProductService implements IProductService {
      * movil, cargador
      */
     @Override
-    public List<Product> findAllAccesorios() {
+    public List<Product> findAllAccesorios(String taller) {
         return em.createQuery("SELECT p FROM Product p WHERE p.id NOT IN (SELECT c.id FROM Charger c) "
-                + "AND p.id NOT IN (SELECT m.id FROM Movile m) "
-                + "AND p.id NOT IN (SELECT r.id FROM Reloj r) "
-                + "ORDER BY p.name")
+                        + "AND p.id NOT IN (SELECT m.id FROM Movile m) "
+                        + "AND p.id NOT IN (SELECT r.id FROM Reloj r) "
+                        + "AND p.taller LIKE :taller "
+                        + "ORDER BY p.name")
+                .setParameter("taller", taller)
                 .getResultList();
     }
 
@@ -104,34 +106,6 @@ public class ProductService implements IProductService {
      */
     public List<Product> findAllProductsTallerMJ() {
         return em.createQuery("SELECT p FROM Product p WHERE p.taller LIKE 'Taller MJ' ORDER BY p.name")
-                .getResultList();
-    }
-
-    /**
-     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO DEL
-     * TALLER 2M
-     *
-     * @return List<Product> listado de accesorios del taller 2M
-     */
-    public List<Product> findAllAccesoriosTaller2M() {
-        return em.createQuery("SELECT p FROM Product p WHERE p.id NOT IN (SELECT c.id FROM Charger c) "
-                + "AND p.id NOT IN (SELECT m.id FROM Movile m) "
-                + "AND p.id NOT IN (SELECT r.id FROM Reloj r) "
-                + "AND p.taller LIKE 'Taller 2M' ORDER BY p.name")
-                .getResultList();
-    }
-
-    /**
-     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO DEL
-     * TALLER MJ
-     *
-     * @return List<Product> listado de accesorios del taller MJ
-     */
-    public List<Product> findAllAccesoriosTallerMJ() {
-        return em.createQuery("SELECT p FROM Product p WHERE p.id NOT IN (SELECT c.id FROM Charger c) "
-                + "AND p.id NOT IN (SELECT m.id FROM Movile m) "
-                + "AND p.id NOT IN (SELECT r.id FROM Reloj r) "
-                + "AND p.taller LIKE 'Taller MJ' ORDER BY p.name")
                 .getResultList();
     }
 

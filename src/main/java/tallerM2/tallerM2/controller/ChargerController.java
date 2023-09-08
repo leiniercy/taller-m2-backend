@@ -38,31 +38,9 @@ public class ChargerController {
         @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    @GetMapping(path = {"/all"}, produces = "application/json")
-    ResponseEntity<?> all() {
-        return ResponseEntity.ok(service.findAll());
-    }
-
-    @Operation(summary = "Find all charger, Taller 2M", description = "Find all charge, Taller 2M", tags = "charger")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Charger.class)))),
-        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
-    })
-    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    @GetMapping(path = {"/all/2M"}, produces = "application/json")
-    ResponseEntity<?> all2M() {
-        return ResponseEntity.ok(service.findAllTaller2M());
-    }
-
-    @Operation(summary = "Find all charger, Taller MJ", description = "Find all charger, Taller MJ", tags = "charger")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Charger.class)))),
-        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
-    })
-    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    @GetMapping(path = {"/all/MJ"}, produces = "application/json")
-    ResponseEntity<?> allMJ() {
-        return ResponseEntity.ok(service.findAllTallerMJ());
+    @GetMapping(path = {"/all/{taller}"}, produces = "application/json")
+    ResponseEntity<?> all(@PathVariable(value = "taller") String taller) {
+        return ResponseEntity.ok(service.findAll(taller));
     }
 
     @Operation(summary = "Find all charger sorted by id", description = "Find all charger", tags = "charger")

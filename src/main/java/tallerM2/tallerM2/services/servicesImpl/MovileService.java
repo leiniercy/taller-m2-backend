@@ -61,31 +61,11 @@ public class MovileService implements IMovileService {
      * @return List<Movile>
      */
     @Override
-    public List<Movile> findAll() {
-        return movileRepository.findAll();
-    }
-
-    /**
-     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO DEL
-     * TALLER 2M
-     *
-     * @return List<Movile> listado de objetos del taller 2M
-     */
-    @Override
-    public List<Movile> findAllTaller2M() {
-        return em.createQuery("SELECT m FROM Movile m WHERE m.taller LIKE 'Taller 2M' ORDER BY m.name")
-                .getResultList();
-    }
-
-    /**
-     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO DEL
-     * TALLER MJ
-     *
-     * @return List<Movile> listado de objetos del taller MJ
-     */
-    @Override
-    public List<Movile> findAllTallerMJ() {
-        return em.createQuery("SELECT m FROM Movile m WHERE m.taller LIKE 'Taller MJ' ORDER BY m.name")
+    public List<Movile> findAll(String taller) {
+        return em.createQuery("SELECT m FROM Movile m " +
+                        "WHERE m.taller LIKE :taller " +
+                        "ORDER BY m.name")
+                .setParameter("taller", taller)
                 .getResultList();
     }
 

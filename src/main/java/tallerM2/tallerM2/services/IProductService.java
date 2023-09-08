@@ -19,11 +19,7 @@ public interface IProductService {
 
     public List<Product> findAllProductsTallerMJ();
 
-    public List<Product> findAllAccesoriosTaller2M();
-
-    public List<Product> findAllAccesoriosTallerMJ();
-
-    public List<Product> findAllAccesorios();
+    public List<Product> findAllAccesorios(String taller);
 
     public List<Product> findAllByOrderByIdAsc();
 

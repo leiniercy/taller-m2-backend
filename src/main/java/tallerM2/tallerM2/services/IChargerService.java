@@ -13,9 +13,7 @@ public interface IChargerService {
 
     public Charger findById(Long id) throws ValueNotFound, BadRequest;
 
-    public List<Charger> findAll();
-    public List<Charger> findAllTaller2M();
-    public List<Charger> findAllTallerMJ();
+    public List<Charger> findAll(String taller);
     public List<Charger> findAllByOrderByIdAsc();
 
     public Charger save(List<MultipartFile> files, String name, int price, int cant, String taller, String connectorType, String compatibleDevice) throws Conflict, BadRequest, IOException;
