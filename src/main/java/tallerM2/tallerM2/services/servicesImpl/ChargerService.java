@@ -284,8 +284,10 @@ public class ChargerService implements IChargerService {
      * @return long
      */
     @Override
-    public long count() {
-        Query query = em.createQuery("select coalesce(sum(c.cant),0) from Charger c");
+    public long count(String taller) {
+        Query query = em.createQuery("select coalesce(sum(c.cant),0) from Charger c " +
+                "where c.taller like :taller")
+                .setParameter("taller", taller);
         Long result = (Long) query.getSingleResult();
         return result != null ? result : 0;
     }

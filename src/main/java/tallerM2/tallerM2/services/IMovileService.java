@@ -35,7 +35,7 @@ public interface IMovileService {
 
     public List<Movile> deleteAll(List<Movile> moviles) throws ValueNotFound, BadRequest;
 
-    public long count();
+    public long count(String taller);
 
     public Long countByName(String name);
 

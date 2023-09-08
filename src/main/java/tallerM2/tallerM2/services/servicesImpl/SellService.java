@@ -220,11 +220,13 @@ public class SellService implements ISellService {
      *
      * @return long
      */
-    public Long countSellByMonth(int month) {
+    public Long countSellByMonth(int month, String taller) {
         LocalDate date = LocalDate.now();
         Query query = em.createQuery("select coalesce(sum(s.salePrice),0) from Sell s " +
-                        "WHERE EXTRACT( year FROM s.sellDate ) = :year " +
+                        "WHERE s.product.taller LIKE :taller " +
+                        "AND EXTRACT( year FROM s.sellDate ) = :year " +
                         "AND EXTRACT(MONTH FROM s.sellDate ) = :month")
+                .setParameter("taller",taller)
                 .setParameter("year", date.getYear())
                 .setParameter("month", month);
         Long result = (Long) query.getSingleResult();
@@ -237,7 +239,7 @@ public class SellService implements ISellService {
      *
      * @return long
      */
-    public Long countSellByMonthAndAccesorio(int month) {
+    public Long countSellByMonthAndAccesorio(int month, String taller) {
         LocalDate date = LocalDate.now();
         Query query = em.createQuery("SELECT COALESCE(SUM(s.cantProduct),0) FROM Sell s " +
                         "JOIN Product p ON s.product.id = p.id " +
@@ -245,9 +247,12 @@ public class SellService implements ISellService {
                         "AND EXTRACT(MONTH FROM s.sellDate ) = :month " +
                         "AND p.id NOT IN (SELECT c.id FROM Charger c) " +
                         "AND p.id NOT IN (SELECT m.id FROM Movile m) "+
-                        "AND p.id NOT IN (SELECT r.id FROM Reloj r) ")
+                        "AND p.id NOT IN (SELECT r.id FROM Reloj r) " +
+                        "AND p.taller LIKE :taller " +
+                        "AND s.product.taller LIKE :taller")
                 .setParameter("year", date.getYear())
-                .setParameter("month", month);
+                .setParameter("month", month)
+                .setParameter("taller", taller);
 
         Long result = (Long) query.getSingleResult();
         return result != null ? result : 0;
@@ -259,14 +264,16 @@ public class SellService implements ISellService {
      *
      * @return long
      */
-    public Long countSellByMonthAndCharger(int month) {
+    public Long countSellByMonthAndCharger(int month, String taller) {
         LocalDate date = LocalDate.now();
         Query query = em.createQuery("select coalesce(sum(s.cantProduct),0) from Sell s " +
                         "JOIN Charger c ON s.product.id = c.id " +
                         "WHERE EXTRACT( year FROM s.sellDate ) = :year " +
-                        "AND EXTRACT(MONTH FROM s.sellDate ) = :month ")
+                        "AND EXTRACT(MONTH FROM s.sellDate ) = :month " +
+                        "AND s.product.taller LIKE :taller ")
                 .setParameter("year", date.getYear())
-                .setParameter("month", month);
+                .setParameter("month", month)
+                .setParameter("taller", taller);
 
         Long result = (Long) query.getSingleResult();
         return result != null ? result : 0;
@@ -278,14 +285,16 @@ public class SellService implements ISellService {
      *
      * @return long
      */
-    public Long countSellByMonthAndMovile(int month) {
+    public Long countSellByMonthAndMovile(int month, String taller) {
         LocalDate date = LocalDate.now();
         Query query = em.createQuery("select coalesce(sum(s.cantProduct),0) from Sell s " +
                         "JOIN Movile m ON s.product.id = m.id " +
                         "WHERE EXTRACT( year FROM s.sellDate ) = :year " +
-                        "AND EXTRACT(MONTH FROM s.sellDate ) = :month ")
+                        "AND EXTRACT(MONTH FROM s.sellDate ) = :month "+
+                        "AND s.product.taller LIKE :taller ")
                 .setParameter("year", date.getYear())
-                .setParameter("month", month);
+                .setParameter("month", month)
+                .setParameter("taller", taller);
 
         Long result = (Long) query.getSingleResult();
         return result != null ? result : 0;
@@ -297,14 +306,16 @@ public class SellService implements ISellService {
      *
      * @return long
      */
-    public Long countSellByMonthAndReloj(int month) {
+    public Long countSellByMonthAndReloj(int month, String taller) {
         LocalDate date = LocalDate.now();
         Query query = em.createQuery("select coalesce(sum(s.cantProduct),0) from Sell s " +
                         "JOIN Reloj r ON s.product.id = r.id " +
                         "WHERE EXTRACT( year FROM s.sellDate ) = :year " +
-                        "AND EXTRACT(MONTH FROM s.sellDate ) = :month ")
+                        "AND EXTRACT(MONTH FROM s.sellDate ) = :month " +
+                        "AND s.product.taller LIKE :taller ")
                 .setParameter("year", date.getYear())
-                .setParameter("month", month);
+                .setParameter("month", month)
+                .setParameter("taller", taller);
 
         Long result = (Long) query.getSingleResult();
         return result != null ? result : 0;
@@ -317,7 +328,7 @@ public class SellService implements ISellService {
      *
      * @return long
      */
-    public List<Long> getSalesByCurrentWeek(){
+    public List<Long> getSalesByCurrentWeek(String taller){
         
         List<Long> list = new LinkedList<>();
         LocalDate currentDate = LocalDate.now();
@@ -327,7 +338,7 @@ public class SellService implements ISellService {
         
         LocalDate day  = firstDayofWeek;
         while (!day.isAfter(lastDayofWeek)) {
-            list.add(countSellByDayOfWeek(day));
+            list.add(countSellByDayOfWeek(day, taller));
             day = day.plusDays(1);
         }
         
@@ -342,11 +353,13 @@ public class SellService implements ISellService {
       * @param date
      * @return long
      */
-    public Long countSellByDayOfWeek(LocalDate date) {
+    public Long countSellByDayOfWeek(LocalDate date, String taller) {
         Query query = em.createQuery("SELECT COALESCE(SUM(s.salePrice),0) FROM Sell s " +
                         "JOIN Product p ON s.product.id = p.id " +
-                        "WHERE s.sellDate = :date ")
-                .setParameter("date", date);
+                        "WHERE s.sellDate = :date " +
+                        "AND s.product.taller like :taller")
+                .setParameter("date", date)
+                .setParameter("taller", taller);
        
         Long result = (Long) query.getSingleResult();
         return result != null ? result : 0;

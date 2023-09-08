@@ -28,6 +28,6 @@ public interface IChargerService {
 
     public List<Charger> deleteAll(List<Charger> chargers) throws ValueNotFound, BadRequest;
 
-    public long count();
+    public long count(String taller);
 
 }

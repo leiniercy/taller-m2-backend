@@ -101,10 +101,10 @@ public class SellController {
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping(path = {"/all/date/week"}, produces = "application/json")
-    ResponseEntity<?> allByWeek() throws BadRequest {
+    @GetMapping(path = {"/all/date/week/{taller}"}, produces = "application/json")
+    ResponseEntity<?> allByWeek(@PathVariable(value = "taller") String taller) throws BadRequest {
         try {
-            return ResponseEntity.ok(service.getSalesByCurrentWeek());
+            return ResponseEntity.ok(service.getSalesByCurrentWeek(taller));
         } catch (Exception ex) {
             throw new BadRequest("Bad request");
         }
@@ -116,12 +116,12 @@ public class SellController {
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping(path = {"/all/date/month"}, produces = "application/json")
-    ResponseEntity<?> allByMonth() throws BadRequest {
+    @GetMapping(path = {"/all/date/month/{taller}"}, produces = "application/json")
+    ResponseEntity<?> allByMonth(@PathVariable(value = "taller") String taller) throws BadRequest {
         try {
             List<Long> list = new LinkedList<>();
             for (int i = 0; i < 12; i++) {
-                list.add(service.countSellByMonth(i + 1));
+                list.add(service.countSellByMonth(i + 1, taller));
             }
             return ResponseEntity.ok(list);
         } catch (Exception ex) {
@@ -135,28 +135,28 @@ public class SellController {
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping(path = {"/all/date/month/product"}, produces = "application/json")
-    ResponseEntity<?> allByMonthAndProduct() throws BadRequest {
+    @GetMapping(path = {"/all/date/month/product/{taller}"}, produces = "application/json")
+    ResponseEntity<?> allByMonthAndProduct(@PathVariable(value = "taller") String taller) throws BadRequest {
         try {
             SellMonthRequest sellMonthRequest = new SellMonthRequest();
             List<Long> accesorios = new LinkedList<>();
             for (int i = 0; i < 12; i++) {
-                accesorios.add(service.countSellByMonthAndAccesorio(i + 1));
+                accesorios.add(service.countSellByMonthAndAccesorio(i + 1, taller));
             }
             sellMonthRequest.setAccesorios(accesorios);
             List<Long> charges = new LinkedList<>();
             for (int i = 0; i < 12; i++) {
-                charges.add(service.countSellByMonthAndCharger(i + 1));
+                charges.add(service.countSellByMonthAndCharger(i + 1, taller));
             }
             sellMonthRequest.setChargers(charges);
             List<Long> moviles = new LinkedList<>();
             for (int i = 0; i < 12; i++) {
-                moviles.add(service.countSellByMonthAndMovile(i + 1));
+                moviles.add(service.countSellByMonthAndMovile(i + 1, taller));
             }
             sellMonthRequest.setMoviles(moviles);
             List<Long> relojes = new LinkedList<>();
             for (int i = 0; i < 12; i++) {
-                relojes.add(service.countSellByMonthAndReloj(i + 1));
+                relojes.add(service.countSellByMonthAndReloj(i + 1, taller));
             }
             sellMonthRequest.setRelojes(relojes);
             return ResponseEntity.ok(sellMonthRequest);

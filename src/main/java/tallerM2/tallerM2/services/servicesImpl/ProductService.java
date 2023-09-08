@@ -24,6 +24,8 @@ import tallerM2.tallerM2.repository.ProductRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+
 import tallerM2.tallerM2.utils.MinioAdapter;
 
 /**
@@ -333,17 +335,14 @@ public class ProductService implements IProductService {
      * @return long
      */
     @Override
-    public long count() {
-        long total = 0;
-        List<Product> products = findAll().stream()
-                .filter(product -> !(product instanceof Movile) && !(product instanceof Reloj) && !(product instanceof Charger))
-                .collect(Collectors.toList());
-        if (products.isEmpty()) {
-            return 0;
-        }
-        for (Product product : products) {
-            total += product.getCant();
-        }
-        return total;
+    public long count(String taller) {
+        Query query = em.createQuery("select coalesce(sum(p.cant),0) from Product p "
+                        + "WHERE p.taller = :taller "
+                        +"AND p.id NOT IN (SELECT c.id FROM Charger c) "
+                        +"AND p.id NOT IN (SELECT m.id FROM Movile m) "
+                        +"AND p.id NOT IN (SELECT r.id FROM Reloj r)")
+                .setParameter("taller", taller);
+        Long result = (Long) query.getSingleResult();
+        return result != null ? result : 0;
     }
 }

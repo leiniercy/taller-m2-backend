@@ -96,16 +96,16 @@ public class MovileController {
 
     @Operation(summary = "Count cant of movile", description = "count moviles", tags = "movile")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    @GetMapping(value = "/getCant")
-    public ResponseEntity<?> getCant() {
-        return ResponseEntity.ok(service.count());
+    @GetMapping(value = "/getCant/{taller}")
+    public ResponseEntity<?> getCant(@PathVariable(value = "taller") String taller) {
+        return ResponseEntity.ok(service.count(taller));
     }
 
     @Operation(summary = "Create new movile", description = "Create a new movile", tags = "movile")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Movile.class))),
-        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
-        @ApiResponse(responseCode = "409", description = "This movile already exists", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Movile.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+            @ApiResponse(responseCode = "409", description = "This movile already exists", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(path = {"/save"}, produces = "application/json")
@@ -139,9 +139,9 @@ public class MovileController {
 
     @Operation(summary = "Update movile", description = "Update movile info", tags = "movile")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Movile.class))),
-        @ApiResponse(responseCode = "404", description = "Movile not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
-        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Movile.class))),
+            @ApiResponse(responseCode = "404", description = "Movile not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(path = {"/update/{id}"}, produces = "application/json")
@@ -176,9 +176,9 @@ public class MovileController {
 
     @Operation(summary = "Delete a movile by id", description = "Delete a movile", tags = "movile")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Movile.class))),
-        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
-        @ApiResponse(responseCode = "404", description = "Movile not found", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Movile.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+            @ApiResponse(responseCode = "404", description = "Movile not found", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(value = "/delete/{id}", produces = "application/json")
@@ -194,10 +194,10 @@ public class MovileController {
 
     @Operation(summary = "Delete moviles", description = "Delete list of moviles", tags = "movile")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Movile.class))),
-        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
-        @ApiResponse(responseCode = "404", description = "Movile not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))
-        )}
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Movile.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+            @ApiResponse(responseCode = "404", description = "Movile not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))
+            )}
     )
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(value = "/deleteAll", produces = "application/json")

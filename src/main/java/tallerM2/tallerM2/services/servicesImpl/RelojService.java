@@ -290,8 +290,10 @@ public class RelojService implements IRelojService {
      * @return long
      */
     @Override
-    public long count() {
-        Query query = em.createQuery("select coalesce(sum(r.cant),0) from Reloj r");
+    public long count(String taller) {
+        Query query = em.createQuery("select coalesce(sum(r.cant),0) from Reloj r " +
+                        "where r.taller like :taller")
+                .setParameter("taller", taller);
         Long result = (Long) query.getSingleResult();
         return result != null ? result : 0;
     }

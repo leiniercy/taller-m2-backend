@@ -124,10 +124,10 @@ public class ProductController {
     }
 
     @Operation(summary = "Cuenta la cant de accesorios", description = "count accesorios", tags = "product")
-    @GetMapping(value = "/getCant")
+    @GetMapping(value = "/getCant/{taller}")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<?> getCant() {
-        return ResponseEntity.ok(service.count());
+    public ResponseEntity<?> getCant(@PathVariable(value = "taller")  String taller) {
+        return ResponseEntity.ok(service.count(taller));
     }
 
     @Operation(summary = "Find a accesorie by ID", description = "Search accesorie by the id", tags = "product")

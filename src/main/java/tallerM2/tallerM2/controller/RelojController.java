@@ -95,9 +95,9 @@ public class RelojController {
 
     @Operation(summary = "Count cant of reloj", description = "count reloj", tags = "reloj")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    @GetMapping(value = "/getCant")
-    public ResponseEntity<?> getCant() {
-        return ResponseEntity.ok(service.count());
+    @GetMapping(value = "/getCant/{taller}")
+    public ResponseEntity<?> getCant(@PathVariable(value = "taller") String taller) {
+        return ResponseEntity.ok(service.count(taller));
     }
 
     @Operation(summary = "Create new reloj", description = "Create a new reloj", tags = "reloj")

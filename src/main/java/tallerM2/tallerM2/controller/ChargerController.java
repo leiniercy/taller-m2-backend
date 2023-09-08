@@ -96,9 +96,9 @@ public class ChargerController {
 
     @Operation(summary = "Count cant of charger", description = "count chargers", tags = "charger")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    @GetMapping(value = "/getCant")
-    public ResponseEntity<?> getCant() {
-        return ResponseEntity.ok(service.count());
+    @GetMapping(value = "/getCant/{taller}")
+    public ResponseEntity<?> getCant(@PathVariable(value = "taller") String taller) {
+        return ResponseEntity.ok(service.count(taller));
     }
 
     @Operation(summary = "Create new charger", description = "Create a new charger", tags = "charger")

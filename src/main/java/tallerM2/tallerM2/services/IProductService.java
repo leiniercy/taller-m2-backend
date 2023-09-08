@@ -39,5 +39,5 @@ public interface IProductService {
 
     public List<Product> deleteAll(List<Product> products) throws ValueNotFound, BadRequest;
 
-    public long count();
+    public long count(String taller);
 }

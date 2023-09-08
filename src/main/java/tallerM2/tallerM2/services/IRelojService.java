@@ -29,5 +29,5 @@ public interface IRelojService {
 
     public List<Reloj> deleteAll(List<Reloj> relojs) throws ValueNotFound, BadRequest;
 
-    public long count();
+    public long count(String taller);
 }
