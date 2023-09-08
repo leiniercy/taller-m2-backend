@@ -13,11 +13,7 @@ public interface IProductService {
 
     public Product findById(Long id) throws ValueNotFound, BadRequest;
 
-    public List<Product> findAll();
-
-    public List<Product> findAllProductsTaller2M();
-
-    public List<Product> findAllProductsTallerMJ();
+    public List<Product> findAll(String taller);
 
     public List<Product> findAllAccesorios(String taller);
 

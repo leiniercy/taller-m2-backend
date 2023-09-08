@@ -65,8 +65,12 @@ public class ProductService implements IProductService {
      * @return List<Product> devuelve un listado general de todos los productos
      */
     @Override
-    public List<Product> findAll() {
-        return productRepository.findAll();
+    public List<Product> findAll(String taller) {
+        return em.createQuery("SELECT p FROM Product p " +
+                        "WHERE p.taller LIKE :taller " +
+                        "ORDER BY p.name")
+                .setParameter("taller", taller)
+                .getResultList();
     }
 
     /**
@@ -87,27 +91,6 @@ public class ProductService implements IProductService {
                 .getResultList();
     }
 
-    /**
-     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO DEL
-     * TALLER 2M
-     *
-     * @return List<Product> listado de productos del taller 2M
-     */
-    public List<Product> findAllProductsTaller2M() {
-        return em.createQuery("SELECT p FROM Product p WHERE p.taller LIKE 'Taller 2M' ORDER BY p.name")
-                .getResultList();
-    }
-
-    /**
-     * METODO QUE DEVUELVE UNA LISTA CON TODOS LOS OBJETOS DE UN MISMO TIPO DEL
-     * TALLER MJ
-     *
-     * @return List<Product> listado de productos del taller MJ
-     */
-    public List<Product> findAllProductsTallerMJ() {
-        return em.createQuery("SELECT p FROM Product p WHERE p.taller LIKE 'Taller MJ' ORDER BY p.name")
-                .getResultList();
-    }
 
     /**
      * METODO QUE DEVUELVE UNA LISTA ORDENADA ASCENDENTEMENTE CON TODOS LOS

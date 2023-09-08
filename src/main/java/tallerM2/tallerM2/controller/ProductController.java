@@ -52,31 +52,9 @@ public class ProductController {
         @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    @GetMapping(path = {"/all"}, produces = "application/json")
-    public ResponseEntity<?> all() {
-        return ResponseEntity.ok(service.findAll());
-    }
-
-    @Operation(summary = "Find all products, Taller 2M", description = "Find all products, Taller 2M", tags = "product")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Product.class)))),
-        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
-    })
-    @GetMapping(path = {"/all/products/2M"}, produces = "application/json")
-    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<?> allProducts2M() {
-        return ResponseEntity.ok(service.findAllProductsTaller2M());
-    }
-
-    @Operation(summary = "Find all products, Taller MJ", description = "Find all products Taller MJ", tags = "product")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Product.class)))),
-        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
-    })
-    @GetMapping(path = {"/all/products/MJ"}, produces = "application/json")
-    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<?> allProductsMJ() {
-        return ResponseEntity.ok(service.findAllProductsTallerMJ());
+    @GetMapping(path = {"/all/{taller}"}, produces = "application/json")
+    public ResponseEntity<?> all(@PathVariable(value = "taller")String taller) {
+        return ResponseEntity.ok(service.findAll(taller));
     }
 
     @Operation(summary = "Find all than 0", description = "Find all product where cant > 0", tags = "product")
