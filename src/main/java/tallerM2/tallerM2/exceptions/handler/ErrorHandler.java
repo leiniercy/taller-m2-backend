@@ -10,13 +10,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import tallerM2.tallerM2.exceptions.ErrorObject;
 import tallerM2.tallerM2.exceptions.custom.BadRequest;
 import tallerM2.tallerM2.exceptions.custom.Conflict;
 import tallerM2.tallerM2.exceptions.custom.ValueNotFound;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 
 // Custom Errors. Aquí manejamos todos los erroes que pueden surgir en la aplicación y le respuesta que deben enviar.
@@ -28,6 +32,18 @@ public class ErrorHandler {
        return new ResponseEntity<>(
                new ErrorObject(HttpStatus.FORBIDDEN.toString(), /*errorDescription*/"Access denied"), HttpStatus.FORBIDDEN);
    }
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<?> validException(ConstraintViolationException valid) {
+        Set<ConstraintViolation<?>> violations = valid.getConstraintViolations();
+        List<String> errores = new ArrayList<>();
+        for (ConstraintViolation<?> violation : violations) {
+            String mensaje = violation.getMessage();
+            errores.add(mensaje);
+        }
+        return new ResponseEntity<>(
+                new ErrorObject(HttpStatus.UNPROCESSABLE_ENTITY.toString(), /*errorDescription*/errores.get(0)), HttpStatus.UNPROCESSABLE_ENTITY);
+    }
     
    @ResponseStatus(HttpStatus.NOT_FOUND)
    @ExceptionHandler(ValueNotFound.class)

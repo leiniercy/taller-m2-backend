@@ -24,6 +24,7 @@ public class Movile extends Product {
             description = "capacidad de almacenamiento",
             example = "128"
     )
+    @Min(value = 0, message = "Almacenamiento incorrecto, valor mínimo 0")
     @Column(nullable = false)
     private int sizeStorage;
     @Schema(
@@ -31,7 +32,7 @@ public class Movile extends Product {
             example = "128"
     )
     @NotNull(message = "Este campo es obligatorio")
-    @Min(value = 0, message = "el valor mínimo es 0")
+    @Min(value = 0, message = "Ram incorrecta, valor mínimo 0")
     @Column(nullable = false)
     private int ram;
 
@@ -41,7 +42,7 @@ public class Movile extends Product {
             example = "16"
     )
     @NotNull(message = "Este campo es obligatorio")
-    @Min(value = 0, message = "el valor mínimo es 0")
+    @Min(value = 0, message = "Cámara trasera incorrecta, valor mínimo 0")
     @Column(nullable = false)
     private int camaraTrasera;
 
@@ -50,7 +51,7 @@ public class Movile extends Product {
             example = "4"
     )
     @NotNull(message = "Este campo es obligatorio")
-    @Min(value = 0, message = "el valor mínimo es 0")
+    @Min(value = 0, message = "Cámara frontal incorrecta, valor mínimo 0")
     @Column(nullable = false)
     private int camaraFrontal;
 
@@ -85,9 +86,10 @@ public class Movile extends Product {
 
     //Bateria
     @Schema(
-            description = "Duracion aproximada de la baeteria en horas",
-            example = "24"
+            description = "Bateria en amp",
+            example = "2400"
     )
+    @Min(value = 0, message = "Batería incorrecta, valor mínimo 0 amp")
     @Column(nullable = false)
     private long bateria;
 

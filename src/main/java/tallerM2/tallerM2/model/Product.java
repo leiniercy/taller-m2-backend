@@ -10,6 +10,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.LinkedList;
 import java.util.List;
 import javax.persistence.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 import lombok.*;
 
@@ -35,6 +38,7 @@ public /*abstract*/ class Product implements Comparable<Product> {
             description = "Name of the product",
             example = "Samsung Galaxy A10"
     )
+    @Pattern(regexp = "^[a-zA-Z0-9À-ÿ\\u00f1\\u00d1\\s]+$", message = "Nombre incorrecto.")
     @Column(nullable = false)
     protected String name;
 
@@ -42,6 +46,7 @@ public /*abstract*/ class Product implements Comparable<Product> {
             description = "Price of the product",
             example = "10"
     )
+    @Min(value = 0, message = "Precio incorrecto, valor mínimo 0")
     @Column(nullable = false)
 
     protected int price;
@@ -50,6 +55,7 @@ public /*abstract*/ class Product implements Comparable<Product> {
             description = "Cant of products",
             example = "10"
     )
+    @Min(value = 0, message = "Cantidad incorrecta, valor mínimo 0")
     @Column(nullable = false)
     protected int cant;
 
@@ -57,6 +63,7 @@ public /*abstract*/ class Product implements Comparable<Product> {
             description = "Name of the taller",
             example = "Taller 2M"
     )
+    @Size(min = 1, message = "Taller incorrecto, tamaño mínimo 0")
     @Column(nullable = false)
     protected String taller;
 

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.Pattern;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,11 +23,13 @@ public class Charger extends Product {
             example = "USB Type C"
     )
     @Column(nullable = false)
+    @Pattern(regexp = "^[a-zA-ZÀ-ÿ0-9\\u00f1\\u00d1\\s]+$", message = "Tipo de conector incorrecto")
     private String connectorType;
     @Schema(
             description = "Dispositivos compatibles",
             example = "Samsung"
     )
+    @Pattern(regexp = "^[,.a-zA-ZÀ-ÿ0-9\\u00f1\\u00d1\\s]+$", message = "Dispositivos compatibles incorrectos")
     @Column(nullable = false)
     private String compatibleDevice;
 

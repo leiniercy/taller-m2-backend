@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Pattern;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,6 +24,7 @@ public class Reloj extends Product{
             example = "Time Display, Alarm Clock, GPS, Notifications, Email, Heart Rate Monitor, Text Messaging, Music Player, Sleep Monitor",
             required = true
     )
+    @Pattern(regexp = "^[,.a-zA-ZÀ-ÿ0-9\\u00f1\\u00d1\\s]+$", message = "Funcionalidades incorrectas")
     @Column(nullable = false)
     private String specialFeature;
 
@@ -30,13 +33,15 @@ public class Reloj extends Product{
             example = "Samsung"
     )
     @Column(nullable = false)
+    @Pattern(regexp = "^[,.a-zA-ZÀ-ÿ0-9\\u00f1\\u00d1\\s]+$", message = "Dispositivos compatibles incorrectos")
     private String compatibleDevice;
 
     @Schema(
-            description = "Tiempo de la bateria en dias",
-            example = "15"
+            description = "Bateria en amp",
+            example = "2400"
     )
     @Column(nullable = false)
+    @Min(value = 0, message = "Batería incorrecta, valor mínimo 0")
     private int bateryLife;
 
 }

@@ -23,6 +23,9 @@ import tallerM2.tallerM2.exceptions.custom.ValueNotFound;
 import tallerM2.tallerM2.model.Movile;
 import tallerM2.tallerM2.services.servicesImpl.MovileService;
 
+import javax.validation.ConstraintViolationException;
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping(value = "/api/v1/movile")
 @CrossOrigin("*")
@@ -87,7 +90,8 @@ public class MovileController {
     })
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(path = {"/save"}, produces = "application/json")
-    public ResponseEntity<?> save(@RequestParam("name") String name,
+    public ResponseEntity<?> save(@Valid
+                                  @RequestParam("name") String name,
                                   @RequestParam("price") int price,
                                   @RequestParam("cant") int cant,
                                   @RequestParam("taller") String taller,
@@ -112,6 +116,8 @@ public class MovileController {
             throw new Conflict(c.getMessage());
         } catch (BadRequest br) {
             throw new BadRequest("Bad request");
+        }catch ( ConstraintViolationException valid){
+            throw new ConstraintViolationException("Validation errors: ",valid.getConstraintViolations());
         }
     }
 
@@ -123,7 +129,8 @@ public class MovileController {
     })
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(path = {"/update/{id}"}, produces = "application/json")
-    public ResponseEntity<?> update(@RequestParam("files") List<MultipartFile> files,
+    public ResponseEntity<?> update(@Valid
+                                    @RequestParam("files") List<MultipartFile> files,
                                     @RequestParam("name") String name,
                                     @RequestParam("price") int price,
                                     @RequestParam("cant") int cant,
@@ -149,6 +156,8 @@ public class MovileController {
             throw new ValueNotFound(vn.getMessage());
         } catch (BadRequest br) {
             throw new BadRequest("Bad request");
+        }catch ( ConstraintViolationException valid){
+            throw new ConstraintViolationException("Validation errors: ",valid.getConstraintViolations());
         }
     }
 

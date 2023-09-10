@@ -27,8 +27,11 @@ import tallerM2.tallerM2.services.servicesImpl.ProductService;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
+
 import org.springframework.security.access.prepost.PreAuthorize;
 import tallerM2.tallerM2.utils.MinioAdapter;
 
@@ -113,6 +116,7 @@ public class ProductController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(path = {"/save"}, /*consumes = "application/json",*/ produces = "application/json")
     public ResponseEntity<?> save(
+            @Valid
             @RequestParam("name") String name,
             @RequestParam("price") int price,
             @RequestParam("cant") int cant,
@@ -129,6 +133,8 @@ public class ProductController {
             throw new Conflict(c.getMessage());
         } catch (BadRequest br) {
             throw new BadRequest(br.getMessage());
+        }catch ( ConstraintViolationException valid){
+            throw new ConstraintViolationException("Validation errors: ",valid.getConstraintViolations());
         }
     }
 
@@ -141,6 +147,7 @@ public class ProductController {
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(path = {"/update/{id}"}, /*consumes = "application/json",*/ produces = "application/json")
     public ResponseEntity<?> update(
+            @Valid
             @RequestParam("files") List<MultipartFile> files,
             @RequestParam("name") String name,
             @RequestParam("price") int price,
@@ -157,6 +164,8 @@ public class ProductController {
             throw new ValueNotFound(vn.getMessage());
         } catch (BadRequest br) {
             throw new BadRequest("Bad request");
+        }catch ( ConstraintViolationException valid){
+            throw new ConstraintViolationException("Validation errors: ",valid.getConstraintViolations());
         }
     }
 

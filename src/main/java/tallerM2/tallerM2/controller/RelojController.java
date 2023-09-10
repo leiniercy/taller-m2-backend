@@ -20,7 +20,11 @@ import tallerM2.tallerM2.services.servicesImpl.RelojService;
 
 import java.io.IOException;
 import java.util.List;
+
 import org.springframework.security.access.prepost.PreAuthorize;
+
+import javax.validation.ConstraintViolationException;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping(value = "/api/v1/reloj")
@@ -33,19 +37,19 @@ public class RelojController {
 
     @Operation(summary = "Find all reloj", description = "Find all reloj", tags = "reloj")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Reloj.class)))),
-        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Reloj.class)))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     @GetMapping(path = {"/all/{taller}"}, produces = "application/json")
-    ResponseEntity<?> all(@PathVariable(value = "taller")String taller) {
+    ResponseEntity<?> all(@PathVariable(value = "taller") String taller) {
         return ResponseEntity.ok(service.findAll(taller));
     }
 
     @Operation(summary = "Find all reloj sorted by id", description = "Find all reloj", tags = "reloj")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Reloj.class)))),
-        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Reloj.class)))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     @GetMapping(path = {"/all-sorted"}, produces = "application/json")
@@ -55,9 +59,9 @@ public class RelojController {
 
     @Operation(summary = "Find reloj by ID", description = "Search reloj by the id", tags = "reloj")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Reloj.class))),
-        @ApiResponse(responseCode = "404", description = "Reloj not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
-        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Reloj.class))),
+            @ApiResponse(responseCode = "404", description = "Reloj not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     @GetMapping(value = "/get/{id}", produces = "application/json")
@@ -80,13 +84,15 @@ public class RelojController {
 
     @Operation(summary = "Create new reloj", description = "Create a new reloj", tags = "reloj")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Reloj.class))),
-        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
-        @ApiResponse(responseCode = "409", description = "This reloj already exists", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Reloj.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+            @ApiResponse(responseCode = "409", description = "This reloj already exists", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(path = {"/save"}, produces = "application/json")
-    public ResponseEntity<?> save(@RequestParam("name") String name,
+    public ResponseEntity<?> save(
+            @Valid
+            @RequestParam("name") String name,
             @RequestParam("price") int price,
             @RequestParam("cant") int cant,
             @RequestParam("taller") String taller,
@@ -104,18 +110,22 @@ public class RelojController {
             throw new Conflict(c.getMessage());
         } catch (BadRequest br) {
             throw new BadRequest("Bad request");
+        }catch ( ConstraintViolationException valid){
+            throw new ConstraintViolationException("Validation errors: ",valid.getConstraintViolations());
         }
     }
 
     @Operation(summary = "Update reloj", description = "Update reloj info", tags = "reloj")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Reloj.class))),
-        @ApiResponse(responseCode = "404", description = "Reloj not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
-        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Reloj.class))),
+            @ApiResponse(responseCode = "404", description = "Reloj not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(path = {"/update/{id}"}, produces = "application/json")
-    public ResponseEntity<?> update(@RequestParam("files") List<MultipartFile> files,
+    public ResponseEntity<?> update(
+            @Valid
+            @RequestParam("files") List<MultipartFile> files,
             @RequestParam("name") String name,
             @RequestParam("price") int price,
             @RequestParam("cant") int cant,
@@ -133,14 +143,16 @@ public class RelojController {
             throw new ValueNotFound(vn.getMessage());
         } catch (BadRequest br) {
             throw new BadRequest("Bad request");
+        }catch ( ConstraintViolationException valid){
+            throw new ConstraintViolationException("Validation errors: ",valid.getConstraintViolations());
         }
     }
 
     @Operation(summary = "Delete a reloj by id", description = "Delete a reloj", tags = "reloj")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Reloj.class))),
-        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
-        @ApiResponse(responseCode = "404", description = "Reloj not found", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Reloj.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+            @ApiResponse(responseCode = "404", description = "Reloj not found", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(value = "/delete/{id}", produces = "application/json")
@@ -156,10 +168,10 @@ public class RelojController {
 
     @Operation(summary = "Delete relojs", description = "Delete list of relojs", tags = "reloj")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Reloj.class))),
-        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
-        @ApiResponse(responseCode = "404", description = "Reloj not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))
-        )}
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Reloj.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+            @ApiResponse(responseCode = "404", description = "Reloj not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))
+            )}
     )
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(value = "/deleteAll", produces = "application/json")

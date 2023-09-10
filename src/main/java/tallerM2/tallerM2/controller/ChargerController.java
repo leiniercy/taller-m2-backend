@@ -21,7 +21,11 @@ import tallerM2.tallerM2.services.servicesImpl.ChargerService;
 
 import java.io.IOException;
 import java.util.List;
+
 import org.springframework.security.access.prepost.PreAuthorize;
+
+import javax.validation.ConstraintViolationException;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping(value = "/api/v1/charger")
@@ -34,8 +38,8 @@ public class ChargerController {
 
     @Operation(summary = "Find all charger", description = "Find all charger", tags = "charger")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Charger.class)))),
-        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Charger.class)))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     @GetMapping(path = {"/all/{taller}"}, produces = "application/json")
@@ -45,8 +49,8 @@ public class ChargerController {
 
     @Operation(summary = "Find all charger sorted by id", description = "Find all charger", tags = "charger")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Charger.class)))),
-        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Charger.class)))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     @GetMapping(path = {"/all-sorted"}, produces = "application/json")
@@ -56,9 +60,9 @@ public class ChargerController {
 
     @Operation(summary = "Find charger by ID", description = "Search charger by the id", tags = "charger")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Charger.class))),
-        @ApiResponse(responseCode = "404", description = "Charger not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
-        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Charger.class))),
+            @ApiResponse(responseCode = "404", description = "Charger not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     @GetMapping(value = "/get/{id}", produces = "application/json")
@@ -81,13 +85,14 @@ public class ChargerController {
 
     @Operation(summary = "Create new charger", description = "Create a new charger", tags = "charger")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Charger.class))),
-        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
-        @ApiResponse(responseCode = "409", description = "This Charger already exists", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Charger.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+            @ApiResponse(responseCode = "409", description = "This Charger already exists", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(path = {"/save"}, produces = "application/json")
     public ResponseEntity<?> save(
+            @Valid
             @RequestParam("name") String name,
             @RequestParam("price") int price,
             @RequestParam("cant") int cant,
@@ -105,25 +110,28 @@ public class ChargerController {
             throw new Conflict(c.getMessage());
         } catch (BadRequest br) {
             throw new BadRequest("Bad request");
+        }catch ( ConstraintViolationException valid){
+            throw new ConstraintViolationException("Validation errors: ",valid.getConstraintViolations());
         }
     }
 
     @Operation(summary = "Update charger", description = "Update charger info", tags = "charger")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Charger.class))),
-        @ApiResponse(responseCode = "404", description = "Charger not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
-        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Charger.class))),
+            @ApiResponse(responseCode = "404", description = "Charger not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(path = {"/update/{id}"}, produces = "application/json")
-    public ResponseEntity<?> update(@RequestParam("files") List<MultipartFile> files,
-            @RequestParam("name") String name,
-            @RequestParam("price") int price,
-            @RequestParam("cant") int cant,
-            @RequestParam("taller") String taller,
-            @RequestParam("connectorType") String connectorType,
-            @RequestParam("compatibleDevice") String compatibleDevice,
-            @PathVariable(value = "id") Long id)
+    public ResponseEntity<?> update(@Valid
+                                    @RequestParam("files") List<MultipartFile> files,
+                                    @RequestParam("name") String name,
+                                    @RequestParam("price") int price,
+                                    @RequestParam("cant") int cant,
+                                    @RequestParam("taller") String taller,
+                                    @RequestParam("connectorType") String connectorType,
+                                    @RequestParam("compatibleDevice") String compatibleDevice,
+                                    @PathVariable(value = "id") Long id)
             throws ValueNotFound, BadRequest, IOException {
         try {
             return ResponseEntity.ok(service.update(files, name, price, cant, taller, connectorType, compatibleDevice, id));
@@ -133,14 +141,16 @@ public class ChargerController {
             throw new ValueNotFound(vn.getMessage());
         } catch (BadRequest br) {
             throw new BadRequest("Bad request");
+        }catch ( ConstraintViolationException valid){
+            throw new ConstraintViolationException("Validation errors: ",valid.getConstraintViolations());
         }
     }
 
     @Operation(summary = "Delete a charger by id", description = "Delete a charger", tags = "charger")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Charger.class))),
-        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
-        @ApiResponse(responseCode = "404", description = "Charger not found", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Charger.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+            @ApiResponse(responseCode = "404", description = "Charger not found", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(value = "/delete/{id}", produces = "application/json")
@@ -156,10 +166,10 @@ public class ChargerController {
 
     @Operation(summary = "Delete chargers", description = "Delete list of chargers", tags = "charger")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Charger.class))),
-        @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
-        @ApiResponse(responseCode = "404", description = "Charger not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))
-        )}
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Charger.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
+            @ApiResponse(responseCode = "404", description = "Charger not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))
+            )}
     )
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(value = "/deleteAll", produces = "application/json")
