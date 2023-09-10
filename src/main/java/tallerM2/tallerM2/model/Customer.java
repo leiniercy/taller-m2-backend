@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import javax.persistence.*;
+import javax.validation.constraints.Pattern;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -21,6 +22,7 @@ public class Customer {
             description = "Name of customer",
             example = "Juan Diaz Perez"
     )
+    @Pattern(regexp = "^[a-zA-ZÀ-ÿ\\u00f1\\u00d1\\s]+$", message = "Nombre del cliente incorrecto")
     @Column(nullable = false)
     protected String customerName;
 
@@ -29,6 +31,7 @@ public class Customer {
             example = "58503871"
     )
     @Column(nullable = false)
+    @Pattern(regexp = "^[0-9]{8}$", message = "Número de teléfono incorrecto")
     protected String customerMovile;
 
     @Schema(

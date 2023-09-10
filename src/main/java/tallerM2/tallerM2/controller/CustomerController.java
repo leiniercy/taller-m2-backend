@@ -21,6 +21,9 @@ import java.io.IOException;
 import java.util.List;
 import org.springframework.security.access.prepost.PreAuthorize;
 
+import javax.validation.ConstraintViolationException;
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping(value = "/api/v1/customer")
 @CrossOrigin("*")
@@ -78,13 +81,15 @@ public class CustomerController {
     })
     @PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
     @PostMapping(path = {"/save"}, consumes = "application/json", produces = "application/json")
-    public ResponseEntity<?> save(@RequestBody Customer customer) throws Conflict, BadRequest {
+    public ResponseEntity<?> save(@Valid @RequestBody Customer customer) throws Conflict, BadRequest {
         try {
             return ResponseEntity.ok(service.save(customer));
         } catch (Conflict conflict) {
             throw new Conflict(conflict.getMessage());
         } catch (BadRequest badRequest) {
             throw new BadRequest("Bad request");
+        }catch ( ConstraintViolationException valid){
+            throw new ConstraintViolationException("Validation errors: ",valid.getConstraintViolations());
         }
     }
 
@@ -96,7 +101,7 @@ public class CustomerController {
     })
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(path = {"/update"}, consumes = "application/json", produces = "application/json")
-    public ResponseEntity<?> update(@RequestBody Customer customer) throws ValueNotFound, BadRequest, IOException {
+    public ResponseEntity<?> update(@Valid @RequestBody Customer customer) throws ValueNotFound, BadRequest, IOException {
 
         try {
             return ResponseEntity.ok(service.update(customer));
@@ -104,6 +109,8 @@ public class CustomerController {
             throw new ValueNotFound(vn.getMessage());
         } catch (BadRequest br) {
             throw new BadRequest("Bad request");
+        }catch ( ConstraintViolationException valid){
+            throw new ConstraintViolationException("Validation errors: ",valid.getConstraintViolations());
         }
     }
 
