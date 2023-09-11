@@ -40,7 +40,7 @@ public class RelojController {
             @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Reloj.class)))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
-    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR')")
     @GetMapping(path = {"/all/{taller}"}, produces = "application/json")
     ResponseEntity<?> all(@PathVariable(value = "taller") String taller) {
         return ResponseEntity.ok(service.findAll(taller));
@@ -51,7 +51,7 @@ public class RelojController {
             @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Reloj.class)))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
-    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR')")
     @GetMapping(path = {"/all-sorted"}, produces = "application/json")
     ResponseEntity<?> allSorted() {
         return ResponseEntity.ok(service.findAllByOrderByIdAsc());
@@ -63,7 +63,7 @@ public class RelojController {
             @ApiResponse(responseCode = "404", description = "Reloj not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
-    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR')")
     @GetMapping(value = "/get/{id}", produces = "application/json")
     public ResponseEntity<?> byId(@PathVariable(value = "id") Long id) throws ValueNotFound, BadRequest {
         try {
@@ -76,7 +76,7 @@ public class RelojController {
     }
 
     @Operation(summary = "Count cant of reloj", description = "count reloj", tags = "reloj")
-    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR')")
     @GetMapping(value = "/getCant/{taller}")
     public ResponseEntity<?> getCant(@PathVariable(value = "taller") String taller) {
         return ResponseEntity.ok(service.count(taller));
@@ -88,7 +88,7 @@ public class RelojController {
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
             @ApiResponse(responseCode = "409", description = "This reloj already exists", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('MODERATOR')")
     @PostMapping(path = {"/save"}, produces = "application/json")
     public ResponseEntity<?> save(
             @Valid
@@ -121,7 +121,7 @@ public class RelojController {
             @ApiResponse(responseCode = "404", description = "Reloj not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('MODERATOR')")
     @PutMapping(path = {"/update/{id}"}, produces = "application/json")
     public ResponseEntity<?> update(
             @Valid
@@ -154,7 +154,7 @@ public class RelojController {
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
             @ApiResponse(responseCode = "404", description = "Reloj not found", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('MODERATOR')")
     @DeleteMapping(value = "/delete/{id}", produces = "application/json")
     public ResponseEntity<?> delete(@PathVariable(value = "id") Long id) throws ValueNotFound, BadRequest {
         try {
@@ -173,7 +173,7 @@ public class RelojController {
             @ApiResponse(responseCode = "404", description = "Reloj not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))
             )}
     )
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('MODERATOR')")
     @DeleteMapping(value = "/deleteAll", produces = "application/json")
     public ResponseEntity<?> deleteAll(@RequestBody List<Reloj> relojs) throws ValueNotFound, BadRequest {
         try {

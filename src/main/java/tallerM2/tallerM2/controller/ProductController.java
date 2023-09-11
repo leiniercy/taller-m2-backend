@@ -54,7 +54,7 @@ public class ProductController {
         @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Product.class)))),
         @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
-    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR')")
     @GetMapping(path = {"/all/{taller}"}, produces = "application/json")
     public ResponseEntity<?> all(@PathVariable(value = "taller")String taller) {
         return ResponseEntity.ok(service.findAll(taller));
@@ -66,7 +66,7 @@ public class ProductController {
         @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
     @GetMapping(path = {"/all/product/cant/{taller}"}, produces = "application/json")
-    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR')")
     public ResponseEntity<?> allProductsThanCero(@PathVariable(value = "taller") String taller) {
         return ResponseEntity.ok(service.findAllCantThanCero(taller));
     }
@@ -76,7 +76,7 @@ public class ProductController {
         @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Product.class)))),
         @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
-    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR')")
     @GetMapping(path = {"/all/accesorio/{taller}"}, produces = "application/json")
     public ResponseEntity<?> allAccesorios(@PathVariable(value = "taller") String taller) {
         return ResponseEntity.ok(service.findAllAccesorios(taller));
@@ -84,7 +84,7 @@ public class ProductController {
 
     @Operation(summary = "Cuenta la cant de accesorios", description = "count accesorios", tags = "product")
     @GetMapping(value = "/getCant/{taller}")
-    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR')")
     public ResponseEntity<?> getCant(@PathVariable(value = "taller")  String taller) {
         return ResponseEntity.ok(service.count(taller));
     }
@@ -95,7 +95,7 @@ public class ProductController {
         @ApiResponse(responseCode = "404", description = "product not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
         @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
-    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR')")
     @GetMapping(value = "/get/{id}", produces = "application/json")
     public ResponseEntity<?> byId(@PathVariable(value = "id") Long id) throws ValueNotFound, BadRequest {
         try {
@@ -113,7 +113,7 @@ public class ProductController {
         @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
         @ApiResponse(responseCode = "409", description = "This product already exists", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('MODERATOR')")
     @PostMapping(path = {"/save"}, /*consumes = "application/json",*/ produces = "application/json")
     public ResponseEntity<?> save(
             @Valid
@@ -144,7 +144,7 @@ public class ProductController {
         @ApiResponse(responseCode = "404", description = "Product not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
         @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('MODERATOR')")
     @PutMapping(path = {"/update/{id}"}, /*consumes = "application/json",*/ produces = "application/json")
     public ResponseEntity<?> update(
             @Valid
@@ -175,7 +175,7 @@ public class ProductController {
         @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorObject.class))),
         @ApiResponse(responseCode = "404", description = "Product not found", content = @Content(schema = @Schema(implementation = ErrorObject.class)))
     })
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('MODERATOR')")
     @DeleteMapping(value = "/delete/{id}", produces = "application/json")
     public ResponseEntity<?> delete(@PathVariable(value = "id") Long id) throws ValueNotFound, BadRequest {
         try {
@@ -194,7 +194,7 @@ public class ProductController {
         @ApiResponse(responseCode = "404", description = "Product not found", content = @Content(schema = @Schema(implementation = ErrorObject.class))
         )}
     )
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('MODERATOR')")
     @DeleteMapping(value = "/deleteAll", produces = "application/json")
     public ResponseEntity<?> deleteAll(@RequestBody List<Product> products) throws ValueNotFound, BadRequest {
         try {

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
@@ -69,6 +70,7 @@ public class Sell {
             description = " product cant",
             example = "3"
     )
+    @Min(value = 0, message = "Cantidad incorrecta, valor mínimo 0")
     @Column(nullable = false)
     private  int cantProduct;
 
